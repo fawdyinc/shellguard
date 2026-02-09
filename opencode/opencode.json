@@ -1,0 +1,56 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "model": "google-vertex-anthropic/claude-opus-4-6@default",
+    "default_agent": "fawdy",
+    "tools": {
+        "bash": false,
+        "edit": false,
+        "write": false,
+        "read": false,
+        "grep": false,
+        "glob": false,
+        "list": false,
+        "lsp": false,
+        "patch": false,
+        "webfetch": true,
+        "websearch": true
+    },
+    "mcp": {
+        "shellguard": {
+            "type": "local",
+            "command": ["bin/shellguard"]
+        }
+    },
+    "agent": {
+        "fawdy": {
+            "variant": "high",
+            "permission": {
+                "task": {
+                    "*": "deny",
+                    "investigate": "allow",
+                    "docwriter": "allow"
+                }
+            }
+        },
+        "build": {
+            "tools": { "shellguard_*": true },
+            "permission": {
+                "shellguard_*": "allow",
+                "shellguard_provision": "ask"
+            }
+        },
+        "investigate": {
+            "tools": { "shellguard_*": true },
+            "permission": {
+                "shellguard_*": "allow",
+                "shellguard_provision": "ask"
+            }
+        },
+        "general": {
+            "disable": true
+        },
+        "explore": {
+            "disable": true
+        }
+    }
+}
