@@ -54,7 +54,17 @@ func New(cfg Config) (*server.Core, error) {
 	}
 
 	var sshOpts []ssh.Option
+	var dialer ssh.Dialer
+
 	if userCfg.SSH != nil {
+		if userCfg.SSH.Mode != nil && *userCfg.SSH.Mode == "system" {
+			sysDialer := &ssh.SystemSSHDialer{}
+			if sysDialer.CheckBinary() {
+				dialer = sysDialer
+			} else if cfg.Logger != nil {
+				cfg.Logger.Warn("ssh.mode is 'system' but ssh binary not found, falling back to native mode")
+			}
+		}
 		if userCfg.SSH.Retries != nil {
 			sshOpts = append(sshOpts, ssh.WithRetries(*userCfg.SSH.Retries))
 		}
@@ -74,7 +84,7 @@ func New(cfg Config) (*server.Core, error) {
 
 	runner := cfg.Executor
 	if runner == nil {
-		runner = ssh.NewSSHManager(nil, sshOpts...)
+		runner = ssh.NewSSHManager(dialer, sshOpts...)
 	}
 
 	var coreOpts []server.CoreOption
