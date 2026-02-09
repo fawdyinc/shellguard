@@ -219,11 +219,33 @@ ShellGuard tries authentication methods in this order, stopping at the first suc
 
 Passphrase-protected keys are silently skipped during default key discovery. If you specify a passphrase-protected key via `identity_file`, the connection will fail. Add the key to your agent first: `ssh-add ~/.ssh/my_key`.
 
-### SSH Config Support
+### SSH Modes
 
-ShellGuard reads `~/.ssh/config` and resolves `HostName`, `User`, `Port`, and `IdentityFile` per host. Explicit parameters passed to the `connect` tool take precedence.
+ShellGuard supports two SSH modes:
 
-**Not supported:** `Match` directives, `ProxyJump` / `ProxyCommand`, `ForwardAgent`.
+| Mode | Description |
+| ---- | ----------- |
+| `native` | **(Default)** Uses Go's built-in SSH library. Reads `~/.ssh/config` for `HostName`, `User`, `Port`, and `IdentityFile`. Lightweight, no external dependencies. |
+| `system` | Uses the local `ssh` binary. Full `~/.ssh/config` support including `ProxyJump`, `ProxyCommand`, `Match` blocks, and all other OpenSSH features. Requires `ssh` to be installed. |
+
+If you connect through bastion hosts, use `ProxyJump`, or rely on `Match` blocks in your SSH config, enable system mode:
+
+```yaml
+ssh:
+  mode: system
+```
+
+```bash
+export SHELLGUARD_SSH_MODE=system
+```
+
+If `mode` is set to `system` but the `ssh` binary is not found, ShellGuard logs a warning and falls back to native mode.
+
+**Native mode limitations:** `Match` directives, `ProxyJump`, `ProxyCommand`, and `ForwardAgent` are not supported. Use `system` mode if your infrastructure requires these features.
+
+**System mode notes:**
+- Host key verification is handled entirely by OpenSSH. The `host_key_checking` and `known_hosts_file` settings only apply in native mode.
+- Connections are multiplexed using OpenSSH `ControlMaster`, so only the first connection per host pays the SSH handshake cost.
 
 ### Host Key Verification
 
@@ -245,20 +267,22 @@ Settings can be specified in a YAML config file or via environment variables. En
 
 ```yaml
 ssh:
+  mode: "native"                   # native | system
   connect_timeout: "10s"           # default 10s
   retries: 2                       # default 2
   retry_backoff: "250ms"           # default 250ms
-  host_key_checking: "accept-new"  # accept-new | strict | off
-  known_hosts_file: "~/.ssh/known_hosts"
+  host_key_checking: "accept-new"  # accept-new | strict | off (native mode only)
+  known_hosts_file: "~/.ssh/known_hosts"  # native mode only
 ```
 
 | YAML field | Environment variable | Default | Description |
 | ---------- | -------------------- | ------- | ----------- |
+| `ssh.mode` | `SHELLGUARD_SSH_MODE` | `native` | SSH mode: `native` (built-in) or `system` (uses local `ssh` binary) |
 | `ssh.connect_timeout` | `SHELLGUARD_SSH_CONNECT_TIMEOUT` | `10s` | TCP + SSH handshake timeout |
 | `ssh.retries` | `SHELLGUARD_SSH_RETRIES` | `2` | Connection/execution retry attempts |
 | `ssh.retry_backoff` | `SHELLGUARD_SSH_RETRY_BACKOFF` | `250ms` | Base backoff (exponential: `backoff * 2^attempt`) |
-| `ssh.host_key_checking` | `SHELLGUARD_SSH_HOST_KEY_CHECKING` | `accept-new` | Host key verification mode |
-| `ssh.known_hosts_file` | `SHELLGUARD_SSH_KNOWN_HOSTS_FILE` | `~/.ssh/known_hosts` | Path to known_hosts file |
+| `ssh.host_key_checking` | `SHELLGUARD_SSH_HOST_KEY_CHECKING` | `accept-new` | Host key verification mode (native mode only) |
+| `ssh.known_hosts_file` | `SHELLGUARD_SSH_KNOWN_HOSTS_FILE` | `~/.ssh/known_hosts` | Path to known_hosts file (native mode only) |
 
 ## Toolkit Provisioning
 
