@@ -39,6 +39,9 @@ func writeTestKey(t *testing.T, dir string, name string, content []byte) string 
 // --- defaultKeyPaths tests ---
 
 func TestDefaultKeyPathsNonEmpty(t *testing.T) {
+	if _, err := os.UserHomeDir(); err != nil {
+		t.Skipf("cannot determine home directory: %v", err)
+	}
 	paths := defaultKeyPaths()
 	if len(paths) == 0 {
 		t.Fatal("defaultKeyPaths() returned empty slice")
@@ -119,9 +122,14 @@ func TestLoadPrivateKeyValidKey(t *testing.T) {
 // --- normalizePath tests ---
 
 func TestNormalizePathAbsolute(t *testing.T) {
-	result := normalizePath("/home/user/.ssh/id_rsa")
-	if result != "/home/user/.ssh/id_rsa" {
-		t.Errorf("normalizePath(/home/user/.ssh/id_rsa) = %q, want /home/user/.ssh/id_rsa", result)
+	input := filepath.Join(string(os.PathSeparator), "home", "user", ".ssh", "id_rsa")
+	expected, err := filepath.Abs(input)
+	if err != nil {
+		t.Skipf("cannot build absolute path: %v", err)
+	}
+	result := normalizePath(input)
+	if result != expected {
+		t.Errorf("normalizePath(%s) = %q, want %q", input, result, expected)
 	}
 }
 
