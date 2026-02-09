@@ -670,6 +670,43 @@ func TestEnvOverrides_HostKeyCheckingOverridesFile(t *testing.T) {
 	}
 }
 
+func TestLoad_UserHomeDirError(t *testing.T) {
+	// When XDG_CONFIG_HOME is unset and HOME is unset, defaultConfigPath
+	// should return an error instead of silently producing a bogus path.
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	_, err := Load()
+	if err == nil {
+		t.Fatal("Load() expected error when home directory cannot be resolved, got nil")
+	}
+}
+
+func TestLoad_UserHomeDirFallback(t *testing.T) {
+	// When XDG_CONFIG_HOME is unset but HOME is valid, Load should
+	// fall back to $HOME/.config/shellguard/config.yaml without error.
+	dir := t.TempDir()
+	configDir := filepath.Join(dir, ".config", "shellguard")
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "timeout: 42\n"
+	if err := os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", dir)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.Timeout == nil || *cfg.Timeout != 42 {
+		t.Fatalf("Timeout = %v, want 42 (from HOME fallback)", cfg.Timeout)
+	}
+}
+
 func TestSSHConfigHostKeyCheckingNilWhenUnset(t *testing.T) {
 	input := `
 ssh:
