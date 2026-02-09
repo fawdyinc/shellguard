@@ -104,7 +104,7 @@ func RunStdio(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = core.Close() }()
+	defer func() { _ = core.Close(ctx) }()
 	return server.RunStdio(ctx, core, server.ServerOptions{
 		Name:    cfg.Name,
 		Version: cfg.Version,

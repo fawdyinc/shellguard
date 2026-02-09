@@ -39,7 +39,7 @@ type Executor interface {
 	Execute(ctx context.Context, host, command string, timeout time.Duration) (ssh.ExecResult, error)
 	ExecuteRaw(ctx context.Context, host, command string, timeout time.Duration) (ssh.ExecResult, error)
 	SFTPSession(host string) (ssh.SFTPClient, error)
-	Disconnect(host string) error
+	Disconnect(ctx context.Context, host string) error
 }
 
 type ProbeResult struct {
@@ -155,14 +155,16 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 }
 
 // Close disconnects all SSH sessions and clears internal state.
+// Internal state is always cleared even if the disconnect fails.
 // It is safe to call multiple times.
-func (c *Core) Close() error {
-	if err := c.Runner.Disconnect(""); err != nil {
-		c.logger.Info("close", "outcome", "error", "error", err.Error())
+func (c *Core) Close(ctx context.Context) error {
+	err := c.Runner.Disconnect(ctx, "")
+	c.clearHostState("")
+	if err != nil {
+		c.logger.InfoContext(ctx, "close", "outcome", "error", "error", err.Error())
 		return err
 	}
-	c.clearHostState("")
-	c.logger.Info("close", "outcome", "success")
+	c.logger.InfoContext(ctx, "close", "outcome", "success")
 	return nil
 }
 
@@ -328,7 +330,7 @@ func (c *Core) Provision(ctx context.Context, in ProvisionInput) (map[string]any
 	}
 	defer func() { _ = sftpClient.Close() }()
 
-	message, err := toolkit.DeployTools(sftpClient, probe.Missing, probe.Arch)
+	message, err := toolkit.DeployTools(ctx, sftpClient, probe.Missing, probe.Arch)
 	if err != nil {
 		c.logger.InfoContext(ctx, "provision",
 			"host", host,
@@ -356,9 +358,9 @@ func (c *Core) Provision(ctx context.Context, in ProvisionInput) (map[string]any
 	}, nil
 }
 
-func (c *Core) Disconnect(in DisconnectInput) (map[string]any, error) {
-	if err := c.Runner.Disconnect(in.Host); err != nil {
-		c.logger.Info("disconnect",
+func (c *Core) Disconnect(ctx context.Context, in DisconnectInput) (map[string]any, error) {
+	if err := c.Runner.Disconnect(ctx, in.Host); err != nil {
+		c.logger.InfoContext(ctx, "disconnect",
 			"host", in.Host,
 			"outcome", "error",
 			"error", err.Error(),
@@ -367,7 +369,7 @@ func (c *Core) Disconnect(in DisconnectInput) (map[string]any, error) {
 	}
 	c.clearHostState(in.Host)
 
-	c.logger.Info("disconnect",
+	c.logger.InfoContext(ctx, "disconnect",
 		"host", in.Host,
 		"outcome", "success",
 	)
@@ -480,7 +482,7 @@ func (c *Core) getPipelineTimeout(p *parser.Pipeline) time.Duration {
 		if m != nil && m.Timeout > maxSec {
 			maxSec = m.Timeout
 		}
-		if subcommandCommands[seg.Command] && len(seg.Args) > 0 {
+		if manifest.SubcommandCommands[seg.Command] && len(seg.Args) > 0 {
 			key := seg.Command + "_" + seg.Args[0]
 			if seg.Command == "aws" && len(seg.Args) >= 2 {
 				key = seg.Command + "_" + seg.Args[0] + "_" + seg.Args[1]
@@ -491,14 +493,6 @@ func (c *Core) getPipelineTimeout(p *parser.Pipeline) time.Duration {
 		}
 	}
 	return time.Duration(maxSec) * time.Second
-}
-
-var subcommandCommands = map[string]bool{
-	"docker":    true,
-	"kubectl":   true,
-	"svn":       true,
-	"systemctl": true,
-	"aws":       true,
 }
 
 func pipelineContainsPSQL(p *parser.Pipeline) bool {
@@ -717,8 +711,8 @@ func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 	})
 
 	mcp.AddTool(srv, &mcp.Tool{Name: "disconnect", Description: "Disconnect from remote server(s)"},
-		func(_ context.Context, _ *mcp.CallToolRequest, in DisconnectInput) (*mcp.CallToolResult, map[string]any, error) {
-			out, err := core.Disconnect(in)
+		func(ctx context.Context, _ *mcp.CallToolRequest, in DisconnectInput) (*mcp.CallToolResult, map[string]any, error) {
+			out, err := core.Disconnect(ctx, in)
 			return nil, out, err
 		})
 
