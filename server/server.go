@@ -154,6 +154,18 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 	return c
 }
 
+// Close disconnects all SSH sessions and clears internal state.
+// It is safe to call multiple times.
+func (c *Core) Close() error {
+	if err := c.Runner.Disconnect(""); err != nil {
+		c.logger.Info("close", "outcome", "error", "error", err.Error())
+		return err
+	}
+	c.clearHostState("")
+	c.logger.Info("close", "outcome", "success")
+	return nil
+}
+
 // Logger returns the logger used by this Core.
 func (c *Core) Logger() *slog.Logger {
 	return c.logger
