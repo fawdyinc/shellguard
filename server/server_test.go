@@ -929,6 +929,65 @@ func TestProvisionLogsSuccess(t *testing.T) {
 	}
 }
 
+func TestCloseDisconnectsAll(t *testing.T) {
+	runner := newFakeRunner()
+	runner.executeRawRes[toolkit.BuildProbeCommand()] = ssh.ExecResult{
+		Stdout: "/usr/bin/jq\n---\nx86_64\n",
+	}
+	core := NewCore(basicRegistry(), runner, nil)
+
+	// Connect two hosts so there is state to clean up.
+	for _, host := range []string{"h1", "h2"} {
+		if _, err := core.Connect(context.Background(), ConnectInput{Host: host}); err != nil {
+			t.Fatalf("Connect(%s) error = %v", host, err)
+		}
+		core.setToolkitDeployed(host, true)
+	}
+
+	if err := core.Close(context.Background()); err != nil {
+		t.Fatalf("Close() error = %v", err)
+	}
+
+	runner.mu.Lock()
+	called := runner.disconnectCalled
+	remaining := len(runner.connected)
+	runner.mu.Unlock()
+
+	if !called {
+		t.Fatal("expected Disconnect to be called on runner")
+	}
+	if remaining != 0 {
+		t.Fatalf("expected 0 connected hosts on runner, got %d", remaining)
+	}
+
+	// Verify internal Core state is cleared.
+	if hosts := core.connectedHostsSnapshot(); len(hosts) != 0 {
+		t.Fatalf("expected 0 connectedHosts, got %v", hosts)
+	}
+	for _, host := range []string{"h1", "h2"} {
+		if _, ok := core.getProbeState(host); ok {
+			t.Fatalf("expected probe state cleared for %s", host)
+		}
+		if core.isToolkitDeployed(host) {
+			t.Fatalf("expected toolkitDeployed cleared for %s", host)
+		}
+	}
+}
+
+func TestCloseIdempotent(t *testing.T) {
+	runner := newFakeRunner()
+	core := NewCore(basicRegistry(), runner, nil)
+	if _, err := core.Connect(context.Background(), ConnectInput{Host: "h1"}); err != nil {
+		t.Fatalf("Connect() error = %v", err)
+	}
+
+	for i := 0; i < 3; i++ {
+		if err := core.Close(context.Background()); err != nil {
+			t.Fatalf("Close() call %d error = %v", i, err)
+		}
+	}
+}
+
 func TestDownloadFileLogsSuccess(t *testing.T) {
 	var buf bytes.Buffer
 	logger := slog.New(slog.NewJSONHandler(&buf, nil))
