@@ -87,7 +87,11 @@ func LoadFrom(path string) (Config, error) {
 }
 
 func Load() (Config, error) {
-	return LoadFrom(defaultConfigPath())
+	path, err := defaultConfigPath()
+	if err != nil {
+		return Config{}, fmt.Errorf("default config path: %w", err)
+	}
+	return LoadFrom(path)
 }
 
 func (c *Config) applyEnvOverrides() error {
@@ -217,11 +221,14 @@ func (c *Config) validate() error {
 	return nil
 }
 
-func defaultConfigPath() string {
+func defaultConfigPath() (string, error) {
 	dir := os.Getenv("XDG_CONFIG_HOME")
 	if dir == "" {
-		home, _ := os.UserHomeDir()
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("resolve home directory: %w", err)
+		}
 		dir = filepath.Join(home, ".config")
 	}
-	return filepath.Join(dir, configDirName, configFileName)
+	return filepath.Join(dir, configDirName, configFileName), nil
 }
