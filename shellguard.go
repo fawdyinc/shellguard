@@ -98,11 +98,13 @@ func New(cfg Config) (*server.Core, error) {
 }
 
 // RunStdio creates a server from cfg and runs it over stdin/stdout.
+// All SSH connections are closed when RunStdio returns.
 func RunStdio(ctx context.Context, cfg Config) error {
 	core, err := New(cfg)
 	if err != nil {
 		return err
 	}
+	defer func() { _ = core.Close() }()
 	return server.RunStdio(ctx, core, server.ServerOptions{
 		Name:    cfg.Name,
 		Version: cfg.Version,
