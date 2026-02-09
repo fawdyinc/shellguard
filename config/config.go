@@ -53,6 +53,7 @@ type Config struct {
 
 // SSHConfig holds SSH-specific configuration.
 type SSHConfig struct {
+	Mode            *string   `yaml:"mode"`
 	ConnectTimeout  *duration `yaml:"connect_timeout"`
 	Retries         *int      `yaml:"retries"`
 	RetryBackoff    *duration `yaml:"retry_backoff"`
@@ -130,6 +131,12 @@ func (c *Config) applyEnvOverrides() error {
 		c.ManifestDir = &v
 	}
 
+	if v, ok := os.LookupEnv("SHELLGUARD_SSH_MODE"); ok {
+		if c.SSH == nil {
+			c.SSH = &SSHConfig{}
+		}
+		c.SSH.Mode = &v
+	}
 	if v, ok := os.LookupEnv("SHELLGUARD_SSH_CONNECT_TIMEOUT"); ok {
 		if c.SSH == nil {
 			c.SSH = &SSHConfig{}
@@ -202,6 +209,12 @@ func (c *Config) validate() error {
 		return fmt.Errorf("max_sleep_seconds must not exceed 300, got %d", *c.MaxSleepSeconds)
 	}
 	if c.SSH != nil {
+		if c.SSH.Mode != nil {
+			mode := *c.SSH.Mode
+			if mode != "native" && mode != "system" {
+				return fmt.Errorf("ssh.mode must be one of: native, system; got %q", mode)
+			}
+		}
 		if c.SSH.Retries != nil && *c.SSH.Retries < 0 {
 			return fmt.Errorf("ssh.retries must be non-negative, got %d", *c.SSH.Retries)
 		}

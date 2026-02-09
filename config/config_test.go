@@ -727,3 +727,95 @@ ssh:
 		t.Fatalf("SSH.KnownHostsFile = %q, want nil when unset", *cfg.SSH.KnownHostsFile)
 	}
 }
+
+func TestSSHConfigMode_Native(t *testing.T) {
+	path := writeConfig(t, "ssh:\n  mode: \"native\"")
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if cfg.SSH == nil || cfg.SSH.Mode == nil {
+		t.Fatal("SSH.Mode should not be nil")
+	}
+	if got, want := *cfg.SSH.Mode, "native"; got != want {
+		t.Fatalf("SSH.Mode = %q, want %q", got, want)
+	}
+}
+
+func TestSSHConfigMode_System(t *testing.T) {
+	path := writeConfig(t, "ssh:\n  mode: \"system\"")
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if cfg.SSH == nil || cfg.SSH.Mode == nil {
+		t.Fatal("SSH.Mode should not be nil")
+	}
+	if got, want := *cfg.SSH.Mode, "system"; got != want {
+		t.Fatalf("SSH.Mode = %q, want %q", got, want)
+	}
+}
+
+func TestValidate_InvalidSSHMode(t *testing.T) {
+	path := writeConfig(t, "ssh:\n  mode: \"invalid\"")
+	_, err := LoadFrom(path)
+	if err == nil {
+		t.Fatal("LoadFrom() expected error for invalid ssh.mode, got nil")
+	}
+}
+
+func TestSSHConfigMode_NilWhenUnset(t *testing.T) {
+	path := writeConfig(t, "ssh:\n  retries: 3")
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if cfg.SSH == nil {
+		t.Fatal("SSH should not be nil")
+	}
+	if cfg.SSH.Mode != nil {
+		t.Fatalf("SSH.Mode = %q, want nil when unset", *cfg.SSH.Mode)
+	}
+}
+
+func TestEnvOverrides_SSHMode(t *testing.T) {
+	path := writeConfig(t, "")
+	t.Setenv("SHELLGUARD_SSH_MODE", "system")
+
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if cfg.SSH == nil || cfg.SSH.Mode == nil {
+		t.Fatal("SSH.Mode should not be nil after env override")
+	}
+	if got, want := *cfg.SSH.Mode, "system"; got != want {
+		t.Fatalf("SSH.Mode = %q, want %q", got, want)
+	}
+}
+
+func TestEnvOverrides_SSHModeOverridesFile(t *testing.T) {
+	path := writeConfig(t, "ssh:\n  mode: \"native\"")
+	t.Setenv("SHELLGUARD_SSH_MODE", "system")
+
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if cfg.SSH == nil || cfg.SSH.Mode == nil {
+		t.Fatal("SSH.Mode should not be nil")
+	}
+	if got, want := *cfg.SSH.Mode, "system"; got != want {
+		t.Fatalf("SSH.Mode = %q, want %q (env should override file)", got, want)
+	}
+}
+
+func TestValidate_InvalidSSHModeFromEnv(t *testing.T) {
+	path := writeConfig(t, "")
+	t.Setenv("SHELLGUARD_SSH_MODE", "bogus")
+
+	_, err := LoadFrom(path)
+	if err == nil {
+		t.Fatal("LoadFrom() expected error for invalid ssh.mode from env, got nil")
+	}
+}
