@@ -48,12 +48,12 @@ func (e *HostKeyError) Error() string {
 	return e.Message
 }
 
-func defaultKnownHostsPath() string {
+func defaultKnownHostsPath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join("~", ".ssh", "known_hosts")
+		return "", fmt.Errorf("resolving home directory for known_hosts: %w", err)
 	}
-	return filepath.Join(home, ".ssh", "known_hosts")
+	return filepath.Join(home, ".ssh", "known_hosts"), nil
 }
 
 // buildHostKeyCallback returns a gossh.HostKeyCallback for the given mode.
@@ -63,7 +63,11 @@ func buildHostKeyCallback(mode HostKeyMode, knownHostsFile string) (gossh.HostKe
 	}
 
 	if knownHostsFile == "" {
-		knownHostsFile = defaultKnownHostsPath()
+		var err error
+		knownHostsFile, err = defaultKnownHostsPath()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if mode == HostKeyStrict {
