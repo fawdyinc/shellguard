@@ -1173,6 +1173,92 @@ func TestCurlMethodBypass(t *testing.T) {
 	})
 }
 
+// ATTACK VECTOR 12b: iptables read-only listing allowed, mutating denied
+func TestIptablesReadOnly(t *testing.T) {
+	// Listing rules should be allowed
+	t.Run("iptables_list_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-L", "-n")
+		expectAllow(t, err, "iptables -L -n (list rules) should be allowed")
+	})
+
+	t.Run("iptables_list_verbose_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-L", "-n", "-v")
+		expectAllow(t, err, "iptables -L -n -v should be allowed")
+	})
+
+	t.Run("iptables_list_rules_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-S")
+		expectAllow(t, err, "iptables -S (print rules) should be allowed")
+	})
+
+	t.Run("iptables_list_table_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-t", "nat", "-L", "-n")
+		expectAllow(t, err, "iptables -t nat -L -n should be allowed")
+	})
+
+	t.Run("iptables_line_numbers_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-L", "-n", "--line-numbers")
+		expectAllow(t, err, "iptables -L -n --line-numbers should be allowed")
+	})
+
+	// Mutating operations should be denied
+	t.Run("iptables_append_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-A", "INPUT", "-p", "tcp", "--dport", "22", "-j", "DROP")
+		expectReject(t, err, "iptables -A (append) should be denied")
+	})
+
+	t.Run("iptables_delete_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-D", "INPUT", "1")
+		expectReject(t, err, "iptables -D (delete) should be denied")
+	})
+
+	t.Run("iptables_insert_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-I", "INPUT", "1", "-j", "DROP")
+		expectReject(t, err, "iptables -I (insert) should be denied")
+	})
+
+	t.Run("iptables_flush_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-F")
+		expectReject(t, err, "iptables -F (flush) should be denied")
+	})
+
+	t.Run("iptables_policy_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-P", "INPUT", "DROP")
+		expectReject(t, err, "iptables -P (policy) should be denied")
+	})
+
+	t.Run("iptables_new_chain_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-N", "MYCHAIN")
+		expectReject(t, err, "iptables -N (new chain) should be denied")
+	})
+
+	t.Run("iptables_delete_chain_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-X", "MYCHAIN")
+		expectReject(t, err, "iptables -X (delete chain) should be denied")
+	})
+
+	t.Run("iptables_zero_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "-Z")
+		expectReject(t, err, "iptables -Z (zero counters) should be denied")
+	})
+
+	// Long form variants
+	t.Run("iptables_append_long_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "--append", "INPUT", "-j", "DROP")
+		expectReject(t, err, "iptables --append should be denied")
+	})
+
+	t.Run("iptables_flush_long_denied", func(t *testing.T) {
+		err := validateOne(t, "iptables", "--flush")
+		expectReject(t, err, "iptables --flush should be denied")
+	})
+
+	t.Run("iptables_list_long_allowed", func(t *testing.T) {
+		err := validateOne(t, "iptables", "--list", "--numeric")
+		expectAllow(t, err, "iptables --list --numeric should be allowed")
+	})
+}
+
 // ATTACK VECTOR 13: Subcommand with flags before subcommand
 // In real docker/kubectl, global flags come before the subcommand.
 // E.g., `docker --debug exec container bash`
@@ -1221,7 +1307,7 @@ func TestDeniedCommandsCoverage(t *testing.T) {
 	}
 	deniedNetwork := []string{
 		"nc", "ncat", "socat", "telnet", "scp", "sftp",
-		"ip", "iptables", "nft",
+		"ip", "nft",
 	}
 	deniedOther := []string{
 		"eval", "source", "env", "nohup", "nice", "timeout",
