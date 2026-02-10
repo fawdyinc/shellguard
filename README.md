@@ -15,7 +15,7 @@ Commands are restricted to a curated set of read-only tools. Destructive operati
 
 Here's a demo of ShellGuard with [OpenCode](https://opencode.ai) against a simulated server. It works extremely well against real servers too.
 
-<video src="docs/videos/shellguard-demo.mp4" controls width="100%"></video>
+<video src="https://raw.githubusercontent.com/jonchun/shellguard/refs/heads/main/docs/videos/shellguard-demo.mp4" controls width="100%"></video>
 
 ## Quick Start
 
