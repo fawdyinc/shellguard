@@ -1,0 +1,96 @@
+name: iptables
+description: List firewall rules (read-only)
+category: network
+flags:
+  - flag: "-L"
+    description: "List rules in a chain"
+  - flag: "--list"
+    description: "List rules in a chain"
+  - flag: "-S"
+    description: "Print rules in a chain"
+  - flag: "--list-rules"
+    description: "Print rules in a chain"
+  - flag: "-n"
+    description: "Numeric output of addresses and ports"
+  - flag: "--numeric"
+    description: "Numeric output of addresses and ports"
+  - flag: "-v"
+    description: "Verbose output"
+  - flag: "--verbose"
+    description: "Verbose output"
+  - flag: "--line-numbers"
+    description: "Show line numbers in listing"
+  - flag: "-t"
+    description: "Specify table"
+    takes_value: true
+    allowed_values: ["filter", "nat", "mangle", "raw", "security"]
+  - flag: "--table"
+    description: "Specify table"
+    takes_value: true
+    allowed_values: ["filter", "nat", "mangle", "raw", "security"]
+  - flag: "-x"
+    description: "Expand numbers (exact packet/byte counters)"
+  - flag: "--exact"
+    description: "Expand numbers (exact packet/byte counters)"
+  - flag: "-A"
+    deny: true
+    reason: "Appending rules is not allowed -- read-only access only"
+  - flag: "--append"
+    deny: true
+    reason: "Appending rules is not allowed -- read-only access only"
+  - flag: "-D"
+    deny: true
+    reason: "Deleting rules is not allowed -- read-only access only"
+  - flag: "--delete"
+    deny: true
+    reason: "Deleting rules is not allowed -- read-only access only"
+  - flag: "-I"
+    deny: true
+    reason: "Inserting rules is not allowed -- read-only access only"
+  - flag: "--insert"
+    deny: true
+    reason: "Inserting rules is not allowed -- read-only access only"
+  - flag: "-R"
+    deny: true
+    reason: "Replacing rules is not allowed -- read-only access only"
+  - flag: "--replace"
+    deny: true
+    reason: "Replacing rules is not allowed -- read-only access only"
+  - flag: "-F"
+    deny: true
+    reason: "Flushing rules is not allowed -- read-only access only"
+  - flag: "--flush"
+    deny: true
+    reason: "Flushing rules is not allowed -- read-only access only"
+  - flag: "-Z"
+    deny: true
+    reason: "Zeroing counters is not allowed -- read-only access only"
+  - flag: "--zero"
+    deny: true
+    reason: "Zeroing counters is not allowed -- read-only access only"
+  - flag: "-N"
+    deny: true
+    reason: "Creating chains is not allowed -- read-only access only"
+  - flag: "--new-chain"
+    deny: true
+    reason: "Creating chains is not allowed -- read-only access only"
+  - flag: "-X"
+    deny: true
+    reason: "Deleting chains is not allowed -- read-only access only"
+  - flag: "--delete-chain"
+    deny: true
+    reason: "Deleting chains is not allowed -- read-only access only"
+  - flag: "-P"
+    deny: true
+    reason: "Changing chain policy is not allowed -- read-only access only"
+  - flag: "--policy"
+    deny: true
+    reason: "Changing chain policy is not allowed -- read-only access only"
+  - flag: "-E"
+    deny: true
+    reason: "Renaming chains is not allowed -- read-only access only"
+  - flag: "--rename-chain"
+    deny: true
+    reason: "Renaming chains is not allowed -- read-only access only"
+stdin: false
+stdout: true
