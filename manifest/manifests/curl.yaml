@@ -9,6 +9,7 @@ flags:
     takes_value: true
   - flag: "-k"
   - flag: "-L"
+  - flag: "-v"
   - flag: "-X"
     deny: true
     reason: "Only GET requests are allowed"

@@ -4,5 +4,7 @@ category: containers
 flags:
   - flag: "-a"
   - flag: "--format"
+  - flag: "--filter"
+  - flag: "-f"
 stdin: false
 stdout: true
