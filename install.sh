@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-REPO="jonchun/shellguard"
+REPO="fawdyinc/shellguard"
 INSTALL_DIR="${SHELLGUARD_INSTALL_DIR:-/usr/local/bin}"
 
 main() {

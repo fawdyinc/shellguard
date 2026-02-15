@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/jonchun/shellguard"
+	"github.com/fawdyinc/shellguard"
 )
 
 var version = "dev"

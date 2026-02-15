@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	"github.com/jonchun/shellguard/output"
+	"github.com/fawdyinc/shellguard/output"
 )
 
 func TestNewCore_DefaultValues(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 func TestShellQuoteBasic(t *testing.T) {

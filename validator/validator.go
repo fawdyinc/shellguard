@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 var (

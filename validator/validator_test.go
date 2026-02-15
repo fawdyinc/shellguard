@@ -3,8 +3,8 @@ package validator
 import (
 	"testing"
 
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 func testRegistry(t *testing.T) map[string]*manifest.Manifest {

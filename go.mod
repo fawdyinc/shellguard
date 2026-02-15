@@ -1,4 +1,4 @@
-module github.com/jonchun/shellguard
+module github.com/fawdyinc/shellguard
 
 go 1.25.7
 

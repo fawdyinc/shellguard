@@ -3,7 +3,7 @@ package ssh
 import (
 	"strings"
 
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 func ShellQuote(token string) string {

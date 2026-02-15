@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jonchun/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/ssh"
 )
 
 var ToolkitTools = []string{"rg", "jq", "yq"}

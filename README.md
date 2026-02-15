@@ -15,26 +15,26 @@ Commands are restricted to a curated set of read-only tools. Destructive operati
 
 Here's a demo of ShellGuard with [OpenCode](https://opencode.ai) against a simulated server. It works extremely well against real servers too.
 
-<video src="https://raw.githubusercontent.com/jonchun/shellguard/refs/heads/main/docs/videos/shellguard-demo.mp4" controls width="100%"></video>
+<video src="https://raw.githubusercontent.com/fawdyinc/shellguard/refs/heads/main/docs/videos/shellguard-demo.mp4" controls width="100%"></video>
 
 ## Quick Start
 
 ### Install
 
 ```bash
-brew install jonchun/tap/shellguard
+brew install fawdyinc/tap/shellguard
 ```
 
 Or download the latest binary:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jonchun/shellguard/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/fawdyinc/shellguard/main/install.sh | sh
 ```
 
 Or with Go:
 
 ```bash
-go install github.com/jonchun/shellguard/cmd/shellguard@latest
+go install github.com/fawdyinc/shellguard/cmd/shellguard@latest
 ```
 
 ### Configure with an MCP Client
@@ -314,7 +314,7 @@ import (
     "log/slog"
     "os"
 
-    "github.com/jonchun/shellguard"
+    "github.com/fawdyinc/shellguard"
 )
 
 func main() {
@@ -334,9 +334,9 @@ See the [Custom Configuration](#custom-configuration) and [Custom Executor](#cus
 
 ```go
 import (
-    "github.com/jonchun/shellguard"
-    "github.com/jonchun/shellguard/manifest"
-    "github.com/jonchun/shellguard/server"
+    "github.com/fawdyinc/shellguard"
+    "github.com/fawdyinc/shellguard/manifest"
+    "github.com/fawdyinc/shellguard/server"
 )
 
 manifests, _ := manifest.LoadEmbedded()

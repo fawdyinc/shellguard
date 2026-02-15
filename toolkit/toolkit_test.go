@@ -14,7 +14,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/jonchun/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/ssh"
 )
 
 func TestBuildProbeCommand(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 // assertQuoted checks that the given substring appears wrapped in single

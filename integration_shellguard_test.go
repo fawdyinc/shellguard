@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/parser"
-	"github.com/jonchun/shellguard/server"
-	"github.com/jonchun/shellguard/ssh"
-	"github.com/jonchun/shellguard/toolkit"
-	"github.com/jonchun/shellguard/validator"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/parser"
+	"github.com/fawdyinc/shellguard/server"
+	"github.com/fawdyinc/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/toolkit"
+	"github.com/fawdyinc/shellguard/validator"
 )
 
 func validateCommand(t *testing.T, registry map[string]*manifest.Manifest, command string) error {

@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/output"
-	"github.com/jonchun/shellguard/parser"
-	"github.com/jonchun/shellguard/ssh"
-	"github.com/jonchun/shellguard/toolkit"
-	"github.com/jonchun/shellguard/validator"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/output"
+	"github.com/fawdyinc/shellguard/parser"
+	"github.com/fawdyinc/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/toolkit"
+	"github.com/fawdyinc/shellguard/validator"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 

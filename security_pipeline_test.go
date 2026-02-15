@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/parser"
-	"github.com/jonchun/shellguard/ssh"
-	"github.com/jonchun/shellguard/validator"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/parser"
+	"github.com/fawdyinc/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/validator"
 )
 
 // Security Pipeline Integration Tests
