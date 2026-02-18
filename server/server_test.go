@@ -773,6 +773,46 @@ func TestNewMCPServerRegistersTools(t *testing.T) {
 	}
 }
 
+func TestNewMCPServer_DisabledTools(t *testing.T) {
+	ctx := context.Background()
+	core := NewCore(basicRegistry(), newFakeRunner(), nil,
+		WithDisabledTools([]string{"provision", "download_file"}),
+	)
+	s := NewMCPServer(core)
+	c := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	t1, t2 := mcp.NewInMemoryTransports()
+	ss, err := s.Connect(ctx, t1, nil)
+	if err != nil {
+		t.Fatalf("server connect: %v", err)
+	}
+	defer func() { _ = ss.Close() }()
+	cs, err := c.Connect(ctx, t2, nil)
+	if err != nil {
+		t.Fatalf("client connect: %v", err)
+	}
+	defer func() { _ = cs.Close() }()
+
+	found := map[string]*mcp.Tool{}
+	for tool, err := range cs.Tools(ctx, nil) {
+		if err != nil {
+			t.Fatalf("tools iterator error: %v", err)
+		}
+		found[tool.Name] = tool
+	}
+
+	for _, name := range []string{"provision", "download_file"} {
+		if _, ok := found[name]; ok {
+			t.Fatalf("tool %q should be disabled but is registered", name)
+		}
+	}
+	// Should still have connect, execute, disconnect, sleep
+	for _, name := range []string{"connect", "execute", "disconnect", "sleep"} {
+		if _, ok := found[name]; !ok {
+			t.Fatalf("expected tool %q to be registered", name)
+		}
+	}
+}
+
 func TestNewCoreAcceptsLogger(t *testing.T) {
 	var buf bytes.Buffer
 	logger := slog.New(slog.NewTextHandler(&buf, nil))
