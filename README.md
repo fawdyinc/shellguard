@@ -2,9 +2,9 @@
 
 Stop copy-pasting terminal output into your AI. Let your LLM SSH in and look around.
 
-ShellGuard is an [MCP](https://modelcontextprotocol.io/) server that gives LLM agents read-only bash access to remote servers over SSH. Connect your AI to production, staging, or dev servers and let it run diagnostics, inspect logs, query databases, and troubleshoot -- hands-free.
+ShellGuard is an [MCP](https://modelcontextprotocol.io/) server that gives LLM agents controlled bash access to remote servers over SSH. Connect your AI to production, staging, or dev servers and let it run diagnostics, inspect logs, query databases, and troubleshoot -- hands-free.
 
-Commands are restricted to a curated set of read-only tools. Destructive operations are blocked with actionable suggestions so the LLM can self-correct and keep investigating:
+Commands are restricted to a curated set of observation and diagnostic tools. Destructive operations are blocked with actionable suggestions so the LLM can self-correct and keep investigating:
 
 - `wget -r` -> `"Recursive downloading is not allowed"`
 - `tail -f` -> `"Follow mode hangs until timeout. Use tail -n 100 for recent lines."`
@@ -186,17 +186,18 @@ Or add the following to your Roo Code MCP settings file. See [Roo Code MCP docs]
 
 ## What It Does
 
-ShellGuard exposes 7 tools to the LLM:
+ShellGuard exposes 6 tools to the LLM:
 
 | Tool            | Description                                                   |
 | --------------- | ------------------------------------------------------------- |
 | `connect`       | Establish an SSH connection to a remote host                  |
-| `execute`       | Run a read-only shell command on the remote host              |
-| `list_commands` | List available commands, optionally filtered by category      |
+| `execute`       | Run a validated shell command on the remote host              |
 | `disconnect`    | Close SSH connection(s)                                       |
+| `sleep`         | Wait between diagnostic checks (max 15s)                      |
 | `provision`     | Deploy diagnostic tools (`rg`, `jq`, `yq`) to the remote host |
 | `download_file` | Download a file from the remote host via SFTP (50MB limit)    |
-| `sleep`         | Wait between diagnostic checks (max 15s)                      |
+
+`provision`, `download_file`, and `sleep` can be disabled via the `disabled_tools` config option or `SHELLGUARD_DISABLED_TOOLS` environment variable.
 
 The LLM connects to a server, runs commands, and reads the output -- the same workflow you'd do manually, but without the context-switching.
 
