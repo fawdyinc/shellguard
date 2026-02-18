@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -47,6 +48,7 @@ type Config struct {
 	MaxDownloadBytes *int       `yaml:"max_download_bytes"`
 	DownloadDir      *string    `yaml:"download_dir"`
 	MaxSleepSeconds  *int       `yaml:"max_sleep_seconds"`
+	DisabledTools    []string   `yaml:"disabled_tools"`
 	SSH              *SSHConfig `yaml:"ssh"`
 	ManifestDir      *string    `yaml:"manifest_dir"`
 }
@@ -129,6 +131,16 @@ func (c *Config) applyEnvOverrides() error {
 	}
 	if v, ok := os.LookupEnv("SHELLGUARD_MANIFEST_DIR"); ok {
 		c.ManifestDir = &v
+	}
+	if v, ok := os.LookupEnv("SHELLGUARD_DISABLED_TOOLS"); ok {
+		if v == "" {
+			c.DisabledTools = nil
+		} else {
+			c.DisabledTools = strings.Split(v, ",")
+			for i := range c.DisabledTools {
+				c.DisabledTools[i] = strings.TrimSpace(c.DisabledTools[i])
+			}
+		}
 	}
 
 	if v, ok := os.LookupEnv("SHELLGUARD_SSH_MODE"); ok {
@@ -229,6 +241,12 @@ func (c *Config) validate() error {
 			if mode != "accept-new" && mode != "strict" && mode != "off" {
 				return fmt.Errorf("ssh.host_key_checking must be one of: accept-new, strict, off; got %q", mode)
 			}
+		}
+	}
+	disableable := map[string]bool{"provision": true, "download_file": true, "sleep": true}
+	for _, tool := range c.DisabledTools {
+		if !disableable[tool] {
+			return fmt.Errorf("disabled_tools: %q cannot be disabled (only provision, download_file, sleep can be disabled)", tool)
 		}
 	}
 	return nil

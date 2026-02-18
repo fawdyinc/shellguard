@@ -819,3 +819,66 @@ func TestValidate_InvalidSSHModeFromEnv(t *testing.T) {
 		t.Fatal("LoadFrom() expected error for invalid ssh.mode from env, got nil")
 	}
 }
+
+func TestDisabledTools_FromYAML(t *testing.T) {
+	path := writeConfig(t, "disabled_tools:\n  - provision\n  - download_file\n")
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if got, want := len(cfg.DisabledTools), 2; got != want {
+		t.Fatalf("len(DisabledTools) = %d, want %d", got, want)
+	}
+	if got, want := cfg.DisabledTools[0], "provision"; got != want {
+		t.Fatalf("DisabledTools[0] = %q, want %q", got, want)
+	}
+}
+
+func TestDisabledTools_FromEnv(t *testing.T) {
+	path := writeConfig(t, "")
+	t.Setenv("SHELLGUARD_DISABLED_TOOLS", "provision,download_file")
+
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if got, want := len(cfg.DisabledTools), 2; got != want {
+		t.Fatalf("len(DisabledTools) = %d, want %d", got, want)
+	}
+}
+
+func TestDisabledTools_EnvOverridesFile(t *testing.T) {
+	path := writeConfig(t, "disabled_tools:\n  - provision\n")
+	t.Setenv("SHELLGUARD_DISABLED_TOOLS", "download_file")
+
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if got, want := len(cfg.DisabledTools), 1; got != want {
+		t.Fatalf("len(DisabledTools) = %d, want %d", got, want)
+	}
+	if got, want := cfg.DisabledTools[0], "download_file"; got != want {
+		t.Fatalf("DisabledTools[0] = %q, want %q", got, want)
+	}
+}
+
+func TestDisabledTools_EmptyEnvClearsField(t *testing.T) {
+	path := writeConfig(t, "disabled_tools:\n  - provision\n")
+	t.Setenv("SHELLGUARD_DISABLED_TOOLS", "")
+	cfg, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom() error = %v", err)
+	}
+	if got := len(cfg.DisabledTools); got != 0 {
+		t.Fatalf("len(DisabledTools) = %d, want 0 (empty env should clear)", got)
+	}
+}
+
+func TestValidate_InvalidDisabledTool(t *testing.T) {
+	path := writeConfig(t, "disabled_tools:\n  - execute\n")
+	_, err := LoadFrom(path)
+	if err == nil {
+		t.Fatal("LoadFrom() expected error for disabling non-optional tool, got nil")
+	}
+}
