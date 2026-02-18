@@ -499,8 +499,9 @@ func startTestAgentWithKey(t *testing.T) string {
 // startTestAgentKeyring starts an ssh-agent serving the given keyring.
 func startTestAgentKeyring(t *testing.T, keyring agent.Agent) string {
 	t.Helper()
-	// Use /tmp directly to avoid long paths on macOS causing "bind: invalid argument"
-	dir, err := os.MkdirTemp("/tmp", "sg-test-")
+	// Use os.MkdirTemp with default temp dir to avoid t.TempDir()'s long paths
+	// which can exceed the 103-byte limit for unix sockets on macOS.
+	dir, err := os.MkdirTemp("", "sg-agent-")
 	if err != nil {
 		t.Fatalf("create temp dir: %v", err)
 	}
