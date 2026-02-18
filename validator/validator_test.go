@@ -114,6 +114,10 @@ func TestValidatesSubcommands(t *testing.T) {
 		t.Fatalf("validate docker ps: %v", err)
 	}
 
+	if err := validateOne(t, "docker", "ps", "--format", "{{.ID}}"); err != nil {
+		t.Fatalf("validate docker ps --format: %v", err)
+	}
+
 	err := validateOne(t, "docker", "run", "alpine")
 	if err == nil {
 		t.Fatal("expected docker run to be rejected")

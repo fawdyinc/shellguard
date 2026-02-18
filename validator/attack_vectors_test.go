@@ -600,6 +600,15 @@ func TestSubcommandBypass(t *testing.T) {
 	t.Run("docker_ps_allowed", func(t *testing.T) {
 		err := validateOne(t, "docker", "ps")
 		expectAllow(t, err, "docker ps is allowed")
+
+		err = validateOne(t, "docker", "ps", "-a")
+		expectAllow(t, err, "docker ps -a is allowed")
+
+		err = validateOne(t, "docker", "ps", "--filter", "name=test")
+		expectAllow(t, err, "docker ps --filter is allowed")
+
+		err = validateOne(t, "docker", "ps", "-f", "name=test")
+		expectAllow(t, err, "docker ps -f is allowed")
 	})
 
 	t.Run("docker_logs_allowed", func(t *testing.T) {

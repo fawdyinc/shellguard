@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	gossh "golang.org/x/crypto/ssh"
@@ -91,6 +92,14 @@ func tofuCallback(knownHostsFile string) (gossh.HostKeyCallback, error) {
 	var mu sync.Mutex
 
 	cb := func(hostname string, remote net.Addr, key gossh.PublicKey) error {
+		// Ensure hostname includes port if missing, extracted from remote address.
+		// knownhosts requires "host:port" format for proper normalization.
+		if _, _, err := net.SplitHostPort(hostname); err != nil {
+			if tcpAddr, ok := remote.(*net.TCPAddr); ok {
+				hostname = net.JoinHostPort(hostname, strconv.Itoa(tcpAddr.Port))
+			}
+		}
+
 		// Try to verify against the existing known_hosts file.
 		var verifyErr error
 		if _, statErr := os.Stat(knownHostsFile); statErr == nil {
