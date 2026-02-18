@@ -138,6 +138,7 @@ func TestIntegrationToolNames(t *testing.T) {
 		m := registry[tool]
 		if m == nil {
 			t.Fatalf("missing manifest for toolkit tool %q", tool)
+			return
 		}
 		if m.Deny {
 			t.Fatalf("tool %q must be allowed, but manifest is deny=true", tool)
