@@ -60,6 +60,8 @@ type Manifest struct {
 	Stdin            bool     `yaml:"stdin"`
 	Stdout           bool     `yaml:"stdout"`
 	RegexArgPosition *int     `yaml:"regex_arg_position"`
+
+	source string
 }
 
 func (m *Manifest) GetFlag(name string) *Flag {
@@ -118,6 +120,12 @@ func loadFromFS(fsys fs.FS, root string) (map[string]*Manifest, error) {
 		manifest, parseErr := parseManifest(data, filePath)
 		if parseErr != nil {
 			return parseErr
+		}
+		manifest.source = filePath
+		if existing, ok := registry[manifest.Name]; ok {
+			return &ManifestError{
+				Message: fmt.Sprintf("duplicate manifest name %q: defined in both %s and %s", manifest.Name, existing.source, filePath),
+			}
 		}
 		registry[manifest.Name] = manifest
 		return nil
