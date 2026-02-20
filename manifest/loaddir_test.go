@@ -51,6 +51,7 @@ allows_path_args: true
 	f := m.GetFlag("-v")
 	if f == nil {
 		t.Fatal("GetFlag(\"-v\") = nil")
+		return
 	}
 	if got, want := f.Description, "verbose output"; got != want {
 		t.Fatalf("flag Description = %q, want %q", got, want)
