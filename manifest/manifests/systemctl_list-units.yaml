@@ -4,5 +4,6 @@ category: services
 flags:
   - flag: "--type"
     takes_value: true
+  - flag: "--failed"
 stdin: false
 stdout: true
