@@ -40,15 +40,25 @@ func (d *duration) Duration() time.Duration {
 	return d.d
 }
 
+// AutoConnectConfig holds auto-connect parameters set via environment variables.
+// When Host is non-empty, ShellGuard connects during MCP initialization.
+type AutoConnectConfig struct {
+	Host         string
+	User         string
+	Port         int
+	IdentityFile string
+}
+
 // Config for ShellGuard. Pointer fields; nil = unset.
 type Config struct {
-	Timeout          *int       `yaml:"timeout"`
-	MaxOutputBytes   *int       `yaml:"max_output_bytes"`
-	MaxDownloadBytes *int       `yaml:"max_download_bytes"`
-	DownloadDir      *string    `yaml:"download_dir"`
-	MaxSleepSeconds  *int       `yaml:"max_sleep_seconds"`
-	SSH              *SSHConfig `yaml:"ssh"`
-	ManifestDir      *string    `yaml:"manifest_dir"`
+	Timeout          *int               `yaml:"timeout"`
+	MaxOutputBytes   *int               `yaml:"max_output_bytes"`
+	MaxDownloadBytes *int               `yaml:"max_download_bytes"`
+	DownloadDir      *string            `yaml:"download_dir"`
+	MaxSleepSeconds  *int               `yaml:"max_sleep_seconds"`
+	SSH              *SSHConfig         `yaml:"ssh"`
+	ManifestDir      *string            `yaml:"manifest_dir"`
+	AutoConnect      *AutoConnectConfig `yaml:"-"` // env-only, not from config file
 }
 
 // SSHConfig holds SSH-specific configuration.
@@ -178,6 +188,25 @@ func (c *Config) applyEnvOverrides() error {
 			c.SSH = &SSHConfig{}
 		}
 		c.SSH.KnownHostsFile = &v
+	}
+
+	// Auto-connect env vars (presence of SHELLGUARD_HOST triggers auto-connect).
+	if host, ok := os.LookupEnv("SHELLGUARD_HOST"); ok && host != "" {
+		ac := &AutoConnectConfig{Host: host}
+		if v, ok := os.LookupEnv("SHELLGUARD_USER"); ok {
+			ac.User = v
+		}
+		if v, ok := os.LookupEnv("SHELLGUARD_PORT"); ok {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return fmt.Errorf("parse SHELLGUARD_PORT: %w", err)
+			}
+			ac.Port = n
+		}
+		if v, ok := os.LookupEnv("SHELLGUARD_IDENTITY_FILE"); ok {
+			ac.IdentityFile = v
+		}
+		c.AutoConnect = ac
 	}
 
 	return nil
