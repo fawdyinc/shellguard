@@ -5,6 +5,14 @@ flags:
   - flag: "-b"
   - flag: "-n"
     takes_value: true
+  - flag: "-o"
+    takes_value: true
+  - flag: "-p"
+    takes_value: true
+  - flag: "-u"
+    takes_value: true
+  - flag: "-w"
+    takes_value: true
   - flag: "-d"
     deny: true
     reason: "Only batch mode with fixed iteration count is allowed"
