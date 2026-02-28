@@ -103,6 +103,9 @@ func New(cfg Config) (*server.Core, error) {
 	if userCfg.MaxSleepSeconds != nil {
 		coreOpts = append(coreOpts, server.WithMaxSleepSeconds(*userCfg.MaxSleepSeconds))
 	}
+	if len(userCfg.DisabledTools) > 0 {
+		coreOpts = append(coreOpts, server.WithDisabledTools(userCfg.DisabledTools))
+	}
 
 	return server.NewCore(registry, runner, cfg.Logger, coreOpts...), nil
 }

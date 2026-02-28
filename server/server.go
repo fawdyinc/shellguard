@@ -61,6 +61,7 @@ type Core struct {
 	MaxDownloadBytes int
 	DownloadDir      string
 	MaxSleepSeconds  int
+	DisabledTools    map[string]bool
 
 	logger          *slog.Logger
 	mu              sync.RWMutex
@@ -125,6 +126,15 @@ func WithDownloadDir(dir string) CoreOption {
 
 func WithMaxSleepSeconds(seconds int) CoreOption {
 	return func(c *Core) { c.MaxSleepSeconds = seconds }
+}
+
+func WithDisabledTools(tools []string) CoreOption {
+	return func(c *Core) {
+		c.DisabledTools = make(map[string]bool, len(tools))
+		for _, t := range tools {
+			c.DisabledTools[t] = true
+		}
+	}
 }
 
 func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *slog.Logger, opts ...CoreOption) *Core {
@@ -717,38 +727,44 @@ func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 			return nil, out, err
 		})
 
-	mcp.AddTool(srv, &mcp.Tool{Name: "sleep", Description: fmt.Sprintf("Sleep locally for a specified duration (max %d seconds). Use to wait between checks, e.g. after observing an issue and before re-checking.", core.MaxSleepSeconds)},
-		func(ctx context.Context, _ *mcp.CallToolRequest, in SleepInput) (*mcp.CallToolResult, map[string]any, error) {
-			out, err := core.Sleep(ctx, in)
+	if !core.DisabledTools["sleep"] {
+		mcp.AddTool(srv, &mcp.Tool{Name: "sleep", Description: fmt.Sprintf("Sleep locally for a specified duration (max %d seconds). Use to wait between checks, e.g. after observing an issue and before re-checking.", core.MaxSleepSeconds)},
+			func(ctx context.Context, _ *mcp.CallToolRequest, in SleepInput) (*mcp.CallToolResult, map[string]any, error) {
+				out, err := core.Sleep(ctx, in)
+				return nil, out, err
+			})
+	}
+
+	if !core.DisabledTools["provision"] {
+		mcp.AddTool(srv, &mcp.Tool{
+			Name:        "provision",
+			Description: "Deploy missing diagnostic tools (rg, jq, yq) to ~/.shellguard/bin/ on the remote server. Uses SFTP over the existing SSH connection -- no outbound internet required on the remote. This is a WRITE operation: ask the operator for approval before calling this tool.",
+			Annotations: &mcp.ToolAnnotations{
+				ReadOnlyHint:   false,
+				IdempotentHint: true,
+			},
+		}, func(ctx context.Context, _ *mcp.CallToolRequest, in ProvisionInput) (*mcp.CallToolResult, map[string]any, error) {
+			out, err := core.Provision(ctx, in)
 			return nil, out, err
 		})
+	}
 
-	mcp.AddTool(srv, &mcp.Tool{
-		Name:        "provision",
-		Description: "Deploy missing diagnostic tools (rg, jq, yq) to ~/.shellguard/bin/ on the remote server. Uses SFTP over the existing SSH connection -- no outbound internet required on the remote. This is a WRITE operation: ask the operator for approval before calling this tool.",
-		Annotations: &mcp.ToolAnnotations{
-			ReadOnlyHint:   false,
-			IdempotentHint: true,
-		},
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, in ProvisionInput) (*mcp.CallToolResult, map[string]any, error) {
-		out, err := core.Provision(ctx, in)
-		return nil, out, err
-	})
-
-	mcp.AddTool(srv, &mcp.Tool{
-		Name: "download_file",
-		Description: fmt.Sprintf("Download a file from the remote server to the local filesystem via SFTP. "+
-			"Returns the local path so you can process the file with local tools. "+
-			"Maximum file size: %d bytes. Files are saved to %s by default. "+
-			"This is a WRITE operation on the local machine: ask the operator for approval before calling this tool.",
-			core.MaxDownloadBytes, core.DownloadDir),
-		Annotations: &mcp.ToolAnnotations{
-			ReadOnlyHint: false,
-		},
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, in DownloadInput) (*mcp.CallToolResult, DownloadResult, error) {
-		out, err := core.DownloadFile(ctx, in)
-		return nil, out, err
-	})
+	if !core.DisabledTools["download_file"] {
+		mcp.AddTool(srv, &mcp.Tool{
+			Name: "download_file",
+			Description: fmt.Sprintf("Download a file from the remote server to the local filesystem via SFTP. "+
+				"Returns the local path so you can process the file with local tools. "+
+				"Maximum file size: %d bytes. Files are saved to %s by default. "+
+				"This is a WRITE operation on the local machine: ask the operator for approval before calling this tool.",
+				core.MaxDownloadBytes, core.DownloadDir),
+			Annotations: &mcp.ToolAnnotations{
+				ReadOnlyHint: false,
+			},
+		}, func(ctx context.Context, _ *mcp.CallToolRequest, in DownloadInput) (*mcp.CallToolResult, DownloadResult, error) {
+			out, err := core.DownloadFile(ctx, in)
+			return nil, out, err
+		})
+	}
 
 	return srv
 }
