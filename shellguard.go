@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/jonchun/shellguard/config"
+	"github.com/jonchun/shellguard/control"
 	"github.com/jonchun/shellguard/manifest"
 	"github.com/jonchun/shellguard/server"
 	"github.com/jonchun/shellguard/ssh"
@@ -109,12 +111,29 @@ func New(cfg Config) (*server.Core, error) {
 
 // RunStdio creates a server from cfg and runs it over stdin/stdout.
 // All SSH connections are closed when RunStdio returns.
+//
+// If the SHELLGUARD_CONTROL_SOCKET environment variable is set, a control
+// socket server is started alongside the MCP server. Failures to start the
+// control socket are non-fatal.
 func RunStdio(ctx context.Context, cfg Config) error {
 	core, err := New(cfg)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = core.Close(ctx) }()
+
+	if socketPath := os.Getenv("SHELLGUARD_CONTROL_SOCKET"); socketPath != "" {
+		logger := cfg.Logger
+		if logger == nil {
+			logger = slog.Default()
+		}
+		go func() {
+			if err := control.ListenAndServe(ctx, socketPath, &control.CoreAdapter{Core: core}, logger); err != nil {
+				logger.Warn("control socket failed", "error", err)
+			}
+		}()
+	}
+
 	return server.RunStdio(ctx, core, server.ServerOptions{
 		Name:    cfg.Name,
 		Version: cfg.Version,

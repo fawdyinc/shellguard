@@ -499,7 +499,15 @@ func startTestAgentWithKey(t *testing.T) string {
 // startTestAgentKeyring starts an ssh-agent serving the given keyring.
 func startTestAgentKeyring(t *testing.T, keyring agent.Agent) string {
 	t.Helper()
-	sockPath := filepath.Join(t.TempDir(), "agent.sock")
+	// Use os.MkdirTemp with default temp dir to avoid t.TempDir()'s long paths
+	// which can exceed the 103-byte limit for unix sockets on macOS.
+	dir, err := os.MkdirTemp("", "sg-agent-")
+	if err != nil {
+		t.Fatalf("create temp dir: %v", err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+
+	sockPath := filepath.Join(dir, "agent.sock")
 	ln, err := net.Listen("unix", sockPath)
 	if err != nil {
 		t.Fatalf("listen: %v", err)
