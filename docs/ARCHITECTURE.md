@@ -2,7 +2,7 @@
 
 ## Overview
 
-ShellGuard is a security-first MCP (Model Context Protocol) server that enables LLM agents to execute read-only shell commands on remote servers over SSH. It implements a defense-in-depth pipeline that parses, validates, and reconstructs every command before execution, ensuring only non-destructive operations reach the remote host.
+ShellGuard is a security-first MCP (Model Context Protocol) server that enables LLM agents to execute validated shell commands on remote servers over SSH. It implements a defense-in-depth pipeline that parses, validates, and reconstructs every command before execution, ensuring only non-destructive operations reach the remote host.
 
 ## System Architecture
 
@@ -141,17 +141,16 @@ Top-level constructor and convenience functions. Provides `New(Config)` to creat
 
 ### `server`
 
-The MCP server core. Wires together all packages and registers 7 MCP tools:
+The MCP server core. Wires together all packages and registers 6 MCP tools:
 
 | Tool            | Description                                                         |
 | --------------- | ------------------------------------------------------------------- |
 | `connect`       | Establish SSH connection to a remote host; probes for toolkit tools |
 | `execute`       | Run a command through the security pipeline                         |
-| `list_commands` | List allowed commands, optionally filtered by category              |
 | `disconnect`    | Close SSH connection(s)                                             |
+| `sleep`         | Local sleep (max 15s) for use between diagnostic checks             |
 | `provision`     | Deploy diagnostic tools (`rg`, `jq`, `yq`) to remote host via SFTP  |
 | `download_file` | Download a file from remote via SFTP (50MB limit)                   |
-| `sleep`         | Local sleep (max 15s) for use between diagnostic checks             |
 
 The `Executor` interface abstracts the execution backend, enabling non-SSH implementations (Docker exec, local exec, test mocks) without modifying the security pipeline.
 
@@ -236,7 +235,7 @@ Supports `x86_64` and `aarch64`. Binaries are cached locally at `~/.cache/shellg
 
 ## Security Model
 
-ShellGuard enforces a **read-only, observational posture** through layered defenses:
+ShellGuard enforces an **observational posture** through layered defenses:
 
 1. **Syntax restriction** (parser) -- eliminates shell features that enable code execution, data exfiltration, or state mutation at the syntax level
 2. **Command allowlisting** (validator + manifest) -- only explicitly approved commands pass; flags are individually controlled; SQL is validated for read-only semantics
