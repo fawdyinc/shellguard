@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 178; got != want {
+	if got, want := len(registry), 180; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
