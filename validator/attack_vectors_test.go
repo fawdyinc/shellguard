@@ -621,6 +621,11 @@ func TestSubcommandBypass(t *testing.T) {
 		expectAllow(t, err, "docker inspect is allowed")
 	})
 
+	t.Run("docker_stats_allowed", func(t *testing.T) {
+		err := validateOne(t, "docker", "stats", "--no-stream", "container")
+		expectAllow(t, err, "docker stats is allowed")
+	})
+
 	t.Run("kubectl_get_allowed", func(t *testing.T) {
 		err := validateOne(t, "kubectl", "get", "pods", "-n", "default")
 		expectAllow(t, err, "kubectl get is allowed")

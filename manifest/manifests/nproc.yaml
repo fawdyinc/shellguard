@@ -1,0 +1,9 @@
+name: nproc
+description: Print the number of processing units available
+category: system
+flags:
+  - flag: "--all"
+  - flag: "--ignore"
+    takes_value: true
+stdin: false
+stdout: true

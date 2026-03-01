@@ -794,6 +794,7 @@ func TestSubcommandBypass_DockerDangerous(t *testing.T) {
 	mustAccept(t, registry, "docker ps -a")
 	mustAccept(t, registry, "docker logs container_id")
 	mustAccept(t, registry, "docker inspect container_id")
+	mustAccept(t, registry, "docker stats --no-stream container_id")
 }
 
 func TestSubcommandBypass_SystemctlDangerous(t *testing.T) {

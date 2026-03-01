@@ -1,0 +1,10 @@
+name: docker_stats
+description: Display a live stream of container resource usage statistics
+category: containers
+flags:
+  - flag: "--no-stream"
+  - flag: "--all"
+  - flag: "--format"
+    takes_value: true
+stdin: false
+stdout: true
