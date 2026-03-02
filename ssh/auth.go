@@ -29,15 +29,24 @@ func defaultKeyPaths() []string {
 }
 
 // loadPrivateKey attempts to load and parse a private key from the given path.
-// Returns nil if the file doesn't exist, can't be read, or can't be parsed
-// (including passphrase-protected keys). All failures are silent by design.
-func loadPrivateKey(path string) gossh.Signer {
+// If the key is passphrase-protected and passphrase is non-empty, it attempts
+// decryption with the passphrase. Returns nil if the file doesn't exist, can't
+// be read, or can't be parsed. All failures are silent by design.
+func loadPrivateKey(path string, passphrase string) gossh.Signer {
 	key, err := os.ReadFile(path)
 	if err != nil {
 		return nil
 	}
 	signer, err := gossh.ParsePrivateKey(key)
 	if err != nil {
+		var ppErr *gossh.PassphraseMissingError
+		if errors.As(err, &ppErr) && passphrase != "" {
+			signer, err = gossh.ParsePrivateKeyWithPassphrase(key, []byte(passphrase))
+			if err != nil {
+				return nil
+			}
+			return signer
+		}
 		return nil
 	}
 	return signer
@@ -124,12 +133,20 @@ func buildAuthMethodsWithDefaults(params ConnectionParams, defaults []string) ([
 		if err != nil {
 			var ppErr *gossh.PassphraseMissingError
 			if errors.As(err, &ppErr) {
-				return nil, agentCleanup, fmt.Errorf(
-					"key %s is passphrase-protected; add it to your ssh-agent with: ssh-add %s",
-					params.IdentityFile, params.IdentityFile,
-				)
+				if params.Passphrase != "" {
+					signer, err = gossh.ParsePrivateKeyWithPassphrase(key, []byte(params.Passphrase))
+					if err != nil {
+						return nil, agentCleanup, fmt.Errorf("decrypt identity key with passphrase: %w", err)
+					}
+				} else {
+					return nil, agentCleanup, fmt.Errorf(
+						"key %s is passphrase-protected; provide a passphrase",
+						params.IdentityFile,
+					)
+				}
+			} else {
+				return nil, agentCleanup, fmt.Errorf("parse identity key: %w", err)
 			}
-			return nil, agentCleanup, fmt.Errorf("parse identity key: %w", err)
 		}
 		methods = append(methods, gossh.PublicKeys(signer))
 	}
@@ -151,9 +168,14 @@ func buildAuthMethodsWithDefaults(params ConnectionParams, defaults []string) ([
 		}
 		tried[normPath] = struct{}{}
 
-		if signer := loadPrivateKey(path); signer != nil {
+		if signer := loadPrivateKey(path, params.Passphrase); signer != nil {
 			methods = append(methods, gossh.PublicKeys(signer))
 		}
+	}
+
+	// Priority 4: Password auth.
+	if params.Password != "" {
+		methods = append(methods, gossh.Password(params.Password))
 	}
 
 	return methods, agentCleanup, nil

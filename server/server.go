@@ -74,6 +74,8 @@ type ConnectInput struct {
 	User         string `json:"user,omitempty" jsonschema:"SSH username (default root)"`
 	Port         int    `json:"port,omitempty" jsonschema:"SSH port (default 22)"`
 	IdentityFile string `json:"identity_file,omitempty" jsonschema:"Path to SSH identity file"`
+	Password     string `json:"password,omitempty" jsonschema:"SSH password"`
+	Passphrase   string `json:"passphrase,omitempty" jsonschema:"Passphrase for encrypted key"`
 }
 
 type ExecuteInput struct {
@@ -185,6 +187,8 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 		User:         in.User,
 		Port:         in.Port,
 		IdentityFile: in.IdentityFile,
+		Password:     in.Password,
+		Passphrase:   in.Passphrase,
 	}
 	if err := c.Runner.Connect(ctx, params); err != nil {
 		c.logger.InfoContext(ctx, "connect",

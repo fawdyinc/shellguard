@@ -32,6 +32,8 @@ type ConnectParams struct {
 	User         string `json:"user,omitempty"`
 	Port         int    `json:"port,omitempty"`
 	IdentityFile string `json:"identity_file,omitempty"`
+	Password     string `json:"password,omitempty"`
+	Passphrase   string `json:"passphrase,omitempty"`
 }
 
 // DisconnectParams are the parameters for the "disconnect" command.
