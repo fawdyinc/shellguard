@@ -1008,7 +1008,7 @@ func TestCloseDisconnectsAll(t *testing.T) {
 	}
 
 	// Verify internal Core state is cleared.
-	if hosts := core.connectedHostsSnapshot(); len(hosts) != 0 {
+	if hosts := core.ConnectedHostsSnapshot(); len(hosts) != 0 {
 		t.Fatalf("expected 0 connectedHosts, got %v", hosts)
 	}
 	for _, host := range []string{"h1", "h2"} {

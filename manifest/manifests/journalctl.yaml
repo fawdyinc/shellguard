@@ -11,6 +11,26 @@ flags:
     takes_value: true
   - flag: "--until"
     takes_value: true
+  - flag: "-p"
+    takes_value: true
+  - flag: "--priority"
+    takes_value: true
+  - flag: "--no-pager"
+  - flag: "-t"
+    takes_value: true
+  - flag: "--identifier"
+    takes_value: true
+  - flag: "-k"
+  - flag: "--dmesg"
+  - flag: "-b"
+  - flag: "-o"
+    takes_value: true
+  - flag: "--output"
+    takes_value: true
+  - flag: "-r"
+  - flag: "--reverse"
+  - flag: "-x"
+  - flag: "--catalog"
   - flag: "-f"
     deny: true
     reason: "Follow mode hangs until timeout. Use --since/--until for bounded queries."

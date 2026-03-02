@@ -515,7 +515,7 @@ func (c *Core) resolveHostForState(host string) string {
 	if host != "" {
 		return host
 	}
-	hosts := c.connectedHostsSnapshot()
+	hosts := c.ConnectedHostsSnapshot()
 	if len(hosts) == 1 {
 		return hosts[0]
 	}
@@ -529,7 +529,7 @@ func (c *Core) resolveProvisionHost(host string) (string, error) {
 		}
 		return host, nil
 	}
-	hosts := c.connectedHostsSnapshot()
+	hosts := c.ConnectedHostsSnapshot()
 	switch len(hosts) {
 	case 0:
 		return "", errors.New("not connected")
@@ -540,7 +540,8 @@ func (c *Core) resolveProvisionHost(host string) (string, error) {
 	}
 }
 
-func (c *Core) connectedHostsSnapshot() []string {
+// ConnectedHostsSnapshot returns a sorted snapshot of currently connected hosts.
+func (c *Core) ConnectedHostsSnapshot() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	hosts := make([]string, 0, len(c.connectedHosts))
@@ -674,6 +675,9 @@ type ServerOptions struct {
 	Name string
 	// Version is the MCP server implementation version. Default: "0.2.0".
 	Version string
+	// AutoConnect, when non-nil, causes an automatic SSH connection after
+	// the MCP handshake completes (via InitializedHandler).
+	AutoConnect *ConnectInput
 }
 
 func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {

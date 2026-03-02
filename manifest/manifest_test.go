@@ -1,6 +1,11 @@
 package manifest
 
-import "testing"
+import (
+	"errors"
+	"strings"
+	"testing"
+	"testing/fstest"
+)
 
 func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 	t.Helper()
@@ -15,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 178; got != want {
+	if got, want := len(registry), 180; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -167,5 +172,23 @@ func TestDestructiveSubcommandsAbsent(t *testing.T) {
 		if _, ok := registry[name]; ok {
 			t.Fatalf("destructive subcommand %q should not exist in manifests", name)
 		}
+	}
+}
+
+func TestLoadFromFS_DuplicateNameErrors(t *testing.T) {
+	fsys := fstest.MapFS{
+		"foo.yaml": &fstest.MapFile{Data: []byte("name: duplicate\ndescription: first\nflags: []\n")},
+		"bar.yaml": &fstest.MapFile{Data: []byte("name: duplicate\ndescription: second\nflags: []\n")},
+	}
+	_, err := loadFromFS(fsys, ".")
+	if err == nil {
+		t.Fatal("loadFromFS() expected error for duplicate manifest name, got nil")
+	}
+	if !strings.Contains(err.Error(), "duplicate") {
+		t.Fatalf("error = %q, want mention of duplicate name", err.Error())
+	}
+	var me *ManifestError
+	if !errors.As(err, &me) {
+		t.Fatalf("error type = %T, want *ManifestError", err)
 	}
 }
