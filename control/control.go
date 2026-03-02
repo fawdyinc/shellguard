@@ -1,4 +1,4 @@
-// Package control provides a JSON-over-Unix-socket API for managing ShellGuard
+// Package control provides a JSON-over-TCP API for managing ShellGuard
 // connections without going through the MCP/agent layer.
 package control
 
@@ -60,19 +60,18 @@ type Server struct {
 	wg sync.WaitGroup
 }
 
-// ListenAndServe starts the control socket server. It blocks until ctx is
-// cancelled, then cleans up the socket file.
-func ListenAndServe(ctx context.Context, socketPath string, handler Handler, logger *slog.Logger) error {
-	// Remove stale socket for idempotent restarts.
-	_ = os.Remove(socketPath)
-
-	ln, err := net.Listen("unix", socketPath)
+// ListenAndServe starts the control server on TCP localhost. It writes the
+// resolved host:port to addrPath so clients can discover it. It blocks until
+// ctx is cancelled, then cleans up the addr file.
+func ListenAndServe(ctx context.Context, addrPath string, handler Handler, logger *slog.Logger) error {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		return err
 	}
-	if err := os.Chmod(socketPath, 0600); err != nil {
+
+	resolvedAddr := ln.Addr().String()
+	if err := os.WriteFile(addrPath, []byte(resolvedAddr), 0600); err != nil {
 		_ = ln.Close()
-		_ = os.Remove(socketPath)
 		return err
 	}
 
@@ -88,7 +87,7 @@ func ListenAndServe(ctx context.Context, socketPath string, handler Handler, log
 		_ = ln.Close()
 	}()
 
-	logger.Info("control socket listening", "path", socketPath)
+	logger.Info("control server listening", "addr", resolvedAddr, "addrFile", addrPath)
 
 	for {
 		conn, err := ln.Accept()
@@ -97,7 +96,7 @@ func ListenAndServe(ctx context.Context, socketPath string, handler Handler, log
 			if errors.Is(err, net.ErrClosed) || ctx.Err() != nil {
 				break
 			}
-			logger.Warn("control socket accept error", "error", err)
+			logger.Warn("control server accept error", "error", err)
 			continue
 		}
 		s.wg.Add(1)
@@ -105,8 +104,8 @@ func ListenAndServe(ctx context.Context, socketPath string, handler Handler, log
 	}
 
 	s.wg.Wait()
-	_ = os.Remove(socketPath)
-	logger.Info("control socket stopped")
+	_ = os.Remove(addrPath)
+	logger.Info("control server stopped")
 	return nil
 }
 
