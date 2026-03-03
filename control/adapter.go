@@ -3,7 +3,7 @@ package control
 import (
 	"context"
 
-	"github.com/jonchun/shellguard/server"
+	"github.com/fawdyinc/shellguard/server"
 )
 
 // CoreAdapter implements Handler by delegating to a server.Core instance.

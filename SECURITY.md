@@ -4,7 +4,7 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Use [GitHub's private vulnerability reporting](https://github.com/jonchun/shellguard/security/advisories/new)
+Use [GitHub's private vulnerability reporting](https://github.com/fawdyinc/shellguard/security/advisories/new)
 to submit a report. If that is unavailable, email **git@jonathanchun.com** with
 the subject line `[ShellGuard Security]`.
 

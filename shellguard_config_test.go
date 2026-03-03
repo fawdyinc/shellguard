@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jonchun/shellguard"
+	"github.com/fawdyinc/shellguard"
 )
 
 func TestNew_WithConfigFile(t *testing.T) {
