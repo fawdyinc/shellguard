@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jonchun/shellguard/parser"
+	"github.com/fawdyinc/shellguard/parser"
 )
 
 // isSafe replicates the unexported isSafeShellToken check for use in test assertions.

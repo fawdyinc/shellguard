@@ -7,11 +7,11 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/jonchun/shellguard/config"
-	"github.com/jonchun/shellguard/control"
-	"github.com/jonchun/shellguard/manifest"
-	"github.com/jonchun/shellguard/server"
-	"github.com/jonchun/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/config"
+	"github.com/fawdyinc/shellguard/control"
+	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/server"
+	"github.com/fawdyinc/shellguard/ssh"
 )
 
 type Config struct {

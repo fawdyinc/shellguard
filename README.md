@@ -28,7 +28,7 @@ curl -fsSL https://raw.githubusercontent.com/jonchun/shellguard/main/install.sh 
 Or with Go:
 
 ```bash
-go install github.com/jonchun/shellguard/cmd/shellguard@latest
+go install github.com/fawdyinc/shellguard/cmd/shellguard@latest
 ```
 
 ### Configure with an MCP Client
@@ -309,7 +309,7 @@ import (
     "log/slog"
     "os"
 
-    "github.com/jonchun/shellguard"
+    "github.com/fawdyinc/shellguard"
 )
 
 func main() {
@@ -329,9 +329,9 @@ See the [Custom Configuration](#custom-configuration) and [Custom Executor](#cus
 
 ```go
 import (
-    "github.com/jonchun/shellguard"
-    "github.com/jonchun/shellguard/manifest"
-    "github.com/jonchun/shellguard/server"
+    "github.com/fawdyinc/shellguard"
+    "github.com/fawdyinc/shellguard/manifest"
+    "github.com/fawdyinc/shellguard/server"
 )
 
 manifests, _ := manifest.LoadEmbedded()

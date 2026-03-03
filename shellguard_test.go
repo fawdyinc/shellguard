@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/jonchun/shellguard"
-	"github.com/jonchun/shellguard/manifest"
+	"github.com/fawdyinc/shellguard"
+	"github.com/fawdyinc/shellguard/manifest"
 )
 
 func TestNewWithDefaults(t *testing.T) {
