@@ -115,9 +115,10 @@ func New(cfg Config) (*server.Core, error) {
 // RunStdio creates a server from cfg and runs it over stdin/stdout.
 // All SSH connections are closed when RunStdio returns.
 //
-// If the SHELLGUARD_CONTROL_SOCKET environment variable is set, a control
-// socket server is started alongside the MCP server. Failures to start the
-// control socket are non-fatal.
+// If the SHELLGUARD_CONTROL_ADDR environment variable is set (path to an
+// .addr file), a TCP control server is started alongside the MCP server.
+// The resolved host:port is written to the file. Failures to start the
+// control server are non-fatal.
 func RunStdio(ctx context.Context, cfg Config) error {
 	core, err := New(cfg)
 	if err != nil {
@@ -125,14 +126,14 @@ func RunStdio(ctx context.Context, cfg Config) error {
 	}
 	defer func() { _ = core.Close(ctx) }()
 
-	if socketPath := os.Getenv("SHELLGUARD_CONTROL_SOCKET"); socketPath != "" {
+	if addrPath := os.Getenv("SHELLGUARD_CONTROL_ADDR"); addrPath != "" {
 		logger := cfg.Logger
 		if logger == nil {
 			logger = slog.Default()
 		}
 		go func() {
-			if err := control.ListenAndServe(ctx, socketPath, &control.CoreAdapter{Core: core}, logger); err != nil {
-				logger.Warn("control socket failed", "error", err)
+			if err := control.ListenAndServe(ctx, addrPath, &control.CoreAdapter{Core: core}, logger); err != nil {
+				logger.Warn("control server failed", "error", err)
 			}
 		}()
 	}

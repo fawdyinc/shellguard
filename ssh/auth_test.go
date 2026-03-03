@@ -159,7 +159,7 @@ func TestDefaultKeyPathsExpectedOrder(t *testing.T) {
 // --- loadPrivateKey tests ---
 
 func TestLoadPrivateKeyMissingFile(t *testing.T) {
-	signer := loadPrivateKey("/nonexistent/path/id_ed25519")
+	signer := loadPrivateKey("/nonexistent/path/id_ed25519", "")
 	if signer != nil {
 		t.Fatal("expected nil signer for missing file")
 	}
@@ -168,7 +168,7 @@ func TestLoadPrivateKeyMissingFile(t *testing.T) {
 func TestLoadPrivateKeyInvalidContent(t *testing.T) {
 	dir := t.TempDir()
 	path := writeTestKey(t, dir, "bad_key", []byte("not a valid key"))
-	signer := loadPrivateKey(path)
+	signer := loadPrivateKey(path, "")
 	if signer != nil {
 		t.Fatal("expected nil signer for invalid key content")
 	}
@@ -177,7 +177,7 @@ func TestLoadPrivateKeyInvalidContent(t *testing.T) {
 func TestLoadPrivateKeyValidKey(t *testing.T) {
 	dir := t.TempDir()
 	path := writeTestKey(t, dir, "id_ed25519", generateTestKeyPEM(t))
-	signer := loadPrivateKey(path)
+	signer := loadPrivateKey(path, "")
 	if signer == nil {
 		t.Fatal("expected non-nil signer for valid key")
 	}
@@ -409,11 +409,101 @@ func TestBuildAuthMethodsExplicitPassphraseProtected(t *testing.T) {
 		t.Fatal("expected error for passphrase-protected explicit identity file")
 	}
 	errMsg := err.Error()
-	if !strings.Contains(errMsg, "ssh-add") {
-		t.Errorf("error = %q, want it to contain 'ssh-add'", errMsg)
+	if !strings.Contains(errMsg, "passphrase-protected") {
+		t.Errorf("error = %q, want it to contain 'passphrase-protected'", errMsg)
 	}
-	if !strings.Contains(errMsg, "ssh-agent") {
-		t.Errorf("error = %q, want it to contain 'ssh-agent'", errMsg)
+	if !strings.Contains(errMsg, "provide a passphrase") {
+		t.Errorf("error = %q, want it to contain 'provide a passphrase'", errMsg)
+	}
+}
+
+func TestBuildAuthMethodsExplicitPassphraseDecrypts(t *testing.T) {
+	t.Setenv("SSH_AUTH_SOCK", "")
+	dir := t.TempDir()
+	keyPath := writeTestKey(t, dir, "id_ed25519_enc", generatePassphraseProtectedKeyPEM(t))
+
+	methods, cleanup, err := buildAuthMethodsWithDefaults(ConnectionParams{
+		Host:         "example.com",
+		IdentityFile: keyPath,
+		Passphrase:   "test-passphrase",
+	}, nil)
+	defer cleanup()
+	if err != nil {
+		t.Fatalf("buildAuthMethodsWithDefaults() error = %v", err)
+	}
+	if len(methods) == 0 {
+		t.Fatal("expected at least one auth method after passphrase decryption")
+	}
+}
+
+func TestBuildAuthMethodsExplicitPassphraseWrong(t *testing.T) {
+	t.Setenv("SSH_AUTH_SOCK", "")
+	dir := t.TempDir()
+	keyPath := writeTestKey(t, dir, "id_ed25519_enc", generatePassphraseProtectedKeyPEM(t))
+
+	_, cleanup, err := buildAuthMethodsWithDefaults(ConnectionParams{
+		Host:         "example.com",
+		IdentityFile: keyPath,
+		Passphrase:   "wrong-passphrase",
+	}, nil)
+	defer cleanup()
+	if err == nil {
+		t.Fatal("expected error for wrong passphrase")
+	}
+	if !strings.Contains(err.Error(), "decrypt identity key") {
+		t.Errorf("error = %q, want it to contain 'decrypt identity key'", err.Error())
+	}
+}
+
+func TestBuildAuthMethodsPasswordAuth(t *testing.T) {
+	t.Setenv("SSH_AUTH_SOCK", "")
+	methods, cleanup, err := buildAuthMethodsWithDefaults(ConnectionParams{
+		Host:     "example.com",
+		Password: "secret",
+	}, nil)
+	defer cleanup()
+	if err != nil {
+		t.Fatalf("buildAuthMethodsWithDefaults() error = %v", err)
+	}
+	if len(methods) != 1 {
+		t.Errorf("expected 1 auth method (password), got %d", len(methods))
+	}
+}
+
+func TestBuildAuthMethodsKeyPlusPassword(t *testing.T) {
+	t.Setenv("SSH_AUTH_SOCK", "")
+	dir := t.TempDir()
+	keyPath := writeTestKey(t, dir, "explicit_key", generateTestKeyPEM(t))
+
+	methods, cleanup, err := buildAuthMethodsWithDefaults(ConnectionParams{
+		Host:         "example.com",
+		IdentityFile: keyPath,
+		Password:     "secret",
+	}, nil)
+	defer cleanup()
+	if err != nil {
+		t.Fatalf("buildAuthMethodsWithDefaults() error = %v", err)
+	}
+	if len(methods) != 2 {
+		t.Errorf("expected 2 auth methods (key + password), got %d", len(methods))
+	}
+}
+
+func TestBuildAuthMethodsDefaultPassphraseDecrypts(t *testing.T) {
+	t.Setenv("SSH_AUTH_SOCK", "")
+	dir := t.TempDir()
+	encPath := writeTestKey(t, dir, "id_ed25519", generatePassphraseProtectedKeyPEM(t))
+
+	methods, cleanup, err := buildAuthMethodsWithDefaults(ConnectionParams{
+		Host:       "example.com",
+		Passphrase: "test-passphrase",
+	}, []string{encPath})
+	defer cleanup()
+	if err != nil {
+		t.Fatalf("buildAuthMethodsWithDefaults() error = %v, want nil", err)
+	}
+	if len(methods) != 1 {
+		t.Errorf("expected 1 auth method for passphrase-decrypted default, got %d", len(methods))
 	}
 }
 

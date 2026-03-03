@@ -48,6 +48,8 @@ type ConnectionParams struct {
 	User         string
 	Port         int
 	IdentityFile string
+	Password     string // SSH password auth
+	Passphrase   string // decrypt passphrase-protected key
 }
 
 type ManagedConnection struct {
