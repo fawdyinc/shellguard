@@ -48,6 +48,7 @@ type AutoConnectConfig struct {
 	User         string
 	Port         int
 	IdentityFile string
+	Transport    string
 }
 
 // Config for ShellGuard. Pointer fields; nil = unset.
@@ -217,6 +218,9 @@ func (c *Config) applyEnvOverrides() error {
 		}
 		if v, ok := os.LookupEnv("SHELLGUARD_IDENTITY_FILE"); ok {
 			ac.IdentityFile = v
+		}
+		if v, ok := os.LookupEnv("SHELLGUARD_TRANSPORT"); ok {
+			ac.Transport = v
 		}
 		c.AutoConnect = ac
 	}

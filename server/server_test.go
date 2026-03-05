@@ -1103,3 +1103,198 @@ func TestDownloadFileLogsSuccess(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateCommand_OK(t *testing.T) {
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	res, err := core.ValidateCommand(context.Background(), ValidateInput{Command: "ls"})
+	if err != nil {
+		t.Fatalf("ValidateCommand() error = %v", err)
+	}
+	if !res.OK {
+		t.Fatalf("expected OK=true, got reason=%q", res.Reason)
+	}
+}
+
+func TestValidateCommand_ParseError(t *testing.T) {
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	core.Parse = func(_ string) (*parser.Pipeline, error) {
+		return nil, &parser.ParseError{Message: "syntax error"}
+	}
+	res, err := core.ValidateCommand(context.Background(), ValidateInput{Command: "$(evil)"})
+	if err != nil {
+		t.Fatalf("ValidateCommand() error = %v", err)
+	}
+	if res.OK {
+		t.Fatal("expected OK=false for parse error")
+	}
+	if res.Reason == "" {
+		t.Fatal("expected non-empty reason")
+	}
+}
+
+func TestValidateCommand_ValidationError(t *testing.T) {
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	res, err := core.ValidateCommand(context.Background(), ValidateInput{Command: "rm -rf /"})
+	if err != nil {
+		t.Fatalf("ValidateCommand() error = %v", err)
+	}
+	if res.OK {
+		t.Fatal("expected OK=false for denied command")
+	}
+	if res.Reason == "" {
+		t.Fatal("expected non-empty reason")
+	}
+}
+
+func TestValidateCommand_Empty(t *testing.T) {
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	_, err := core.ValidateCommand(context.Background(), ValidateInput{Command: ""})
+	if err == nil {
+		t.Fatal("expected error for empty command")
+	}
+}
+
+func TestStatus_Empty(t *testing.T) {
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	res, err := core.Status(context.Background(), StatusInput{})
+	if err != nil {
+		t.Fatalf("Status() error = %v", err)
+	}
+	if len(res) != 0 {
+		t.Fatalf("expected empty status, got %v", res)
+	}
+}
+
+func TestStatus_WithConnections(t *testing.T) {
+	runner := newFakeRunner()
+	core := NewCore(basicRegistry(), runner, nil)
+
+	// Connect SSH host
+	if _, err := core.Connect(context.Background(), ConnectInput{Host: "ssh-host"}); err != nil {
+		t.Fatalf("Connect(ssh) error = %v", err)
+	}
+	// Connect local host
+	if _, err := core.Connect(context.Background(), ConnectInput{Host: "local-host", Transport: "local"}); err != nil {
+		t.Fatalf("Connect(local) error = %v", err)
+	}
+
+	res, err := core.Status(context.Background(), StatusInput{})
+	if err != nil {
+		t.Fatalf("Status() error = %v", err)
+	}
+	if len(res) != 2 {
+		t.Fatalf("expected 2 entries, got %d", len(res))
+	}
+	if s, ok := res["ssh-host"]; !ok || !s.Connected || s.Transport != TransportSSH {
+		t.Fatalf("unexpected ssh-host status: %+v", res["ssh-host"])
+	}
+	if s, ok := res["local-host"]; !ok || !s.Connected || s.Transport != TransportLocal {
+		t.Fatalf("unexpected local-host status: %+v", res["local-host"])
+	}
+}
+
+func TestConnect_Local(t *testing.T) {
+	runner := newFakeRunner()
+	core := NewCore(basicRegistry(), runner, nil)
+
+	out, err := core.Connect(context.Background(), ConnectInput{Host: "my-local", Transport: "local"})
+	if err != nil {
+		t.Fatalf("Connect(local) error = %v", err)
+	}
+	if out["ok"] != true {
+		t.Fatalf("expected ok=true, got %v", out)
+	}
+
+	// SSH runner should not have been called
+	runner.mu.Lock()
+	called := runner.connectCalled
+	runner.mu.Unlock()
+	if called {
+		t.Fatal("SSH runner.Connect should not be called for local transport")
+	}
+
+	// Host should appear in connected hosts
+	if !core.isConnected("my-local") {
+		t.Fatal("expected my-local to be connected")
+	}
+	if core.getTransport("my-local") != TransportLocal {
+		t.Fatalf("expected local transport, got %s", core.getTransport("my-local"))
+	}
+}
+
+func TestExecute_Local(t *testing.T) {
+	runner := newFakeRunner()
+	core := NewCore(basicRegistry(), runner, nil)
+
+	// Connect local
+	if _, err := core.Connect(context.Background(), ConnectInput{Host: "local-box", Transport: "local"}); err != nil {
+		t.Fatalf("Connect(local) error = %v", err)
+	}
+
+	// Override parse/validate/reconstruct so we can test execution
+	core.Parse = func(_ string) (*parser.Pipeline, error) {
+		return &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "ls"}}}, nil
+	}
+	core.Validate = func(_ *parser.Pipeline, _ map[string]*manifest.Manifest) error { return nil }
+	core.Reconstruct = func(_ *parser.Pipeline, _, _ bool) string { return "echo local-test" }
+
+	res, err := core.Execute(context.Background(), ExecuteInput{Host: "local-box", Command: "ls"})
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+
+	// SSH runner should NOT have received the execute call
+	runner.mu.Lock()
+	sshExecuted := runner.executeCalled
+	runner.mu.Unlock()
+	if sshExecuted {
+		t.Fatal("SSH runner should not receive execute calls for local transport")
+	}
+
+	// Local executor should have run the command
+	if !strings.Contains(res.Stdout, "local-test") {
+		t.Fatalf("expected stdout to contain 'local-test', got %q", res.Stdout)
+	}
+}
+
+func TestNewMCPServerRegistersValidateAndStatus(t *testing.T) {
+	ctx := context.Background()
+	core := NewCore(basicRegistry(), newFakeRunner(), nil)
+	s := NewMCPServer(core)
+	c := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	t1, t2 := mcp.NewInMemoryTransports()
+	ss, err := s.Connect(ctx, t1, nil)
+	if err != nil {
+		t.Fatalf("server connect: %v", err)
+	}
+	defer func() { _ = ss.Close() }()
+	cs, err := c.Connect(ctx, t2, nil)
+	if err != nil {
+		t.Fatalf("client connect: %v", err)
+	}
+	defer func() { _ = cs.Close() }()
+
+	found := map[string]*mcp.Tool{}
+	for tool, err := range cs.Tools(ctx, nil) {
+		if err != nil {
+			t.Fatalf("tools iterator error: %v", err)
+		}
+		found[tool.Name] = tool
+	}
+
+	for _, name := range []string{"validate", "status"} {
+		tool, ok := found[name]
+		if !ok {
+			t.Fatalf("missing tool %q", name)
+		}
+		if tool.Annotations == nil {
+			t.Fatalf("tool %q missing annotations", name)
+		}
+		if !tool.Annotations.ReadOnlyHint {
+			t.Fatalf("tool %q should be read-only", name)
+		}
+		if !tool.Annotations.IdempotentHint {
+			t.Fatalf("tool %q should be idempotent", name)
+		}
+	}
+}
