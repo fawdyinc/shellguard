@@ -42,14 +42,49 @@ type Executor interface {
 	Disconnect(ctx context.Context, host string) error
 }
 
+// TransportType identifies how a server connection is established.
+type TransportType string
+
+const (
+	TransportSSH   TransportType = "ssh"
+	TransportLocal TransportType = "local"
+)
+
+// ServerEntry tracks the state of a connected server.
+type ServerEntry struct {
+	Transport TransportType
+	Connected bool
+}
+
+type ValidateInput struct {
+	Command string `json:"command" jsonschema:"Shell command or pipeline to validate"`
+}
+
+type ValidateResult struct {
+	OK      bool   `json:"ok"`
+	Reason  string `json:"reason,omitempty"`
+	Command string `json:"command,omitempty"`
+	Detail  string `json:"detail,omitempty"`
+}
+
+type StatusInput struct{}
+
+type ServerStatus struct {
+	Connected bool          `json:"connected"`
+	Transport TransportType `json:"transport"`
+}
+
+type StatusResult map[string]ServerStatus
+
 type ProbeResult struct {
 	Missing []string
 	Arch    string
 }
 
 type Core struct {
-	Registry map[string]*manifest.Manifest
-	Runner   Executor
+	Registry    map[string]*manifest.Manifest
+	Runner      Executor
+	LocalRunner Executor
 
 	Parse       func(string) (*parser.Pipeline, error)
 	Validate    func(*parser.Pipeline, map[string]*manifest.Manifest) error
@@ -67,7 +102,7 @@ type Core struct {
 	mu              sync.RWMutex
 	probeState      map[string]*ProbeResult
 	toolkitDeployed map[string]bool
-	connectedHosts  map[string]struct{}
+	servers         map[string]*ServerEntry
 }
 
 type ConnectInput struct {
@@ -77,6 +112,7 @@ type ConnectInput struct {
 	IdentityFile string `json:"identity_file,omitempty" jsonschema:"Path to SSH identity file"`
 	Password     string `json:"password,omitempty" jsonschema:"SSH password"`
 	Passphrase   string `json:"passphrase,omitempty" jsonschema:"Passphrase for encrypted key"`
+	Transport    string `json:"transport,omitempty" jsonschema:"Transport type: ssh (default) or local"`
 }
 
 type ExecuteInput struct {
@@ -146,6 +182,7 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 	c := &Core{
 		Registry:         registry,
 		Runner:           runner,
+		LocalRunner:      NewLocalExecutor(),
 		logger:           logger,
 		Parse:            parser.Parse,
 		Validate:         validator.ValidatePipeline,
@@ -158,7 +195,7 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 		MaxSleepSeconds:  15,
 		probeState:       make(map[string]*ProbeResult),
 		toolkitDeployed:  make(map[string]bool),
-		connectedHosts:   make(map[string]struct{}),
+		servers:          make(map[string]*ServerEntry),
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -171,6 +208,7 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 // It is safe to call multiple times.
 func (c *Core) Close(ctx context.Context) error {
 	err := c.Runner.Disconnect(ctx, "")
+	_ = c.LocalRunner.Disconnect(ctx, "")
 	c.clearHostState("")
 	if err != nil {
 		c.logger.InfoContext(ctx, "close", "outcome", "error", "error", err.Error())
@@ -192,6 +230,17 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 
 	start := time.Now()
 
+	if strings.EqualFold(in.Transport, "local") {
+		c.setConnected(in.Host, TransportLocal, true)
+		c.logger.InfoContext(ctx, "connect",
+			"host", in.Host,
+			"transport", "local",
+			"outcome", "success",
+			"duration_ms", time.Since(start).Milliseconds(),
+		)
+		return map[string]any{"ok": true, "host": in.Host, "message": fmt.Sprintf("Connected to %s (local)", in.Host)}, nil
+	}
+
 	params := ssh.ConnectionParams{
 		Host:         in.Host,
 		User:         in.User,
@@ -209,7 +258,7 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 		)
 		return nil, err
 	}
-	c.setConnected(in.Host, true)
+	c.setConnected(in.Host, TransportSSH, true)
 	c.setToolkitDeployed(in.Host, false)
 	c.clearProbeState(in.Host)
 
@@ -274,7 +323,7 @@ func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResu
 	reconstructed := c.Reconstruct(pipeline, isPSQL, c.isToolkitDeployed(hostForState))
 	timeout := c.getPipelineTimeout(pipeline)
 
-	execRes, err := c.Runner.Execute(ctx, in.Host, reconstructed, timeout)
+	execRes, err := c.resolveRunner(hostForState).Execute(ctx, in.Host, reconstructed, timeout)
 	if err != nil {
 		c.logger.InfoContext(ctx, "execute",
 			"command", in.Command,
@@ -374,7 +423,7 @@ func (c *Core) Provision(ctx context.Context, in ProvisionInput) (map[string]any
 }
 
 func (c *Core) Disconnect(ctx context.Context, in DisconnectInput) (map[string]any, error) {
-	if err := c.Runner.Disconnect(ctx, in.Host); err != nil {
+	if err := c.resolveRunner(in.Host).Disconnect(ctx, in.Host); err != nil {
 		c.logger.InfoContext(ctx, "disconnect",
 			"host", in.Host,
 			"outcome", "error",
@@ -558,29 +607,61 @@ func (c *Core) resolveProvisionHost(host string) (string, error) {
 func (c *Core) ConnectedHostsSnapshot() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	hosts := make([]string, 0, len(c.connectedHosts))
-	for host := range c.connectedHosts {
-		hosts = append(hosts, host)
+	hosts := make([]string, 0, len(c.servers))
+	for host, entry := range c.servers {
+		if entry.Connected {
+			hosts = append(hosts, host)
+		}
 	}
 	sort.Strings(hosts)
 	return hosts
 }
 
+// ServersSnapshot returns a snapshot of all server entries.
+func (c *Core) ServersSnapshot() StatusResult {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	result := make(StatusResult, len(c.servers))
+	for host, entry := range c.servers {
+		result[host] = ServerStatus{
+			Connected: entry.Connected,
+			Transport: entry.Transport,
+		}
+	}
+	return result
+}
+
 func (c *Core) isConnected(host string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	_, ok := c.connectedHosts[host]
-	return ok
+	entry, ok := c.servers[host]
+	return ok && entry.Connected
 }
 
-func (c *Core) setConnected(host string, connected bool) {
+func (c *Core) setConnected(host string, transport TransportType, connected bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if connected {
-		c.connectedHosts[host] = struct{}{}
+		c.servers[host] = &ServerEntry{Transport: transport, Connected: true}
 		return
 	}
-	delete(c.connectedHosts, host)
+	delete(c.servers, host)
+}
+
+func (c *Core) getTransport(host string) TransportType {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if entry, ok := c.servers[host]; ok {
+		return entry.Transport
+	}
+	return TransportSSH
+}
+
+func (c *Core) resolveRunner(host string) Executor {
+	if c.getTransport(host) == TransportLocal {
+		return c.LocalRunner
+	}
+	return c.Runner
 }
 
 func (c *Core) setProbeState(host string, result *ProbeResult) {
@@ -635,12 +716,12 @@ func (c *Core) clearHostState(host string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if host == "" {
-		clear(c.connectedHosts)
+		clear(c.servers)
 		clear(c.probeState)
 		clear(c.toolkitDeployed)
 		return
 	}
-	delete(c.connectedHosts, host)
+	delete(c.servers, host)
 	delete(c.probeState, host)
 	delete(c.toolkitDeployed, host)
 }
@@ -666,6 +747,31 @@ func collisionSafePath(dir, filename string) (string, error) {
 	}
 
 	return "", fmt.Errorf("filename collision: exhausted %d candidates for %q", maxCollisionRetries, filename)
+}
+
+func (c *Core) ValidateCommand(_ context.Context, in ValidateInput) (ValidateResult, error) {
+	if strings.TrimSpace(in.Command) == "" {
+		return ValidateResult{}, errors.New("command is required")
+	}
+
+	pipeline, err := c.Parse(in.Command)
+	if err != nil {
+		return ValidateResult{OK: false, Reason: err.Error()}, nil
+	}
+
+	if err := c.Validate(pipeline, c.Registry); err != nil {
+		var ve *validator.ValidationError
+		if errors.As(err, &ve) {
+			return ValidateResult{OK: false, Reason: ve.Message}, nil
+		}
+		return ValidateResult{OK: false, Reason: err.Error()}, nil
+	}
+
+	return ValidateResult{OK: true}, nil
+}
+
+func (c *Core) Status(_ context.Context, _ StatusInput) (StatusResult, error) {
+	return c.ServersSnapshot(), nil
 }
 
 func (c *Core) Sleep(ctx context.Context, in SleepInput) (map[string]any, error) {
@@ -734,6 +840,24 @@ func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 			out, err := core.Disconnect(ctx, in)
 			return nil, out, err
 		})
+
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "validate",
+		Description: "Validate a shell command against the security policy without executing it.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true, IdempotentHint: true},
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in ValidateInput) (*mcp.CallToolResult, ValidateResult, error) {
+		out, err := core.ValidateCommand(ctx, in)
+		return nil, out, err
+	})
+
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "status",
+		Description: "Show connection status for all servers.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true, IdempotentHint: true},
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in StatusInput) (*mcp.CallToolResult, StatusResult, error) {
+		out, err := core.Status(ctx, in)
+		return nil, out, err
+	})
 
 	if !core.DisabledTools["sleep"] {
 		mcp.AddTool(srv, &mcp.Tool{Name: "sleep", Description: fmt.Sprintf("Sleep locally for a specified duration (max %d seconds). Use to wait between checks, e.g. after observing an issue and before re-checking.", core.MaxSleepSeconds)},
