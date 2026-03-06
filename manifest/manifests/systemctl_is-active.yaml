@@ -1,6 +1,7 @@
 name: systemctl_is-active
 description: Check whether units are active
 category: services
-flags: []
+flags:
+  - flag: "--no-pager"
 stdin: false
 stdout: true

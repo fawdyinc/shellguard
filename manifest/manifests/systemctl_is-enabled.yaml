@@ -1,6 +1,7 @@
 name: systemctl_is-enabled
 description: Check whether unit files are enabled
 category: services
-flags: []
+flags:
+  - flag: "--no-pager"
 stdin: false
 stdout: true

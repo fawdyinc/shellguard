@@ -5,5 +5,6 @@ flags:
   - flag: "--type"
     takes_value: true
   - flag: "--failed"
+  - flag: "--no-pager"
 stdin: false
 stdout: true
