@@ -148,6 +148,7 @@ func (s *Server) dispatch(ctx context.Context, req Request) Response {
 		}
 		data, _ := json.Marshal(map[string]string{
 			"host":    params.Host,
+			"key":     params.Host,
 			"message": "Connected to " + params.Host,
 		})
 		return Response{OK: true, Data: data}
