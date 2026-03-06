@@ -24,7 +24,7 @@ homebrew_casks:
     binaries:
       - shellguard
     repository:
-      owner: jonchun
+      owner: fawdyinc
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: https://github.com/fawdyinc/shellguard
@@ -41,5 +41,5 @@ checksum:
 
 release:
   github:
-    owner: jonchun
+    owner: fawdyinc
     name: shellguard

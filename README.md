@@ -16,13 +16,13 @@ Commands are restricted to a curated set of observation and diagnostic tools. De
 ### Install
 
 ```bash
-brew install jonchun/tap/shellguard
+brew install fawdyinc/tap/shellguard
 ```
 
 Or download the latest binary:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jonchun/shellguard/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/fawdyinc/shellguard/main/install.sh | sh
 ```
 
 Or with Go:
