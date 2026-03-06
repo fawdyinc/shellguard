@@ -4,5 +4,6 @@ category: services
 flags:
   - flag: "-p"
     takes_value: true
+  - flag: "--no-pager"
 stdin: false
 stdout: true
