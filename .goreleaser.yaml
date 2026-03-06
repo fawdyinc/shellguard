@@ -10,6 +10,7 @@ builds:
     goos:
       - darwin
       - linux
+      - windows
     goarch:
       - amd64
       - arm64
@@ -17,6 +18,10 @@ builds:
 archives:
   - formats:
       - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
     name_template: "shellguard_{{ .Os }}_{{ .Arch }}"
 
 homebrew_casks:
