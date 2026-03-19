@@ -1,0 +1,14 @@
+name: get-winevent
+description: Get events from event logs
+category: logs
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-LogName"
+    takes_value: true
+  - flag: "-MaxEvents"
+    takes_value: true
+  - flag: "-FilterHashtable"
+    takes_value: true
+stdin: false
+stdout: true

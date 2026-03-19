@@ -1,0 +1,8 @@
+name: convertto-csv
+description: Convert objects to CSV
+category: utility
+shell: powershell
+flags:
+  - flag: "-NoTypeInformation"
+stdin: true
+stdout: true

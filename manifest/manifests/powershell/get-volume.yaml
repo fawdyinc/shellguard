@@ -1,0 +1,7 @@
+name: get-volume
+description: Get volume information
+category: storage
+shell: powershell
+flags: []
+stdin: false
+stdout: true

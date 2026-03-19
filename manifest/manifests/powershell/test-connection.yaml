@@ -1,0 +1,14 @@
+name: test-connection
+description: Test network connectivity
+category: network
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-ComputerName"
+    takes_value: true
+  - flag: "-Port"
+    takes_value: true
+  - flag: "-Count"
+    takes_value: true
+stdin: false
+stdout: true

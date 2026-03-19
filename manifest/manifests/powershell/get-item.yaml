@@ -1,0 +1,12 @@
+name: get-item
+description: Get item at specified location
+category: filesystem
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+allows_path_args: true
+stdin: false
+stdout: true

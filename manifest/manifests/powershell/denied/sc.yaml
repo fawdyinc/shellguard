@@ -1,0 +1,4 @@
+name: sc
+shell: powershell
+deny: true
+reason: "Use Get-Service instead."

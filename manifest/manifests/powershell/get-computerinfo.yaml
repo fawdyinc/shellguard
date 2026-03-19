@@ -1,0 +1,7 @@
+name: get-computerinfo
+description: Get computer system information
+category: system
+shell: powershell
+flags: []
+stdin: false
+stdout: true

@@ -1,0 +1,4 @@
+name: invoke-webrequest
+shell: powershell
+deny: true
+reason: "HTTP requests not allowed."

@@ -1,0 +1,13 @@
+name: test-path
+description: Test whether a path exists
+category: filesystem
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-PathType"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+stdin: false
+stdout: true

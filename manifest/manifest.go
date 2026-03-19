@@ -26,7 +26,7 @@ var SubcommandCommands = map[string]bool{
 	"aws":       true,
 }
 
-//go:embed manifests/*.yaml manifests/denied/*.yaml
+//go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml
 var manifestsFS embed.FS
 
 type ManifestError struct {
@@ -60,6 +60,7 @@ type Manifest struct {
 	Stdin            bool     `yaml:"stdin"`
 	Stdout           bool     `yaml:"stdout"`
 	RegexArgPosition *int     `yaml:"regex_arg_position"`
+	Shell            string   `yaml:"shell"` // "powershell" or "" (bash)
 
 	source string
 }
@@ -205,6 +206,7 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		Stdin:            defaultBool(data, "stdin"),
 		Stdout:           stdout,
 		RegexArgPosition: regexPos,
+		Shell:            defaultString(data, "shell"),
 	}, nil
 }
 

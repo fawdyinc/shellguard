@@ -1,0 +1,11 @@
+name: get-nettcpconnection
+description: Get TCP connection information
+category: network
+shell: powershell
+flags:
+  - flag: "-State"
+    takes_value: true
+  - flag: "-LocalPort"
+    takes_value: true
+stdin: false
+stdout: true

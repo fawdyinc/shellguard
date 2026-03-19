@@ -1,0 +1,9 @@
+name: out-string
+description: Convert objects to strings
+category: utility
+shell: powershell
+flags:
+  - flag: "-Width"
+    takes_value: true
+stdin: true
+stdout: true

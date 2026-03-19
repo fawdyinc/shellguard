@@ -1,0 +1,23 @@
+name: where-object
+description: Filter objects from a collection
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-eq"
+  - flag: "-ne"
+  - flag: "-gt"
+  - flag: "-lt"
+  - flag: "-ge"
+  - flag: "-le"
+  - flag: "-like"
+  - flag: "-notlike"
+  - flag: "-match"
+  - flag: "-notmatch"
+  - flag: "-contains"
+  - flag: "-notcontains"
+  - flag: "-in"
+  - flag: "-notin"
+stdin: true
+stdout: true

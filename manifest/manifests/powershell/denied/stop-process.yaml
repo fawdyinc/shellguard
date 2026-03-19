@@ -1,0 +1,4 @@
+name: stop-process
+shell: powershell
+deny: true
+reason: "Destructive. Use Get-Process to inspect processes instead."

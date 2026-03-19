@@ -1,0 +1,4 @@
+name: net
+shell: powershell
+deny: true
+reason: "Use Get-Service, Get-NetAdapter, etc. instead."

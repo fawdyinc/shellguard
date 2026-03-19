@@ -1,0 +1,4 @@
+name: regedit
+shell: powershell
+deny: true
+reason: "Use Get-ItemProperty for reading registry."

@@ -1,0 +1,4 @@
+name: start-process
+shell: powershell
+deny: true
+reason: "Process launching not allowed. Use Get-Process to inspect running processes."

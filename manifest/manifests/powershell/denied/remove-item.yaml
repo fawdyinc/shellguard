@@ -1,0 +1,4 @@
+name: remove-item
+shell: powershell
+deny: true
+reason: "Destructive. Use Get-ChildItem to inspect files instead."

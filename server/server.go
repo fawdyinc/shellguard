@@ -21,6 +21,7 @@ import (
 	"github.com/fawdyinc/shellguard/ssh"
 	"github.com/fawdyinc/shellguard/toolkit"
 	"github.com/fawdyinc/shellguard/validator"
+	winrmPkg "github.com/fawdyinc/shellguard/winrm"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -48,11 +49,21 @@ type TransportType string
 const (
 	TransportSSH   TransportType = "ssh"
 	TransportLocal TransportType = "local"
+	TransportWinRM TransportType = "winrm"
+)
+
+// ShellType identifies the shell dialect used by a connection.
+type ShellType string
+
+const (
+	ShellBash       ShellType = "bash"
+	ShellPowerShell ShellType = "powershell"
 )
 
 // ServerEntry tracks the state of a connected server.
 type ServerEntry struct {
 	Transport TransportType
+	Shell     ShellType
 	Connected bool
 }
 
@@ -72,6 +83,7 @@ type StatusInput struct{}
 type ServerStatus struct {
 	Connected bool          `json:"connected"`
 	Transport TransportType `json:"transport"`
+	Shell     ShellType     `json:"shell"`
 }
 
 type StatusResult map[string]ServerStatus
@@ -85,11 +97,15 @@ type Core struct {
 	Registry    map[string]*manifest.Manifest
 	Runner      Executor
 	LocalRunner Executor
+	WinRMRunner Executor
 
 	Parse       func(string) (*parser.Pipeline, error)
 	Validate    func(*parser.Pipeline, map[string]*manifest.Manifest) error
 	Reconstruct func(*parser.Pipeline, bool, bool) string
 	Truncate    func(string, string, int, int, ...int) output.CommandResult
+
+	ParsePS       func(string) (*parser.Pipeline, error)
+	ReconstructPS func(*parser.Pipeline) string
 
 	DefaultTimeout   int
 	MaxOutputBytes   int
@@ -107,12 +123,14 @@ type Core struct {
 
 type ConnectInput struct {
 	Host         string `json:"host" jsonschema:"Hostname or IP address"`
-	User         string `json:"user,omitempty" jsonschema:"SSH username (default root)"`
-	Port         int    `json:"port,omitempty" jsonschema:"SSH port (default 22)"`
+	User         string `json:"user,omitempty" jsonschema:"SSH username (default root) or Windows username for WinRM"`
+	Port         int    `json:"port,omitempty" jsonschema:"Port (SSH default 22, WinRM default 5985/5986)"`
 	IdentityFile string `json:"identity_file,omitempty" jsonschema:"Path to SSH identity file"`
-	Password     string `json:"password,omitempty" jsonschema:"SSH password"`
+	Password     string `json:"password,omitempty" jsonschema:"SSH or WinRM password"`
 	Passphrase   string `json:"passphrase,omitempty" jsonschema:"Passphrase for encrypted key"`
-	Transport    string `json:"transport,omitempty" jsonschema:"Transport type: ssh (default) or local"`
+	Transport    string `json:"transport,omitempty" jsonschema:"Transport type: ssh (default), local, or winrm"`
+	UseTLS       bool   `json:"use_tls,omitempty" jsonschema:"WinRM: use HTTPS (port 5986)"`
+	Insecure     bool   `json:"insecure,omitempty" jsonschema:"WinRM: skip TLS certificate verification"`
 }
 
 type ExecuteInput struct {
@@ -209,6 +227,9 @@ func NewCore(registry map[string]*manifest.Manifest, runner Executor, logger *sl
 func (c *Core) Close(ctx context.Context) error {
 	err := c.Runner.Disconnect(ctx, "")
 	_ = c.LocalRunner.Disconnect(ctx, "")
+	if c.WinRMRunner != nil {
+		_ = c.WinRMRunner.Disconnect(ctx, "")
+	}
 	c.clearHostState("")
 	if err != nil {
 		c.logger.InfoContext(ctx, "close", "outcome", "error", "error", err.Error())
@@ -231,7 +252,7 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 	start := time.Now()
 
 	if strings.EqualFold(in.Transport, "local") {
-		c.setConnected(in.Host, TransportLocal, true)
+		c.setConnected(in.Host, TransportLocal, ShellBash, true)
 		c.logger.InfoContext(ctx, "connect",
 			"host", in.Host,
 			"transport", "local",
@@ -239,6 +260,10 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 			"duration_ms", time.Since(start).Milliseconds(),
 		)
 		return map[string]any{"ok": true, "host": in.Host, "message": fmt.Sprintf("Connected to %s (local)", in.Host)}, nil
+	}
+
+	if strings.EqualFold(in.Transport, "winrm") {
+		return c.connectWinRM(ctx, in, start)
 	}
 
 	params := ssh.ConnectionParams{
@@ -258,7 +283,7 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 		)
 		return nil, err
 	}
-	c.setConnected(in.Host, TransportSSH, true)
+	c.setConnected(in.Host, TransportSSH, ShellBash, true)
 	c.setToolkitDeployed(in.Host, false)
 	c.clearProbeState(in.Host)
 
@@ -287,14 +312,67 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 	return map[string]any{"ok": true, "host": in.Host, "message": message}, nil
 }
 
+func (c *Core) connectWinRM(ctx context.Context, in ConnectInput, start time.Time) (map[string]any, error) {
+	if c.WinRMRunner == nil {
+		return nil, errors.New("WinRM transport is not configured")
+	}
+
+	params := ssh.ConnectionParams{
+		Host:     in.Host,
+		User:     in.User,
+		Port:     in.Port,
+		Password: in.Password,
+		UseTLS:   in.UseTLS,
+		Insecure: in.Insecure,
+	}
+
+	if err := c.WinRMRunner.Connect(ctx, params); err != nil {
+		c.logger.InfoContext(ctx, "connect",
+			"host", in.Host,
+			"transport", "winrm",
+			"outcome", "error",
+			"error", err.Error(),
+			"duration_ms", time.Since(start).Milliseconds(),
+		)
+		return nil, err
+	}
+
+	c.setConnected(in.Host, TransportWinRM, ShellPowerShell, true)
+
+	c.logger.InfoContext(ctx, "connect",
+		"host", in.Host,
+		"transport", "winrm",
+		"shell", "powershell",
+		"outcome", "success",
+		"duration_ms", time.Since(start).Milliseconds(),
+	)
+
+	message := fmt.Sprintf("Connected to %s (winrm/powershell)", in.Host)
+	return map[string]any{
+		"ok":      true,
+		"host":    in.Host,
+		"shell":   "powershell",
+		"message": message,
+		"hint":    "Use PowerShell cmdlets (Get-Process, Get-Service, Get-WinEvent, etc.). Single quotes only, no $ or {} or ;. Use | to pipe between commands.",
+	}, nil
+}
+
 func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResult, error) {
 	if strings.TrimSpace(in.Command) == "" {
 		return output.CommandResult{}, errors.New("command is required")
 	}
 
 	start := time.Now()
+	hostForState := c.resolveHostForState(in.Host)
+	shell := c.getShellType(hostForState)
 
-	pipeline, err := c.Parse(in.Command)
+	// Select parser based on shell type.
+	parseFn := c.Parse
+	if shell == ShellPowerShell && c.ParsePS != nil {
+		parseFn = c.ParsePS
+	}
+
+	pipeline, err := parseFn(in.Command)
 	if err != nil {
 		c.logger.InfoContext(ctx, "execute",
 			"command", in.Command,
@@ -318,9 +396,14 @@ func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResu
 		return output.CommandResult{}, err
 	}
 
-	isPSQL := pipelineContainsPSQL(pipeline)
-	hostForState := c.resolveHostForState(in.Host)
-	reconstructed := c.Reconstruct(pipeline, isPSQL, c.isToolkitDeployed(hostForState))
+	var reconstructed string
+	if shell == ShellPowerShell && c.ReconstructPS != nil {
+		psCmd := c.ReconstructPS(pipeline)
+		reconstructed = winrmPkg.WrapForWinRM(psCmd)
+	} else {
+		isPSQL := pipelineContainsPSQL(pipeline)
+		reconstructed = c.Reconstruct(pipeline, isPSQL, c.isToolkitDeployed(hostForState))
+	}
 	timeout := c.getPipelineTimeout(pipeline)
 
 	execRes, err := c.resolveRunner(hostForState).Execute(ctx, in.Host, reconstructed, timeout)
@@ -626,6 +709,7 @@ func (c *Core) ServersSnapshot() StatusResult {
 		result[host] = ServerStatus{
 			Connected: entry.Connected,
 			Transport: entry.Transport,
+			Shell:     entry.Shell,
 		}
 	}
 	return result
@@ -638,11 +722,11 @@ func (c *Core) isConnected(host string) bool {
 	return ok && entry.Connected
 }
 
-func (c *Core) setConnected(host string, transport TransportType, connected bool) {
+func (c *Core) setConnected(host string, transport TransportType, shell ShellType, connected bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if connected {
-		c.servers[host] = &ServerEntry{Transport: transport, Connected: true}
+		c.servers[host] = &ServerEntry{Transport: transport, Shell: shell, Connected: true}
 		return
 	}
 	delete(c.servers, host)
@@ -657,11 +741,28 @@ func (c *Core) getTransport(host string) TransportType {
 	return TransportSSH
 }
 
-func (c *Core) resolveRunner(host string) Executor {
-	if c.getTransport(host) == TransportLocal {
-		return c.LocalRunner
+func (c *Core) getShellType(host string) ShellType {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	if entry, ok := c.servers[host]; ok {
+		return entry.Shell
 	}
-	return c.Runner
+	return ShellBash
+}
+
+func (c *Core) resolveRunner(host string) Executor {
+	transport := c.getTransport(host)
+	switch transport {
+	case TransportLocal:
+		return c.LocalRunner
+	case TransportWinRM:
+		if c.WinRMRunner != nil {
+			return c.WinRMRunner
+		}
+		return c.Runner
+	default:
+		return c.Runner
+	}
 }
 
 func (c *Core) setProbeState(host string, result *ProbeResult) {
@@ -813,7 +914,7 @@ func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 	}
 	srv := mcp.NewServer(&mcp.Implementation{Name: name, Version: version}, &mcp.ServerOptions{Logger: core.Logger()})
 
-	mcp.AddTool(srv, &mcp.Tool{Name: "connect", Description: "Connect to a remote server via SSH"},
+	mcp.AddTool(srv, &mcp.Tool{Name: "connect", Description: "Connect to a remote server via SSH or WinRM. Set transport to 'winrm' for Windows servers (uses PowerShell). Default transport is 'ssh' (uses bash)."},
 		func(ctx context.Context, _ *mcp.CallToolRequest, in ConnectInput) (*mcp.CallToolResult, map[string]any, error) {
 			out, err := core.Connect(ctx, in)
 			return nil, out, err
@@ -824,8 +925,9 @@ func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 		Description: fmt.Sprintf("Execute a shell command on the connected remote server. "+
 			"Commands are validated against a security allowlist before execution. "+
 			"Denied commands return the reason and often suggest alternatives. "+
-			"Supported shell syntax: simple commands, pipes (|), and conditional chaining (&& ||). "+
-			"Semicolons, redirections, variable expansion, command substitution, and subshells are not allowed. "+
+			"SSH connections use bash: simple commands, pipes (|), and conditional chaining (&& ||). "+
+			"WinRM connections use PowerShell cmdlets: Get-Process, Get-Service, Get-WinEvent, etc. "+
+			"PowerShell rules: single quotes only, no $, {}, or ; (except inside @{}). Use | to pipe. "+
 			"Output is truncated to %d bytes (head/tail preserved) for large results.", core.MaxOutputBytes),
 		Annotations: &mcp.ToolAnnotations{
 			ReadOnlyHint: true,

@@ -1,0 +1,10 @@
+name: format-table
+description: Format output as a table
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-AutoSize"
+stdin: true
+stdout: true

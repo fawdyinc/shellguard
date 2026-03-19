@@ -1,0 +1,9 @@
+name: format-list
+description: Format output as a list of properties
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+stdin: true
+stdout: true

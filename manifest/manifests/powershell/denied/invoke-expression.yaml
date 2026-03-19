@@ -1,0 +1,4 @@
+name: invoke-expression
+shell: powershell
+deny: true
+reason: "Arbitrary code execution not allowed."

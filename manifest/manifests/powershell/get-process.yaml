@@ -1,0 +1,11 @@
+name: get-process
+description: List running processes
+category: process
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Id"
+    takes_value: true
+stdin: false
+stdout: true

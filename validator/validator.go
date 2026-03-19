@@ -16,6 +16,27 @@ var (
 	globChars          = regexp.MustCompile(`[*?\[]`)
 )
 
+// psCommonParams are PowerShell common parameters allowed globally for all
+// PowerShell cmdlets. These are checked before manifest flag validation.
+var psCommonParams = map[string]bool{
+	"-ErrorAction":       true,
+	"-WarningAction":     true,
+	"-InformationAction": true,
+	"-OutVariable":       true,
+	"-PipelineVariable":  true,
+	"-Verbose":           true,
+	"-Debug":             true,
+}
+
+// psCommonParamsTakesValue indicates which common params expect a value.
+var psCommonParamsTakesValue = map[string]bool{
+	"-ErrorAction":       true,
+	"-WarningAction":     true,
+	"-InformationAction": true,
+	"-OutVariable":       true,
+	"-PipelineVariable":  true,
+}
+
 type ValidationError struct {
 	Message string
 }
@@ -174,6 +195,8 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 		return err
 	}
 
+	isPowerShell := m.Shell == "powershell"
+
 	idx := 0
 	positionalIdx := 0
 	for idx < len(args) {
@@ -185,6 +208,16 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 			}
 
 			flagName, inlineValue, hasInline := splitLongFlag(arg)
+
+			// Allow PowerShell common parameters globally.
+			if isPowerShell && psCommonParams[flagName] {
+				if psCommonParamsTakesValue[flagName] && !hasInline {
+					idx++ // skip the value
+				}
+				idx++
+				continue
+			}
+
 			if err := validateFlag(command, flagName, m); err != nil {
 				return err
 			}
@@ -212,8 +245,11 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 				}
 			}
 			if m.RegexArgPosition == nil || positionalIdx != *m.RegexArgPosition {
-				if err := checkGlobInPositional(arg); err != nil {
-					return err
+				// Skip glob checking for PowerShell (wildcards are common in PS).
+				if !isPowerShell {
+					if err := checkGlobInPositional(arg); err != nil {
+						return err
+					}
 				}
 			}
 			positionalIdx++
