@@ -4,6 +4,18 @@ Stop copy-pasting terminal output into your AI. Let your LLM SSH in and look aro
 
 ShellGuard is an [MCP](https://modelcontextprotocol.io/) server that gives LLM agents controlled bash access to remote servers over SSH. Connect your AI to production, staging, or dev servers and let it run diagnostics, inspect logs, query databases, and troubleshoot -- hands-free.
 
+---
+
+ShellGuard is the open-source security layer built by the team at [Fawdy](https://fawdy.com). It powers Fawdy's AI-powered Linux server investigation tool that delivers plain-English root cause analysis.
+
+You can use ShellGuard standalone with any MCP-compatible AI agent, or try the full investigation experience with [Fawdy](https://fawdy.com).
+
+---
+
+## Why ShellGuard?
+
+AI agents are powerful, but giving them unrestricted shell access to production servers is risky. ShellGuard solves this by enforcing read-only access at the command level. Every command is parsed, validated against an allowlist, and reconstructed before execution. If an agent tries something destructive, ShellGuard blocks it and tells the agent what to do instead.
+
 Commands are restricted to a curated set of observation and diagnostic tools. Destructive operations are blocked with actionable suggestions so the LLM can self-correct and keep investigating:
 
 - `wget -r` -> `"Recursive downloading is not allowed"`
@@ -383,6 +395,10 @@ shellguard/
   output/                # Output truncation (64KB cap)
   toolkit/               # Diagnostic tool provisioning (rg, jq, yq)
 ```
+
+## Try the Full Experience
+
+ShellGuard is great on its own, but if you want automated incident investigation with plain-English root cause reports, check out [Fawdy](https://fawdy.com). It connects to your Linux servers via ShellGuard and investigates incidents automatically. 10-minute setup.
 
 ## License
 
