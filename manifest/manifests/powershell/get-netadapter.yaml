@@ -12,7 +12,6 @@ flags:
   - flag: "-InterfaceDescription"
     takes_value: true
   - flag: "-Physical"
-  - flag: "-Virtual"
   - flag: "-IncludeHidden"
 stdin: false
 stdout: true

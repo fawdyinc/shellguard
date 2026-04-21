@@ -13,7 +13,5 @@ flags:
     takes_value: true
   - flag: "-Exclude"
     takes_value: true
-  - flag: "-ComputerName"
-    takes_value: true
 stdin: false
 stdout: true

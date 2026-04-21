@@ -10,8 +10,6 @@ flags:
   - flag: "-IncludeUserName"
   - flag: "-Module"
   - flag: "-FileVersionInfo"
-  - flag: "-ComputerName"
-    takes_value: true
   - flag: "-InputObject"
     takes_value: true
 stdin: false
