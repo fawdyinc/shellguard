@@ -37,7 +37,22 @@ func (d *WinRMDialer) Dial(_ context.Context, params ssh.ConnectionParams) (*win
 
 	endpoint := gowinrm.NewEndpoint(params.Host, params.Port, params.UseTLS, params.Insecure, nil, nil, nil, d.connectTimeout())
 
-	client, err := gowinrm.NewClient(endpoint, params.User, params.Password)
+	clientParams := gowinrm.NewParameters("PT60S", "en-US", 153600)
+	clientParams.TransportDecorator = func() gowinrm.Transporter {
+		// Over HTTP, Windows (Win10+/Server 2019+) requires WinRM message-level
+		// encryption with NTLM. Over HTTPS, the TLS channel already provides
+		// confidentiality, so plain ClientNTLM is sufficient.
+		if params.UseTLS {
+			return &gowinrm.ClientNTLM{}
+		}
+		enc, err := gowinrm.NewEncryption("ntlm")
+		if err != nil {
+			return &gowinrm.ClientNTLM{}
+		}
+		return enc
+	}
+
+	client, err := gowinrm.NewClientWithParameters(endpoint, params.User, params.Password, clientParams)
 	if err != nil {
 		return nil, fmt.Errorf("create winrm client: %w", err)
 	}
