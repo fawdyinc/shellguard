@@ -207,14 +207,58 @@ func TestParsePowerShell_RejectSubexpression(t *testing.T) {
 	}
 }
 
-func TestParsePowerShell_RejectScriptBlock(t *testing.T) {
-	_, err := ParsePowerShell("Get-Process | Where-Object { $_.CPU -gt 10 }")
-	if err == nil {
-		t.Fatal("expected error for script block")
+func TestParsePowerShell_AcceptsWhereObjectBlock(t *testing.T) {
+	p, err := ParsePowerShell("Get-Process | Where-Object { $_.CPU -gt 10 }")
+	if err != nil {
+		t.Fatalf("unexpected error for Where-Object block: %v", err)
 	}
-	// Could match either script block or variable reference ($ comes first)
-	if !strings.Contains(err.Error(), "not allowed") && !strings.Contains(err.Error(), "not supported") {
-		t.Errorf("expected rejection message, got: %v", err)
+	if len(p.Segments) != 2 {
+		t.Fatalf("expected 2 segments, got %d", len(p.Segments))
+	}
+	wo := p.Segments[1]
+	if wo.Command != "where-object" {
+		t.Errorf("expected 'where-object', got %q", wo.Command)
+	}
+	if len(wo.Args) != 1 {
+		t.Fatalf("expected 1 arg (the block), got %d: %v", len(wo.Args), wo.Args)
+	}
+	if !strings.HasPrefix(wo.Args[0], "{") || !strings.HasSuffix(wo.Args[0], "}") {
+		t.Errorf("expected block arg, got %q", wo.Args[0])
+	}
+	if !strings.Contains(wo.Args[0], "$_.CPU") {
+		t.Errorf("expected $_.CPU in block, got %q", wo.Args[0])
+	}
+}
+
+func TestParsePowerShell_AcceptsCalculatedProperty(t *testing.T) {
+	p, err := ParsePowerShell("Get-PSDrive | Select-Object Name, @{N='SizeGB';E={[math]::Round($_.Size/1GB,2)}}")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(p.Segments) != 2 {
+		t.Fatalf("expected 2 segments, got %d", len(p.Segments))
+	}
+	// `Name, @{...}` renders as one array arg joined by commas.
+	args := p.Segments[1].Args
+	if len(args) != 1 {
+		t.Fatalf("expected 1 composite arg, got %v", args)
+	}
+	arg := args[0]
+	if !strings.HasPrefix(arg, "Name,@{") {
+		t.Errorf("expected 'Name,@{...}' prefix, got %q", arg)
+	}
+	if !strings.Contains(arg, "E={[math]::Round(") {
+		t.Errorf("expected raw block in hashtable value, got %q", arg)
+	}
+}
+
+func TestParsePowerShell_RejectsDisallowedStaticType(t *testing.T) {
+	_, err := ParsePowerShell("Get-Process | Where-Object { [System.Diagnostics.Process]::Start('evil') }")
+	if err == nil {
+		t.Fatal("expected rejection for non-whitelisted type")
+	}
+	if !strings.Contains(err.Error(), "not allowed") {
+		t.Errorf("expected whitelist rejection, got: %v", err)
 	}
 }
 

@@ -19,15 +19,15 @@ entries:
     expect: parses
     reason: get-psdrive-bare
 
-  # ---- Fails today: calculated property (Workstream C) ----
+  # ---- Workstream C: calculated property in Select-Object ----
   - command: "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,2)}}"
     source: ses_252a83796ffedk7cXAmutOY5tq
-    expect: rejects
+    expect: parses
     reason: calculated-property-in-select
 
   - command: "Get-Volume | Select-Object DriveLetter, @{N='SizeGB';E={[math]::Round($_.Size/1GB,2)}}"
     source: synthetic
-    expect: rejects
+    expect: parses
     reason: calculated-property-in-select
 
   # ---- Workstream C: DQString with safe content (no $ or backtick) ----
@@ -82,10 +82,10 @@ entries:
     expect: parses
     reason: group-object-manifest-miss
 
-  # ---- Fails today: compound Where-Object filter (Workstream C) ----
+  # ---- Workstream C: compound Where-Object filter via PSSafeExpr block ----
   - command: "Get-Service | Where-Object { $_.Status -eq 'Running' -and $_.StartType -eq 'Automatic' }"
     source: synthetic
-    expect: rejects
+    expect: parses
     reason: compound-where-object-block
 
   # ---- Workstream C: env var read ($env:VARNAME) ----

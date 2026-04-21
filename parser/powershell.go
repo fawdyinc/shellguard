@@ -41,15 +41,21 @@ var psLexer = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Dollar", Pattern: `\$`},
 	{Name: "String", Pattern: `'[^']*'`},
 	// DQString allows any non-quote byte in the body. Content safety (no $,
-	// no backtick) is validated at parse time by the grammar productions
-	// that accept DQString; until those land, DQString is unparseable.
+	// no backtick) is enforced by validatePSPipeline at parse time.
 	{Name: "DQString", Pattern: `"[^"]*"`},
+	// SizeLiteral must precede Number so `1GB` is one token, not `1` + `GB`.
+	{Name: "SizeLiteral", Pattern: `[0-9]+(?:KB|MB|GB|TB)`},
 	{Name: "Number", Pattern: `[0-9]+`},
+	// Flag must precede Minus so `-Name` lexes as a flag token, not minus + ident.
 	{Name: "Flag", Pattern: `-[a-zA-Z_][a-zA-Z0-9_]*`},
+	{Name: "Plus", Pattern: `\+`},
+	{Name: "Minus", Pattern: `-`},
+	{Name: "Slash", Pattern: `/`},
+	{Name: "Percent", Pattern: `%`},
 	// Ident allows dots, hyphens, wildcards (*), colons, and backslashes for
-	// paths (C:\foo), env refs (Env:PATH), wildcards (*.log), and comma-separated
-	// property lists (Id,Name,CPU).
-	{Name: "Ident", Pattern: `[a-zA-Z_*][a-zA-Z0-9_.*:,\\-]*`},
+	// paths (C:\foo), env refs (Env:PATH), and wildcards (*.log). Comma-joined
+	// lists like "Id,Name" are handled as a grammar-level PSCommaList.
+	{Name: "Ident", Pattern: `[a-zA-Z_*][a-zA-Z0-9_.*:\\-]*`},
 })
 
 // PSPipeline is the top-level grammar rule: one or more commands separated by |.
@@ -89,14 +95,31 @@ type PSPositional struct {
 	Value PSValue `@@`
 }
 
+// PSValue is a comma-separated list of literals. PowerShell treats `a, b, c`
+// as an array argument; we flatten it into a single comma-joined token string.
+// A single value (no commas) has an empty Tail slice.
+//
 //nolint:govet
 type PSValue struct {
+	First *PSLiteral   `@@`
+	Tail  []*PSLiteral `( "," @@ )*`
+}
+
+//nolint:govet
+type PSLiteral struct {
 	Hashtable *PSHashtable `  @@`
+	Block     *PSExprBlock `| @@`
 	String    *string      `| @String`
 	DQString  *string      `| @DQString`
 	EnvRef    *string      `| @EnvRef`
+	Size      *string      `| @SizeLiteral`
 	Number    *string      `| @Number`
-	Ident     *string      `| @Ident ( "-" @Ident )?`
+	Ident     *PSIdentish  `| @@`
+}
+
+//nolint:govet
+type PSIdentish struct {
+	Head string `@Ident ( "-" @Ident )?`
 }
 
 //nolint:govet
@@ -109,6 +132,127 @@ type PSHashEntry struct {
 	Key   string  `@Ident "="`
 	Value PSValue `@@`
 	Semi  *string `@Semi?`
+}
+
+// PSExprBlock is a safely-scoped script block: only a constrained expression
+// grammar is accepted inside. Used for calculated properties (@{E={...}}) and
+// Where/Sort/Group-Object script-block arguments.
+//
+//nolint:govet
+type PSExprBlock struct {
+	Expr *PSSafeExpr `LBrace @@ HashClose`
+}
+
+// PSSafeExpr is the root of the safe-expression sub-grammar. Deliberately
+// narrow: no assignment, no call syntax outside the type-whitelisted static
+// call form, no arbitrary subexpressions beyond grouping parens.
+//
+//nolint:govet
+type PSSafeExpr struct {
+	Or *PSOrExpr `@@`
+}
+
+//nolint:govet
+type PSOrExpr struct {
+	First *PSAndExpr  `@@`
+	Rest  []*PSOrTail `@@*`
+}
+
+//nolint:govet
+type PSOrTail struct {
+	Op   string     `@("-or")`
+	Expr *PSAndExpr `@@`
+}
+
+//nolint:govet
+type PSAndExpr struct {
+	First *PSCmpExpr   `@@`
+	Rest  []*PSAndTail `@@*`
+}
+
+//nolint:govet
+type PSAndTail struct {
+	Op   string     `@("-and")`
+	Expr *PSCmpExpr `@@`
+}
+
+//nolint:govet
+type PSCmpExpr struct {
+	Left *PSAddExpr `@@`
+	Tail *PSCmpTail `@@?`
+}
+
+//nolint:govet
+type PSCmpTail struct {
+	Op    string     `@("-eq"|"-ne"|"-gt"|"-lt"|"-ge"|"-le"|"-like"|"-notlike"|"-match"|"-notmatch")`
+	Right *PSAddExpr `@@`
+}
+
+//nolint:govet
+type PSAddExpr struct {
+	First *PSMulExpr   `@@`
+	Rest  []*PSAddTail `@@*`
+}
+
+//nolint:govet
+type PSAddTail struct {
+	Op   string     `@("+"|"-")`
+	Expr *PSMulExpr `@@`
+}
+
+//nolint:govet
+type PSMulExpr struct {
+	First *PSUnary     `@@`
+	Rest  []*PSMulTail `@@*`
+}
+
+//nolint:govet
+type PSMulTail struct {
+	Op   string   `@("/"|"%")`
+	Expr *PSUnary `@@`
+}
+
+//nolint:govet
+type PSUnary struct {
+	Neg  *string `@"-"?`
+	Atom *PSAtom `@@`
+}
+
+//nolint:govet
+type PSAtom struct {
+	StaticCall *PSStaticCall `  @@`
+	PipeVar    *PSPipeVar    `| @@`
+	EnvRef     *string       `| @EnvRef`
+	Size       *string       `| @SizeLiteral`
+	Number     *string       `| @Number`
+	String     *string       `| @String`
+	DQString   *string       `| @DQString`
+	Paren      *PSSafeExpr   `| "(" @@ ")"`
+}
+
+// PSPipeVar matches `$_` optionally followed by dotted property accessors.
+// The Ident pattern includes `.` in its inner char class, so `$_.Status.Foo`
+// lexes as Dollar + Ident("_.Status.Foo") — captured wholesale here.
+//
+//nolint:govet
+type PSPipeVar struct {
+	Ident string `Dollar @Ident`
+}
+
+// PSStaticCall matches `[Type]::Member` optionally followed by `(args)`.
+// Type and Member identifiers are whitelisted during post-parse validation;
+// the grammar only bounds the shape, not which types/members are safe.
+//
+//nolint:govet
+type PSStaticCall struct {
+	Type   string           `"[" @Ident "]" "::"`
+	Member string           `@Ident`
+	Call   *PSStaticArgList `@@?`
+}
+
+//nolint:govet
+type PSStaticArgList struct {
+	Args []*PSSafeExpr `"(" ( @@ ( "," @@ )* )? ")"`
 }
 
 var psParser = participle.MustBuild[PSPipeline](
@@ -284,9 +428,23 @@ func validatePSValue(v *PSValue) error {
 	if v == nil {
 		return nil
 	}
-	if v.DQString != nil {
-		// Strip surrounding quotes for content inspection.
-		body := *v.DQString
+	if err := validateLiteral(v.First); err != nil {
+		return err
+	}
+	for _, t := range v.Tail {
+		if err := validateLiteral(t); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateLiteral(l *PSLiteral) error {
+	if l == nil {
+		return nil
+	}
+	if l.DQString != nil {
+		body := *l.DQString
 		if len(body) >= 2 && body[0] == '"' && body[len(body)-1] == '"' {
 			body = body[1 : len(body)-1]
 		}
@@ -294,9 +452,153 @@ func validatePSValue(v *PSValue) error {
 			return &ParseError{Message: "Double-quoted strings must not contain $ or backtick (prevents variable interpolation and escape sequences). Use single quotes: '...'"}
 		}
 	}
-	if v.Hashtable != nil {
-		for _, entry := range v.Hashtable.Entries {
+	if l.Hashtable != nil {
+		for _, entry := range l.Hashtable.Entries {
 			if err := validatePSValue(&entry.Value); err != nil {
+				return err
+			}
+		}
+	}
+	if l.Block != nil {
+		if err := validateSafeExpr(l.Block.Expr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// allowedStaticTypes is the whitelist of [Type]::Member receivers. Matched
+// case-insensitively against the parsed Type identifier.
+var allowedStaticTypes = map[string]bool{
+	"math":     true,
+	"datetime": true,
+	"timespan": true,
+	"int":      true,
+	"int64":    true,
+}
+
+// allowedStaticMembers is the whitelist of member names on the allowed types.
+// Matched case-insensitively.
+var allowedStaticMembers = map[string]bool{
+	"round":        true,
+	"floor":        true,
+	"ceiling":      true,
+	"abs":          true,
+	"min":          true,
+	"max":          true,
+	"now":          true,
+	"utcnow":       true,
+	"today":        true,
+	"fromseconds":  true,
+	"fromminutes":  true,
+	"fromhours":    true,
+	"fromdays":     true,
+	"maxvalue":     true,
+	"minvalue":     true,
+	"parse":        true,
+}
+
+func validateSafeExpr(e *PSSafeExpr) error {
+	if e == nil || e.Or == nil {
+		return nil
+	}
+	if err := validateAndExpr(e.Or.First); err != nil {
+		return err
+	}
+	for _, t := range e.Or.Rest {
+		if err := validateAndExpr(t.Expr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateAndExpr(e *PSAndExpr) error {
+	if err := validateCmpExpr(e.First); err != nil {
+		return err
+	}
+	for _, t := range e.Rest {
+		if err := validateCmpExpr(t.Expr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateCmpExpr(e *PSCmpExpr) error {
+	if err := validateAddExpr(e.Left); err != nil {
+		return err
+	}
+	if e.Tail != nil {
+		if err := validateAddExpr(e.Tail.Right); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateAddExpr(e *PSAddExpr) error {
+	if err := validateMulExpr(e.First); err != nil {
+		return err
+	}
+	for _, t := range e.Rest {
+		if err := validateMulExpr(t.Expr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateMulExpr(e *PSMulExpr) error {
+	if err := validateUnary(e.First); err != nil {
+		return err
+	}
+	for _, t := range e.Rest {
+		if err := validateUnary(t.Expr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateUnary(u *PSUnary) error {
+	return validateAtom(u.Atom)
+}
+
+func validateAtom(a *PSAtom) error {
+	if a == nil {
+		return nil
+	}
+	switch {
+	case a.StaticCall != nil:
+		return validateStaticCall(a.StaticCall)
+	case a.Paren != nil:
+		return validateSafeExpr(a.Paren)
+	case a.DQString != nil:
+		s := *a.DQString
+		body := s
+		if len(body) >= 2 && body[0] == '"' && body[len(body)-1] == '"' {
+			body = body[1 : len(body)-1]
+		}
+		if strings.ContainsAny(body, "$`") {
+			return &ParseError{Message: "Double-quoted strings must not contain $ or backtick inside an expression. Use single quotes: '...'"}
+		}
+	}
+	return nil
+}
+
+func validateStaticCall(c *PSStaticCall) error {
+	typeName := strings.ToLower(c.Type)
+	memberName := strings.ToLower(c.Member)
+	if !allowedStaticTypes[typeName] {
+		return &ParseError{Message: fmt.Sprintf("Type [%s] is not allowed in expressions. Allowed: math, datetime, timespan, int, int64.", c.Type)}
+	}
+	if !allowedStaticMembers[memberName] {
+		return &ParseError{Message: fmt.Sprintf("Member %s is not allowed. Allowed: Round, Floor, Ceiling, Abs, Min, Max, Now, UtcNow, Today, FromSeconds, FromMinutes, FromHours, FromDays, Parse, MinValue, MaxValue.", c.Member)}
+	}
+	if c.Call != nil {
+		for _, arg := range c.Call.Args {
+			if err := validateSafeExpr(arg); err != nil {
 				return err
 			}
 		}
@@ -391,42 +693,163 @@ func convertPSCommand(cmd *PSCommand, operator string) (PipelineSegment, error) 
 	}, nil
 }
 
-// renderPSValue converts a parsed value back to its string representation.
+// renderPSValue converts a parsed value (a comma-separated literal list) back
+// to its string form. Single literals produce a single token; comma-lists
+// produce `a,b,c` with no spaces.
 func renderPSValue(v *PSValue) string {
-	if v.Hashtable != nil {
-		return renderHashtable(v.Hashtable)
+	if v == nil {
+		return ""
 	}
-	if v.String != nil {
-		// Strip surrounding quotes, return raw content
-		s := *v.String
+	s := renderLiteral(v.First)
+	for _, t := range v.Tail {
+		s += "," + renderLiteral(t)
+	}
+	return s
+}
+
+func renderLiteral(l *PSLiteral) string {
+	if l == nil {
+		return ""
+	}
+	switch {
+	case l.Hashtable != nil:
+		return renderHashtable(l.Hashtable)
+	case l.Block != nil:
+		return renderExprBlock(l.Block)
+	case l.String != nil:
+		s := *l.String
 		if len(s) >= 2 && s[0] == '\'' && s[len(s)-1] == '\'' {
 			return s[1 : len(s)-1]
 		}
 		return s
-	}
-	if v.DQString != nil {
-		// Safety was validated at parse time (no $ or backtick); strip quotes
-		// and return the raw content. Reconstruction re-quotes safely.
-		s := *v.DQString
+	case l.DQString != nil:
+		s := *l.DQString
 		if len(s) >= 2 && s[0] == '"' && s[len(s)-1] == '"' {
 			return s[1 : len(s)-1]
 		}
 		return s
-	}
-	if v.EnvRef != nil {
-		// Pass through verbatim; downstream secrets scrubber handles redaction.
-		return *v.EnvRef
-	}
-	if v.Number != nil {
-		return *v.Number
-	}
-	if v.Ident != nil {
-		return *v.Ident
+	case l.EnvRef != nil:
+		return *l.EnvRef
+	case l.Size != nil:
+		return *l.Size
+	case l.Number != nil:
+		return *l.Number
+	case l.Ident != nil:
+		return renderIdentish(l.Ident)
 	}
 	return ""
 }
 
-// renderHashtable serializes a parsed hashtable back to @{Key='Value'; ...} form.
+func renderIdentish(id *PSIdentish) string {
+	return id.Head
+}
+
+func renderExprBlock(b *PSExprBlock) string {
+	if b == nil {
+		return ""
+	}
+	return "{" + renderSafeExpr(b.Expr) + "}"
+}
+
+func renderSafeExpr(e *PSSafeExpr) string {
+	if e == nil || e.Or == nil {
+		return ""
+	}
+	return renderOrExpr(e.Or)
+}
+
+func renderOrExpr(e *PSOrExpr) string {
+	s := renderAndExpr(e.First)
+	for _, t := range e.Rest {
+		s += " " + t.Op + " " + renderAndExpr(t.Expr)
+	}
+	return s
+}
+
+func renderAndExpr(e *PSAndExpr) string {
+	s := renderCmpExpr(e.First)
+	for _, t := range e.Rest {
+		s += " " + t.Op + " " + renderCmpExpr(t.Expr)
+	}
+	return s
+}
+
+func renderCmpExpr(e *PSCmpExpr) string {
+	s := renderAddExpr(e.Left)
+	if e.Tail != nil {
+		s += " " + e.Tail.Op + " " + renderAddExpr(e.Tail.Right)
+	}
+	return s
+}
+
+func renderAddExpr(e *PSAddExpr) string {
+	s := renderMulExpr(e.First)
+	for _, t := range e.Rest {
+		s += t.Op + renderMulExpr(t.Expr)
+	}
+	return s
+}
+
+func renderMulExpr(e *PSMulExpr) string {
+	s := renderUnary(e.First)
+	for _, t := range e.Rest {
+		s += t.Op + renderUnary(t.Expr)
+	}
+	return s
+}
+
+func renderUnary(u *PSUnary) string {
+	prefix := ""
+	if u.Neg != nil {
+		prefix = "-"
+	}
+	return prefix + renderAtom(u.Atom)
+}
+
+func renderAtom(a *PSAtom) string {
+	switch {
+	case a.StaticCall != nil:
+		return renderStaticCall(a.StaticCall)
+	case a.PipeVar != nil:
+		return "$" + a.PipeVar.Ident
+	case a.EnvRef != nil:
+		return *a.EnvRef
+	case a.Size != nil:
+		return *a.Size
+	case a.Number != nil:
+		return *a.Number
+	case a.String != nil:
+		return *a.String
+	case a.DQString != nil:
+		return *a.DQString
+	case a.Paren != nil:
+		return "(" + renderSafeExpr(a.Paren) + ")"
+	}
+	return ""
+}
+
+func renderStaticCall(c *PSStaticCall) string {
+	s := "[" + c.Type + "]::" + c.Member
+	if c.Call == nil {
+		return s
+	}
+	s += "("
+	for i, arg := range c.Call.Args {
+		if i > 0 {
+			s += ","
+		}
+		s += renderSafeExpr(arg)
+	}
+	s += ")"
+	return s
+}
+
+// renderHashtable serializes a parsed hashtable back to @{Key=Value; ...} form.
+// String-ish values are single-quoted for consistent PowerShell semantics;
+// script blocks (calculated properties) and numeric values are emitted raw so
+// PowerShell evaluates them rather than treating them as literal strings.
+// A hashtable entry with a comma-list value is rendered as its comma-joined
+// form (no extra quoting of the list as a whole).
 func renderHashtable(ht *PSHashtable) string {
 	var b strings.Builder
 	b.WriteString("@{")
@@ -436,12 +859,29 @@ func renderHashtable(ht *PSHashtable) string {
 		}
 		b.WriteString(entry.Key)
 		b.WriteString("=")
-		val := renderPSValue(&entry.Value)
-		// Always single-quote string values in hashtables for safety
+		if len(entry.Value.Tail) == 0 && entry.Value.First != nil {
+			renderHashEntrySingle(&b, entry.Value.First)
+		} else {
+			// Multi-literal list: join raw without blanket quoting.
+			b.WriteString(renderPSValue(&entry.Value))
+		}
+	}
+	b.WriteString("}")
+	return b.String()
+}
+
+func renderHashEntrySingle(b *strings.Builder, l *PSLiteral) {
+	switch {
+	case l.Block != nil:
+		b.WriteString(renderExprBlock(l.Block))
+	case l.Hashtable != nil:
+		b.WriteString(renderHashtable(l.Hashtable))
+	case l.Number != nil, l.Size != nil, l.EnvRef != nil:
+		b.WriteString(renderLiteral(l))
+	default:
+		val := renderLiteral(l)
 		b.WriteString("'")
 		b.WriteString(strings.ReplaceAll(val, "'", "''"))
 		b.WriteString("'")
 	}
-	b.WriteString("}")
-	return b.String()
 }
