@@ -250,17 +250,20 @@ Add cases to existing test file:
 - `printenv PATH` → allowed
 - `head .aws/credentials` → rejected
 
-## Open Questions
+## Resolved Questions
 
-1. **`grep -f .env`** — Should we check flag values that take file paths?
-   Manifests know which flags have `takes_value: true`, but we'd need to know
-   which of those values are file paths. Could inspect based on the flag name
-   (e.g., `-f`, `--file`, `--include-from`). Start simple, iterate.
+1. **`grep -f .env`** — **Yes, check all flag values against sensitive path
+   patterns.** Any flag value matching a sensitive pattern gets blocked. This is
+   simple and catches `grep -f .env`, `xargs --arg-file=.env`, etc. False
+   positives are rare since most flag values are format strings, counts, etc.
 
-2. **Symlinks** — We can't resolve symlinks before execution (the file is on the
-   remote host). The heuristic only checks the path string as written. This is
-   an accepted limitation of the local-heuristic approach.
+2. **Symlinks** — **Accepted limitation, documented.** We cannot resolve symlinks
+   before execution since the file is on a remote host. The heuristic only
+   checks the path string as written. Defense-in-depth comes from the output
+   scrubbing phase, which catches secrets regardless of how they were accessed.
 
-3. **`find` output** — `find / -name .env` doesn't read secrets, it lists paths.
-   Should we block `find` commands that search for sensitive filenames? Leaning
-   toward yes for `-name .env` patterns but this adds complexity.
+3. **`find -name .env`** — **Yes, check `-name` and `-iname` flag values against
+   sensitive filename patterns.** While `find` doesn't read secrets directly, it
+   reveals their locations to the LLM. Blocking discovery of sensitive filenames
+   prevents the LLM from learning where secrets live and then accessing them
+   with a follow-up command.
