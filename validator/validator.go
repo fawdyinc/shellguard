@@ -18,23 +18,34 @@ var (
 
 // psCommonParams are PowerShell common parameters allowed globally for all
 // PowerShell cmdlets. These are checked before manifest flag validation.
+// See: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters
 var psCommonParams = map[string]bool{
-	"-ErrorAction":       true,
-	"-WarningAction":     true,
-	"-InformationAction": true,
-	"-OutVariable":       true,
-	"-PipelineVariable":  true,
-	"-Verbose":           true,
-	"-Debug":             true,
+	"-ErrorAction":        true,
+	"-ErrorVariable":      true,
+	"-WarningAction":      true,
+	"-WarningVariable":    true,
+	"-InformationAction":  true,
+	"-InformationVariable": true,
+	"-OutVariable":        true,
+	"-OutBuffer":          true,
+	"-PipelineVariable":   true,
+	"-Verbose":            true,
+	"-Debug":              true,
+	"-ProgressAction":     true,
 }
 
 // psCommonParamsTakesValue indicates which common params expect a value.
 var psCommonParamsTakesValue = map[string]bool{
-	"-ErrorAction":       true,
-	"-WarningAction":     true,
-	"-InformationAction": true,
-	"-OutVariable":       true,
-	"-PipelineVariable":  true,
+	"-ErrorAction":        true,
+	"-ErrorVariable":      true,
+	"-WarningAction":      true,
+	"-WarningVariable":    true,
+	"-InformationAction":  true,
+	"-InformationVariable": true,
+	"-OutVariable":        true,
+	"-OutBuffer":          true,
+	"-PipelineVariable":   true,
+	"-ProgressAction":     true,
 }
 
 type ValidationError struct {
@@ -72,6 +83,9 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 
 	m := registry[command]
 	if m == nil {
+		if closest := closestCmdlet(command, registry); closest != "" {
+			return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available. Did you mean '%s'?", command, closest)}
+		}
 		return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available.", command)}
 	}
 	if m.Deny {
@@ -79,6 +93,61 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 	}
 
 	return validateArgs(command, args, m)
+}
+
+// closestCmdlet returns the registry cmdlet name closest to command by
+// Levenshtein distance, up to a small threshold. Returns "" when no allowed
+// cmdlet is close enough — short commands would otherwise match too much.
+func closestCmdlet(command string, registry map[string]*manifest.Manifest) string {
+	if len(command) < 3 {
+		return ""
+	}
+	threshold := 2
+	if len(command) >= 8 {
+		threshold = 3
+	}
+	best := ""
+	bestDist := threshold + 1
+	for name, m := range registry {
+		if m == nil || m.Deny {
+			continue
+		}
+		d := levenshtein(command, name)
+		if d < bestDist {
+			bestDist = d
+			best = name
+		}
+	}
+	if bestDist > threshold {
+		return ""
+	}
+	return best
+}
+
+func levenshtein(a, b string) int {
+	if len(a) == 0 {
+		return len(b)
+	}
+	if len(b) == 0 {
+		return len(a)
+	}
+	prev := make([]int, len(b)+1)
+	cur := make([]int, len(b)+1)
+	for j := range prev {
+		prev[j] = j
+	}
+	for i := 1; i <= len(a); i++ {
+		cur[0] = i
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+			cur[j] = min(prev[j]+1, cur[j-1]+1, prev[j-1]+cost)
+		}
+		prev, cur = cur, prev
+	}
+	return prev[len(b)]
 }
 
 func validateSudo(segment parser.PipelineSegment, registry map[string]*manifest.Manifest) error {

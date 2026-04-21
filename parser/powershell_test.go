@@ -252,6 +252,28 @@ func TestParsePowerShell_AcceptsCalculatedProperty(t *testing.T) {
 	}
 }
 
+func TestParsePowerShell_StripsComments(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		input   string
+		command string
+	}{
+		{"inline comment", "Get-Process # list running processes", "get-process"},
+		{"leading comment", "# before\nGet-Process", "get-process"},
+		{"hash inside single quotes preserved", "Get-Content -Path 'C:\\logs\\has#hash.log'", "get-content"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			p, err := ParsePowerShell(tc.input)
+			if err != nil {
+				t.Fatalf("unexpected error for %q: %v", tc.input, err)
+			}
+			if p.Segments[0].Command != tc.command {
+				t.Errorf("expected %q, got %q", tc.command, p.Segments[0].Command)
+			}
+		})
+	}
+}
+
 func TestParsePowerShell_RejectsDisallowedStaticType(t *testing.T) {
 	_, err := ParsePowerShell("Get-Process | Where-Object { [System.Diagnostics.Process]::Start('evil') }")
 	if err == nil {

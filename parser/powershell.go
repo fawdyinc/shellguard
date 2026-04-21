@@ -279,7 +279,7 @@ var redirectionPatterns = []string{">>", "2>", ">"}
 // safe PowerShell dialect grammar. Returns actionable error messages for
 // rejected constructs.
 func ParsePowerShell(command string) (*Pipeline, error) {
-	trimmed := strings.TrimSpace(command)
+	trimmed := strings.TrimSpace(stripPSComments(command))
 	if trimmed == "" {
 		return nil, &ParseError{Message: "Empty command."}
 	}
@@ -604,6 +604,38 @@ func validateStaticCall(c *PSStaticCall) error {
 		}
 	}
 	return nil
+}
+
+// stripPSComments removes `#`-prefixed line comments outside single-quoted
+// strings. LLMs sometimes emit explanatory comments before or alongside
+// commands; dropping them here is more forgiving than failing parse.
+func stripPSComments(input string) string {
+	var b strings.Builder
+	b.Grow(len(input))
+	inSQ := false
+	inDQ := false
+	for i := 0; i < len(input); i++ {
+		ch := input[i]
+		switch {
+		case ch == '\'' && !inDQ:
+			inSQ = !inSQ
+			b.WriteByte(ch)
+		case ch == '"' && !inSQ:
+			inDQ = !inDQ
+			b.WriteByte(ch)
+		case ch == '#' && !inSQ && !inDQ:
+			// Skip to end of line.
+			for i < len(input) && input[i] != '\n' {
+				i++
+			}
+			if i < len(input) {
+				b.WriteByte('\n')
+			}
+		default:
+			b.WriteByte(ch)
+		}
+	}
+	return b.String()
 }
 
 // looksLikeEnvRef returns true if the byte at position pos starts a
