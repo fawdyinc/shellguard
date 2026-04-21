@@ -1,0 +1,15 @@
+name: get-netroute
+description: Retrieve IP route table entries
+category: network
+shell: powershell
+flags:
+  - flag: "-DestinationPrefix"
+    takes_value: true
+  - flag: "-InterfaceIndex"
+    takes_value: true
+  - flag: "-InterfaceAlias"
+    takes_value: true
+  - flag: "-AddressFamily"
+    takes_value: true
+stdin: false
+stdout: true

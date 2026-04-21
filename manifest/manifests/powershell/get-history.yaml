@@ -1,0 +1,11 @@
+name: get-history
+description: Get the session command history
+category: system
+shell: powershell
+flags:
+  - flag: "-Count"
+    takes_value: true
+  - flag: "-Id"
+    takes_value: true
+stdin: false
+stdout: true

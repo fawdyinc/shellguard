@@ -1,0 +1,13 @@
+name: get-smbsession
+description: Retrieve inbound SMB sessions on this machine
+category: system
+shell: powershell
+flags:
+  - flag: "-SessionId"
+    takes_value: true
+  - flag: "-ClientComputerName"
+    takes_value: true
+  - flag: "-ClientUserName"
+    takes_value: true
+stdin: false
+stdout: true

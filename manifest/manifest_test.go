@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 244; got != want {
+	if got, want := len(registry), 280; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -52,7 +52,7 @@ func TestDenyManifestReasonsAndCount(t *testing.T) {
 		}
 	}
 
-	if got, want := denyCount, 124; got != want {
+	if got, want := denyCount, 125; got != want {
 		t.Fatalf("deny manifest count = %d, want %d", got, want)
 	}
 }
@@ -172,6 +172,70 @@ func TestDestructiveSubcommandsAbsent(t *testing.T) {
 		if _, ok := registry[name]; ok {
 			t.Fatalf("destructive subcommand %q should not exist in manifests", name)
 		}
+	}
+}
+
+func TestPowerShellDiagnosticManifests(t *testing.T) {
+	registry := mustLoadEmbedded(t)
+
+	// Key new cmdlets from the 2026-04-20 PowerShell parser expansion.
+	// Spot-check that they loaded with the expected shape.
+	cases := []struct {
+		name  string
+		flags []string
+	}{
+		{"get-ciminstance", []string{"-ClassName", "-Query", "-Filter", "-MethodName"}},
+		{"foreach-object", []string{"-MemberName"}},
+		{"group-object", []string{"-Property", "-NoElement"}},
+		{"test-netconnection", []string{"-ComputerName", "-Port"}},
+		{"get-netfirewallrule", []string{"-DisplayName", "-Enabled"}},
+		{"resolve-dnsname", []string{"-Name", "-Type"}},
+		{"get-scheduledtask", []string{"-TaskName"}},
+		{"get-localuser", []string{"-Name"}},
+		{"get-help", []string{"-Name", "-Examples"}},
+		{"get-command", []string{"-Name", "-Module"}},
+	}
+	for _, tc := range cases {
+		m, ok := registry[tc.name]
+		if !ok {
+			t.Errorf("missing manifest %q", tc.name)
+			continue
+		}
+		if m.Shell != "powershell" {
+			t.Errorf("%s: Shell = %q, want powershell", tc.name, m.Shell)
+		}
+		for _, f := range tc.flags {
+			if m.GetFlag(f) == nil {
+				t.Errorf("%s: missing flag %s", tc.name, f)
+			}
+		}
+	}
+
+	// Get-CimInstance's -MethodName must be explicitly denied.
+	cim := registry["get-ciminstance"]
+	if cim != nil {
+		mn := cim.GetFlag("-MethodName")
+		if mn == nil {
+			t.Fatal("get-ciminstance missing -MethodName flag")
+		}
+		if !mn.Deny {
+			t.Error("get-ciminstance: -MethodName should be denied (write-capable)")
+		}
+		if mn.Reason == "" {
+			t.Error("get-ciminstance: -MethodName deny must have a reason")
+		}
+	}
+
+	// Get-WmiObject is deprecated; deny reason should steer to Get-CimInstance.
+	wmi, ok := registry["get-wmiobject"]
+	if !ok {
+		t.Fatal("missing denied manifest get-wmiobject")
+	}
+	if !wmi.Deny {
+		t.Error("get-wmiobject should be denied")
+	}
+	if !strings.Contains(wmi.Reason, "Get-CimInstance") {
+		t.Errorf("get-wmiobject reason should mention Get-CimInstance, got %q", wmi.Reason)
 	}
 }
 

@@ -1,0 +1,9 @@
+name: foreach-object
+description: Project each pipeline object's named member
+category: utility
+shell: powershell
+flags:
+  - flag: "-MemberName"
+    takes_value: true
+stdin: true
+stdout: true

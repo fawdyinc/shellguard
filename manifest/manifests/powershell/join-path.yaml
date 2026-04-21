@@ -1,0 +1,14 @@
+name: join-path
+description: Combine path segments safely
+category: utility
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-ChildPath"
+    takes_value: true
+  - flag: "-AdditionalChildPath"
+    takes_value: true
+  - flag: "-Resolve"
+stdin: false
+stdout: true

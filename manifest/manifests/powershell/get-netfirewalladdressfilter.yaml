@@ -1,0 +1,6 @@
+name: get-netfirewalladdressfilter
+description: Retrieve address filter details for firewall rules
+category: network
+shell: powershell
+stdin: true
+stdout: true

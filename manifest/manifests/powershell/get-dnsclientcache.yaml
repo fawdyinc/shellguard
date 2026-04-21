@@ -1,0 +1,13 @@
+name: get-dnsclientcache
+description: Retrieve DNS client resolver cache entries
+category: network
+shell: powershell
+flags:
+  - flag: "-Entry"
+    takes_value: true
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Type"
+    takes_value: true
+stdin: false
+stdout: true

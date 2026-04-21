@@ -1,0 +1,13 @@
+name: get-partition
+description: Retrieve disk partition information
+category: system
+shell: powershell
+flags:
+  - flag: "-DiskNumber"
+    takes_value: true
+  - flag: "-DriveLetter"
+    takes_value: true
+  - flag: "-PartitionNumber"
+    takes_value: true
+stdin: false
+stdout: true

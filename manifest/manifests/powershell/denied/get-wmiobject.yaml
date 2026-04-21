@@ -1,0 +1,4 @@
+name: get-wmiobject
+shell: powershell
+deny: true
+reason: "Get-WmiObject is deprecated. Use Get-CimInstance instead."

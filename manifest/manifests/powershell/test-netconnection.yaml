@@ -1,0 +1,17 @@
+name: test-netconnection
+description: Test TCP connectivity to a remote host and port
+category: network
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-ComputerName"
+    takes_value: true
+  - flag: "-Port"
+    takes_value: true
+  - flag: "-TraceRoute"
+  - flag: "-Hops"
+    takes_value: true
+  - flag: "-InformationLevel"
+    takes_value: true
+stdin: false
+stdout: true

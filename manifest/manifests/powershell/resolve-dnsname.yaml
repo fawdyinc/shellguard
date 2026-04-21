@@ -1,0 +1,16 @@
+name: resolve-dnsname
+description: Resolve a DNS name
+category: network
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Type"
+    takes_value: true
+  - flag: "-Server"
+    takes_value: true
+  - flag: "-DnsOnly"
+  - flag: "-NoHostsFile"
+stdin: false
+stdout: true

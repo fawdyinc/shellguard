@@ -1,0 +1,12 @@
+name: resolve-path
+description: Resolve a path, expanding wildcards
+category: utility
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+  - flag: "-Relative"
+stdin: false
+stdout: true

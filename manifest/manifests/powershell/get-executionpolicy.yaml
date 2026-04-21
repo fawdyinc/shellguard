@@ -1,0 +1,10 @@
+name: get-executionpolicy
+description: Get the current PowerShell execution policy
+category: system
+shell: powershell
+flags:
+  - flag: "-Scope"
+    takes_value: true
+  - flag: "-List"
+stdin: false
+stdout: true

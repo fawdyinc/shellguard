@@ -1,0 +1,6 @@
+name: get-host
+description: Get the PowerShell host environment information
+category: system
+shell: powershell
+stdin: false
+stdout: true

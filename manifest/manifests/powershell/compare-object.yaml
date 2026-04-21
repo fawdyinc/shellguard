@@ -1,0 +1,16 @@
+name: compare-object
+description: Compare two sets of objects
+category: utility
+shell: powershell
+flags:
+  - flag: "-ReferenceObject"
+    takes_value: true
+  - flag: "-DifferenceObject"
+    takes_value: true
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-IncludeEqual"
+  - flag: "-ExcludeDifferent"
+  - flag: "-CaseSensitive"
+stdin: true
+stdout: true

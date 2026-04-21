@@ -1,0 +1,15 @@
+name: get-physicaldisk
+description: Retrieve physical disk device information
+category: system
+shell: powershell
+flags:
+  - flag: "-DeviceId"
+    takes_value: true
+  - flag: "-FriendlyName"
+    takes_value: true
+  - flag: "-SerialNumber"
+    takes_value: true
+  - flag: "-UniqueId"
+    takes_value: true
+stdin: false
+stdout: true

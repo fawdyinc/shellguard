@@ -1,0 +1,19 @@
+name: get-netfirewallrule
+description: Retrieve Windows firewall rules
+category: network
+shell: powershell
+flags:
+  - flag: "-DisplayName"
+    takes_value: true
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Enabled"
+    takes_value: true
+  - flag: "-Direction"
+    takes_value: true
+  - flag: "-Action"
+    takes_value: true
+  - flag: "-DisplayGroup"
+    takes_value: true
+stdin: false
+stdout: true

@@ -1,0 +1,11 @@
+name: get-localuser
+description: Retrieve local user accounts
+category: system
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-SID"
+    takes_value: true
+stdin: false
+stdout: true
