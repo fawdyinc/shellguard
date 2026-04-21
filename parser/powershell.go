@@ -59,200 +59,167 @@ var psLexer = lexer.MustSimple([]lexer.SimpleRule{
 })
 
 // PSPipeline is the top-level grammar rule: one or more commands separated by |.
-// Struct tags use participle grammar syntax, not standard Go struct tags.
-//
-//nolint:govet
+// Struct tags use participle's `parser:"..."` form (valid Go tag syntax); single
+// quotes delimit literal tokens inside the grammar.
 type PSPipeline struct {
-	First PSCommand  `@@`
-	Rest  []*PSPiped `@@*`
+	First PSCommand  `parser:"@@"`
+	Rest  []*PSPiped `parser:"@@*"`
 }
 
-//nolint:govet
 type PSPiped struct {
-	Command PSCommand `"|" @@`
+	Command PSCommand `parser:"'|' @@"`
 }
 
-//nolint:govet
 type PSCommand struct {
-	Name string        `@Ident ( "-" @Ident )?`
-	Args []*PSArgument `@@*`
+	Name string        `parser:"@Ident ( '-' @Ident )?"`
+	Args []*PSArgument `parser:"@@*"`
 }
 
-//nolint:govet
 type PSArgument struct {
-	Flag       *PSFlag       `  @@`
-	Positional *PSPositional `| @@`
+	Flag       *PSFlag       `parser:"  @@"`
+	Positional *PSPositional `parser:"| @@"`
 }
 
-//nolint:govet
 type PSFlag struct {
-	Name  string   `@Flag`
-	Value *PSValue `@@?`
+	Name  string   `parser:"@Flag"`
+	Value *PSValue `parser:"@@?"`
 }
 
-//nolint:govet
 type PSPositional struct {
-	Value PSValue `@@`
+	Value PSValue `parser:"@@"`
 }
 
 // PSValue is a comma-separated list of literals. PowerShell treats `a, b, c`
 // as an array argument; we flatten it into a single comma-joined token string.
 // A single value (no commas) has an empty Tail slice.
-//
-//nolint:govet
 type PSValue struct {
-	First *PSLiteral   `@@`
-	Tail  []*PSLiteral `( "," @@ )*`
+	First *PSLiteral   `parser:"@@"`
+	Tail  []*PSLiteral `parser:"( ',' @@ )*"`
 }
 
-//nolint:govet
 type PSLiteral struct {
-	Hashtable *PSHashtable `  @@`
-	Block     *PSExprBlock `| @@`
-	String    *string      `| @String`
-	DQString  *string      `| @DQString`
-	EnvRef    *string      `| @EnvRef`
-	Size      *string      `| @SizeLiteral`
-	Number    *string      `| @Number`
-	Ident     *PSIdentish  `| @@`
+	Hashtable *PSHashtable `parser:"  @@"`
+	Block     *PSExprBlock `parser:"| @@"`
+	String    *string      `parser:"| @String"`
+	DQString  *string      `parser:"| @DQString"`
+	EnvRef    *string      `parser:"| @EnvRef"`
+	Size      *string      `parser:"| @SizeLiteral"`
+	Number    *string      `parser:"| @Number"`
+	Ident     *PSIdentish  `parser:"| @@"`
 }
 
-//nolint:govet
 type PSIdentish struct {
-	Head string `@Ident ( "-" @Ident )?`
+	Head string `parser:"@Ident ( '-' @Ident )?"`
 }
 
-//nolint:govet
 type PSHashtable struct {
-	Entries []*PSHashEntry `HashOpen @@* HashClose`
+	Entries []*PSHashEntry `parser:"HashOpen @@* HashClose"`
 }
 
-//nolint:govet
 type PSHashEntry struct {
-	Key   string  `@Ident "="`
-	Value PSValue `@@`
-	Semi  *string `@Semi?`
+	Key   string  `parser:"@Ident '='"`
+	Value PSValue `parser:"@@"`
+	Semi  *string `parser:"@Semi?"`
 }
 
 // PSExprBlock is a safely-scoped script block: only a constrained expression
 // grammar is accepted inside. Used for calculated properties (@{E={...}}) and
 // Where/Sort/Group-Object script-block arguments.
-//
-//nolint:govet
 type PSExprBlock struct {
-	Expr *PSSafeExpr `LBrace @@ HashClose`
+	Expr *PSSafeExpr `parser:"LBrace @@ HashClose"`
 }
 
 // PSSafeExpr is the root of the safe-expression sub-grammar. Deliberately
 // narrow: no assignment, no call syntax outside the type-whitelisted static
 // call form, no arbitrary subexpressions beyond grouping parens.
-//
-//nolint:govet
 type PSSafeExpr struct {
-	Or *PSOrExpr `@@`
+	Or *PSOrExpr `parser:"@@"`
 }
 
-//nolint:govet
 type PSOrExpr struct {
-	First *PSAndExpr  `@@`
-	Rest  []*PSOrTail `@@*`
+	First *PSAndExpr  `parser:"@@"`
+	Rest  []*PSOrTail `parser:"@@*"`
 }
 
-//nolint:govet
 type PSOrTail struct {
-	Op   string     `@("-or")`
-	Expr *PSAndExpr `@@`
+	Op   string     `parser:"@('-or')"`
+	Expr *PSAndExpr `parser:"@@"`
 }
 
-//nolint:govet
 type PSAndExpr struct {
-	First *PSCmpExpr   `@@`
-	Rest  []*PSAndTail `@@*`
+	First *PSCmpExpr   `parser:"@@"`
+	Rest  []*PSAndTail `parser:"@@*"`
 }
 
-//nolint:govet
 type PSAndTail struct {
-	Op   string     `@("-and")`
-	Expr *PSCmpExpr `@@`
+	Op   string     `parser:"@('-and')"`
+	Expr *PSCmpExpr `parser:"@@"`
 }
 
-//nolint:govet
 type PSCmpExpr struct {
-	Left *PSAddExpr `@@`
-	Tail *PSCmpTail `@@?`
+	Left *PSAddExpr `parser:"@@"`
+	Tail *PSCmpTail `parser:"@@?"`
 }
 
-//nolint:govet
 type PSCmpTail struct {
-	Op    string     `@("-eq"|"-ne"|"-gt"|"-lt"|"-ge"|"-le"|"-like"|"-notlike"|"-match"|"-notmatch")`
-	Right *PSAddExpr `@@`
+	Op    string     `parser:"@('-eq'|'-ne'|'-gt'|'-lt'|'-ge'|'-le'|'-like'|'-notlike'|'-match'|'-notmatch')"`
+	Right *PSAddExpr `parser:"@@"`
 }
 
-//nolint:govet
 type PSAddExpr struct {
-	First *PSMulExpr   `@@`
-	Rest  []*PSAddTail `@@*`
+	First *PSMulExpr   `parser:"@@"`
+	Rest  []*PSAddTail `parser:"@@*"`
 }
 
-//nolint:govet
 type PSAddTail struct {
-	Op   string     `@("+"|"-")`
-	Expr *PSMulExpr `@@`
+	Op   string     `parser:"@('+'|'-')"`
+	Expr *PSMulExpr `parser:"@@"`
 }
 
-//nolint:govet
 type PSMulExpr struct {
-	First *PSUnary     `@@`
-	Rest  []*PSMulTail `@@*`
+	First *PSUnary     `parser:"@@"`
+	Rest  []*PSMulTail `parser:"@@*"`
 }
 
-//nolint:govet
 type PSMulTail struct {
-	Op   string   `@("/"|"%")`
-	Expr *PSUnary `@@`
+	Op   string   `parser:"@('/'|'%')"`
+	Expr *PSUnary `parser:"@@"`
 }
 
-//nolint:govet
 type PSUnary struct {
-	Neg  *string `@"-"?`
-	Atom *PSAtom `@@`
+	Neg  *string `parser:"@'-'?"`
+	Atom *PSAtom `parser:"@@"`
 }
 
-//nolint:govet
 type PSAtom struct {
-	StaticCall *PSStaticCall `  @@`
-	PipeVar    *PSPipeVar    `| @@`
-	EnvRef     *string       `| @EnvRef`
-	Size       *string       `| @SizeLiteral`
-	Number     *string       `| @Number`
-	String     *string       `| @String`
-	DQString   *string       `| @DQString`
-	Paren      *PSSafeExpr   `| "(" @@ ")"`
+	StaticCall *PSStaticCall `parser:"  @@"`
+	PipeVar    *PSPipeVar    `parser:"| @@"`
+	EnvRef     *string       `parser:"| @EnvRef"`
+	Size       *string       `parser:"| @SizeLiteral"`
+	Number     *string       `parser:"| @Number"`
+	String     *string       `parser:"| @String"`
+	DQString   *string       `parser:"| @DQString"`
+	Paren      *PSSafeExpr   `parser:"| '(' @@ ')'"`
 }
 
 // PSPipeVar matches `$_` optionally followed by dotted property accessors.
 // The Ident pattern includes `.` in its inner char class, so `$_.Status.Foo`
 // lexes as Dollar + Ident("_.Status.Foo") — captured wholesale here.
-//
-//nolint:govet
 type PSPipeVar struct {
-	Ident string `Dollar @Ident`
+	Ident string `parser:"Dollar @Ident"`
 }
 
 // PSStaticCall matches `[Type]::Member` optionally followed by `(args)`.
 // Type and Member identifiers are whitelisted during post-parse validation;
 // the grammar only bounds the shape, not which types/members are safe.
-//
-//nolint:govet
 type PSStaticCall struct {
-	Type   string           `"[" @Ident "]" "::"`
-	Member string           `@Ident`
-	Call   *PSStaticArgList `@@?`
+	Type   string           `parser:"'[' @Ident ']' '::'"`
+	Member string           `parser:"@Ident"`
+	Call   *PSStaticArgList `parser:"@@?"`
 }
 
-//nolint:govet
 type PSStaticArgList struct {
-	Args []*PSSafeExpr `"(" ( @@ ( "," @@ )* )? ")"`
+	Args []*PSSafeExpr `parser:"'(' ( @@ ( ',' @@ )* )? ')'"`
 }
 
 var psParser = participle.MustBuild[PSPipeline](
