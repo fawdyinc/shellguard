@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 280; got != want {
+	if got, want := len(registry), 288; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -194,6 +194,22 @@ func TestPowerShellDiagnosticManifests(t *testing.T) {
 		{"get-localuser", []string{"-Name"}},
 		{"get-help", []string{"-Name", "-Examples"}},
 		{"get-command", []string{"-Name", "-Module"}},
+		{"get-member", []string{"-MemberType", "-Static"}},
+		{"convertfrom-json", []string{"-Depth", "-AsHashtable"}},
+		{"convertfrom-csv", []string{"-Delimiter", "-Header"}},
+		{"get-netipconfiguration", []string{"-InterfaceIndex", "-Detailed"}},
+		{"get-dnsclientserveraddress", []string{"-InterfaceIndex", "-AddressFamily"}},
+		{"get-uptime", []string{"-Since"}},
+		{"get-filehash", []string{"-Algorithm", "-LiteralPath"}},
+		{"get-timezone", []string{"-ListAvailable"}},
+		// Flag coverage additions
+		{"get-content", []string{"-Raw", "-Encoding"}},
+		{"select-string", []string{"-Context", "-AllMatches", "-Quiet", "-Encoding"}},
+		{"get-childitem", []string{"-Force", "-File", "-Directory", "-Depth"}},
+		{"get-process", []string{"-IncludeUserName", "-Module"}},
+		{"get-winevent", []string{"-ProviderName", "-FilterXPath"}},
+		{"select-object", []string{"-Unique", "-Skip", "-Index"}},
+		{"sort-object", []string{"-Unique", "-Top", "-Bottom"}},
 	}
 	for _, tc := range cases {
 		m, ok := registry[tc.name]

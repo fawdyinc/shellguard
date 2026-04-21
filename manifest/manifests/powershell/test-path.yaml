@@ -9,5 +9,16 @@ flags:
     takes_value: true
   - flag: "-LiteralPath"
     takes_value: true
+  - flag: "-Filter"
+    takes_value: true
+  - flag: "-Include"
+    takes_value: true
+  - flag: "-Exclude"
+    takes_value: true
+  - flag: "-IsValid"
+  - flag: "-OlderThan"
+    takes_value: true
+  - flag: "-NewerThan"
+    takes_value: true
 stdin: false
 stdout: true

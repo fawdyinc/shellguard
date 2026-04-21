@@ -75,3 +75,97 @@ entries:
     source: baseline
     expect: parses
     reason: measure-object
+
+  # ---- Flag coverage additions (2026-04-21 follow-up) ----
+
+  - command: "Get-Content -Path 'C:\\logs\\app.log' -Raw"
+    source: baseline
+    expect: parses
+    reason: get-content-raw
+
+  - command: "Select-String -Pattern 'error' -Path 'C:\\logs\\app.log' -Context 3,3"
+    source: baseline
+    expect: parses
+    reason: select-string-context
+
+  - command: "Get-ChildItem -Path 'C:\\logs' -Recurse -Filter *.log -Force -File -Depth 3"
+    source: baseline
+    expect: parses
+    reason: get-childitem-depth-force
+
+  - command: "Get-WinEvent -ProviderName 'Microsoft-Windows-Kernel' -MaxEvents 20"
+    source: baseline
+    expect: parses
+    reason: get-winevent-provider
+
+  - command: "Get-WinEvent -ListLog *"
+    source: baseline
+    expect: parses
+    reason: get-winevent-listlog
+
+  - command: "Get-Process -IncludeUserName | Sort-Object CPU -Descending | Select-Object -First 10 -Unique"
+    source: baseline
+    expect: parses
+    reason: get-process-includeusername-sort-unique
+
+  - command: "Get-Service -DependentServices -Name w3svc"
+    source: baseline
+    expect: parses
+    reason: get-service-dependent
+
+  - command: "Get-NetTCPConnection -LocalPort 443 -OwningProcess 1234"
+    source: baseline
+    expect: parses
+    reason: get-nettcpconnection-owningprocess
+
+  - command: "Get-NetAdapter -Physical"
+    source: baseline
+    expect: parses
+    reason: get-netadapter-physical
+
+  - command: "Measure-Object -Line -Word -Character"
+    source: baseline
+    expect: parses
+    reason: measure-object-text
+
+  # ---- Tier 1 new cmdlets (2026-04-21 follow-up) ----
+
+  - command: "Get-Process | Get-Member"
+    source: baseline
+    expect: parses
+    reason: get-member
+
+  - command: "Get-Content -Path 'data.json' -Raw | ConvertFrom-Json"
+    source: baseline
+    expect: parses
+    reason: convertfrom-json
+
+  - command: "Get-Content -Path 'data.csv' | ConvertFrom-Csv -Delimiter ','"
+    source: baseline
+    expect: parses
+    reason: convertfrom-csv
+
+  - command: "Get-NetIPConfiguration -Detailed"
+    source: baseline
+    expect: parses
+    reason: get-netipconfiguration
+
+  - command: "Get-DnsClientServerAddress -InterfaceIndex 12 -AddressFamily IPv4"
+    source: baseline
+    expect: parses
+    reason: get-dnsclientserveraddress
+
+  - command: "Get-Uptime -Since"
+    source: baseline
+    expect: parses
+    reason: get-uptime
+
+  - command: "Get-FileHash -Path 'C:\\setup.exe' -Algorithm SHA256"
+    source: baseline
+    expect: parses
+    reason: get-filehash
+
+  - command: "Get-TimeZone -ListAvailable"
+    source: baseline
+    expect: parses
+    reason: get-timezone

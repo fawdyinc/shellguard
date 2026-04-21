@@ -1,0 +1,15 @@
+name: get-netipconfiguration
+description: Get consolidated IP / gateway / DNS configuration per interface
+category: network
+shell: powershell
+flags:
+  - flag: "-InterfaceIndex"
+    takes_value: true
+  - flag: "-InterfaceAlias"
+    takes_value: true
+  - flag: "-CompartmentId"
+    takes_value: true
+  - flag: "-All"
+  - flag: "-Detailed"
+stdin: false
+stdout: true

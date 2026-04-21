@@ -8,6 +8,21 @@ flags:
     takes_value: true
   - flag: "-Path"
     takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
   - flag: "-SimpleMatch"
+  - flag: "-CaseSensitive"
+  - flag: "-Context"
+    takes_value: true
+  - flag: "-AllMatches"
+  - flag: "-NotMatch"
+  - flag: "-Quiet"
+  - flag: "-List"
+  - flag: "-Include"
+    takes_value: true
+  - flag: "-Exclude"
+    takes_value: true
+  - flag: "-Encoding"
+    takes_value: true
 stdin: true
 stdout: true

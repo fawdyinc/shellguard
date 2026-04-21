@@ -5,5 +5,14 @@ shell: powershell
 flags:
   - flag: "-Name"
     takes_value: true
+  - flag: "-InterfaceIndex"
+    takes_value: true
+  - flag: "-InterfaceAlias"
+    takes_value: true
+  - flag: "-InterfaceDescription"
+    takes_value: true
+  - flag: "-Physical"
+  - flag: "-Virtual"
+  - flag: "-IncludeHidden"
 stdin: false
 stdout: true

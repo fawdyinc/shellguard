@@ -1,0 +1,17 @@
+name: get-member
+description: List members (properties and methods) of pipeline objects
+category: utility
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-MemberType"
+    takes_value: true
+  - flag: "-View"
+    takes_value: true
+  - flag: "-Static"
+  - flag: "-Force"
+  - flag: "-InputObject"
+    takes_value: true
+stdin: true
+stdout: true
