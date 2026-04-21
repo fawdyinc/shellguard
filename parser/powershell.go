@@ -93,6 +93,8 @@ type PSPositional struct {
 type PSValue struct {
 	Hashtable *PSHashtable `  @@`
 	String    *string      `| @String`
+	DQString  *string      `| @DQString`
+	EnvRef    *string      `| @EnvRef`
 	Number    *string      `| @Number`
 	Ident     *string      `| @Ident ( "-" @Ident )?`
 }
@@ -149,6 +151,10 @@ func ParsePowerShell(command string) (*Pipeline, error) {
 	parsed, err := psParser.ParseString("", trimmed)
 	if err != nil {
 		return nil, diagnoseParseError(trimmed, err)
+	}
+
+	if err := validatePSPipeline(parsed); err != nil {
+		return nil, err
 	}
 
 	segments, err := convertPSPipeline(parsed)
@@ -217,9 +223,17 @@ func diagnoseParseError(input string, parseErr error) error {
 
 		switch ch {
 		case '$':
-			return &ParseError{Message: "Variable references ($) are not allowed. To read environment variables, use: Get-ChildItem Env:VARIABLE_NAME — then use the returned value literally in your next command."}
+			// $env:VAR is allowed (EnvRef). $_ would be allowed inside a script
+			// block once that grammar lands. Other $ usage remains unsupported.
+			if !looksLikeEnvRef(input, i) {
+				return &ParseError{Message: "Variable references ($) are not allowed. Read environment variables via $env:VARNAME (e.g., $env:USERPROFILE)."}
+			}
 		case '"':
-			return &ParseError{Message: "Double-quoted strings are not allowed (prevents variable interpolation). Use single quotes: '...'"}
+			// Bare $ or backtick inside a DQString is explicitly rejected by
+			// validatePSValue with a targeted message; if we're diagnosing at
+			// this point the content was safe but the position wasn't (e.g.,
+			// DQString as a hashtable key). Preserve the historical message.
+			return &ParseError{Message: "Double-quoted strings must not contain $ or backtick (prevents variable interpolation). Use single quotes: '...'"}
 		case '(', ')':
 			return &ParseError{Message: "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."}
 		case '[', ']':
@@ -236,6 +250,73 @@ func diagnoseParseError(input string, parseErr error) error {
 	}
 
 	return &ParseError{Message: fmt.Sprintf("PowerShell parse error: %v", parseErr)}
+}
+
+// validatePSPipeline walks the parsed AST to enforce invariants the grammar
+// can't express: DQString bodies must not contain $ or backtick (interpolation
+// prevention), and similar content-level checks.
+func validatePSPipeline(p *PSPipeline) error {
+	cmds := []*PSCommand{&p.First}
+	for _, piped := range p.Rest {
+		cmds = append(cmds, &piped.Command)
+	}
+	for _, cmd := range cmds {
+		for _, arg := range cmd.Args {
+			var v *PSValue
+			switch {
+			case arg.Flag != nil:
+				v = arg.Flag.Value
+			case arg.Positional != nil:
+				v = &arg.Positional.Value
+			}
+			if v == nil {
+				continue
+			}
+			if err := validatePSValue(v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func validatePSValue(v *PSValue) error {
+	if v == nil {
+		return nil
+	}
+	if v.DQString != nil {
+		// Strip surrounding quotes for content inspection.
+		body := *v.DQString
+		if len(body) >= 2 && body[0] == '"' && body[len(body)-1] == '"' {
+			body = body[1 : len(body)-1]
+		}
+		if strings.ContainsAny(body, "$`") {
+			return &ParseError{Message: "Double-quoted strings must not contain $ or backtick (prevents variable interpolation and escape sequences). Use single quotes: '...'"}
+		}
+	}
+	if v.Hashtable != nil {
+		for _, entry := range v.Hashtable.Entries {
+			if err := validatePSValue(&entry.Value); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// looksLikeEnvRef returns true if the byte at position pos starts a
+// `$env:VARNAME` token. Used by diagnoseParseError to decide whether a `$` is
+// the start of a permitted env ref or something else we should reject.
+func looksLikeEnvRef(input string, pos int) bool {
+	if pos+5 >= len(input) || input[pos] != '$' {
+		return false
+	}
+	suffix := input[pos+1:]
+	if len(suffix) < 4 {
+		return false
+	}
+	e, n, v, colon := suffix[0], suffix[1], suffix[2], suffix[3]
+	return (e == 'e' || e == 'E') && (n == 'n' || n == 'N') && (v == 'v' || v == 'V') && colon == ':'
 }
 
 // insideHashtable checks if position pos is inside a @{...} block.
@@ -322,6 +403,19 @@ func renderPSValue(v *PSValue) string {
 			return s[1 : len(s)-1]
 		}
 		return s
+	}
+	if v.DQString != nil {
+		// Safety was validated at parse time (no $ or backtick); strip quotes
+		// and return the raw content. Reconstruction re-quotes safely.
+		s := *v.DQString
+		if len(s) >= 2 && s[0] == '"' && s[len(s)-1] == '"' {
+			return s[1 : len(s)-1]
+		}
+		return s
+	}
+	if v.EnvRef != nil {
+		// Pass through verbatim; downstream secrets scrubber handles redaction.
+		return *v.EnvRef
 	}
 	if v.Number != nil {
 		return *v.Number

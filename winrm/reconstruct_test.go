@@ -23,6 +23,12 @@ func TestPowerShellQuote(t *testing.T) {
 		{"simple", "simple"},
 		{"with space", "'with space'"},
 		{"it's", "'it''s'"},
+		{"$env:USERNAME", "$env:USERNAME"},
+		{"$env:PATH", "$env:PATH"},
+		{"$env:UNKNOWN_VAR", "$env:UNKNOWN_VAR"},
+		// $-prefixed but not an env ref — treat as string, quote it.
+		{"$foo", "'$foo'"},
+		{"$env:", "'$env:'"},
 	}
 
 	for _, tc := range tests {

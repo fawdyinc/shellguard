@@ -156,23 +156,44 @@ func TestParsePowerShell_CommaInIdent(t *testing.T) {
 
 // --- Rejection tests ---
 
-func TestParsePowerShell_RejectVariable(t *testing.T) {
-	_, err := ParsePowerShell("Get-Process $env:PATH")
-	if err == nil {
-		t.Fatal("expected error for variable reference")
+func TestParsePowerShell_AcceptsEnvRef(t *testing.T) {
+	p, err := ParsePowerShell("Get-Process $env:USERNAME")
+	if err != nil {
+		t.Fatalf("unexpected error for env ref: %v", err)
 	}
-	if !strings.Contains(err.Error(), "Variable references ($)") {
+	if p.Segments[0].Args[0] != "$env:USERNAME" {
+		t.Errorf("expected '$env:USERNAME', got %q", p.Segments[0].Args[0])
+	}
+}
+
+func TestParsePowerShell_RejectArbitraryVariable(t *testing.T) {
+	// Plain $var (not $env:X) remains rejected.
+	_, err := ParsePowerShell("Get-Process $myVar")
+	if err == nil {
+		t.Fatal("expected error for arbitrary variable reference")
+	}
+	if !strings.Contains(err.Error(), "Variable references") {
 		t.Errorf("expected variable rejection message, got: %v", err)
 	}
 }
 
-func TestParsePowerShell_RejectDoubleQuotes(t *testing.T) {
-	_, err := ParsePowerShell(`Get-Process -Name "svchost"`)
+func TestParsePowerShell_AcceptsSafeDoubleQuotes(t *testing.T) {
+	p, err := ParsePowerShell(`Get-Process -Name "svchost"`)
+	if err != nil {
+		t.Fatalf("unexpected error for safe DQString: %v", err)
+	}
+	if p.Segments[0].Args[1] != "svchost" {
+		t.Errorf("expected 'svchost', got %q", p.Segments[0].Args[1])
+	}
+}
+
+func TestParsePowerShell_RejectInterpolatedDoubleQuotes(t *testing.T) {
+	_, err := ParsePowerShell(`Get-Process -Name "svc $var"`)
 	if err == nil {
-		t.Fatal("expected error for double-quoted string")
+		t.Fatal("expected error for interpolated double-quoted string")
 	}
 	if !strings.Contains(err.Error(), "Double-quoted strings") {
-		t.Errorf("expected double-quote rejection message, got: %v", err)
+		t.Errorf("expected DQString rejection message, got: %v", err)
 	}
 }
 
@@ -268,9 +289,9 @@ func TestParsePowerShell_SecurityAttackVectors(t *testing.T) {
 		input   string
 		wantErr string
 	}{
-		{"env var", "$env:PATH", "Variable references"},
+		{"arbitrary variable", "$foo", "Variable references"},
 		{"command substitution", "$(Get-Date)", "Variable references"},
-		{"invoke expression", `Invoke-Expression "malicious"`, "Double-quoted"},
+		{"interpolated dqstring", `Invoke-Expression "malicious $x"`, "Double-quoted"},
 		{"string interpolation", `"hello $world"`, "Double-quoted"},
 		{"method call", "(Get-Date).ToString()", "Subexpressions"},
 		{"semicolon chain", "Remove-Item foo; Get-Process", "Statement separators"},

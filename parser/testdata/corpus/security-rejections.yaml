@@ -31,10 +31,12 @@ entries:
     expect: rejects
     reason: semicolon-chain
 
-  - command: 'Invoke-Expression "malicious"'
+  # DQString with $ interpolation must reject at parse time even when
+  # the wrapped cmdlet would otherwise parse.
+  - command: 'Invoke-Expression "malicious $payload"'
     source: security
     expect: rejects
-    reason: invoke-expression-dquoted
+    reason: invoke-expression-interpolated-dquoted
 
   - command: '"hello $world"'
     source: security

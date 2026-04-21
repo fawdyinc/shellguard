@@ -30,15 +30,15 @@ entries:
     expect: rejects
     reason: calculated-property-in-select
 
-  # ---- Fails today: double-quoted literal path (Workstream C) ----
+  # ---- Workstream C: DQString with safe content (no $ or backtick) ----
   - command: 'Get-Content -Path "C:\DassaultSystemes\R2026x\3DSpace\logs\mxtrace.log" -Tail 50'
     source: ses_252a83796ffedk7cXAmutOY5tq
-    expect: rejects
+    expect: parses
     reason: double-quoted-literal-path
 
   - command: 'Get-ChildItem -Path "C:\Program Files\DassaultSystemes"'
     source: synthetic
-    expect: rejects
+    expect: parses
     reason: double-quoted-literal-path
 
   # ---- Fails today: manifest miss (Workstream D — grammar accepts, validator rejects) ----
@@ -88,10 +88,10 @@ entries:
     expect: rejects
     reason: compound-where-object-block
 
-  # ---- Fails today: env var read (Workstream C) ----
+  # ---- Workstream C: env var read ($env:VARNAME) ----
   - command: "Get-ChildItem $env:USERPROFILE"
     source: synthetic
-    expect: rejects
+    expect: parses
     reason: env-var-read
 
   # ---- Deprecated cmdlet that should route to Get-CimInstance (Workstream E) ----

@@ -102,8 +102,8 @@ func TestPowerShellPipeline_RejectDangerous(t *testing.T) {
 		command string
 		wantErr string
 	}{
-		{"variable", "$env:PATH", "Variable references"},
-		{"double quotes", `Get-Process -Name "svc"`, "Double-quoted"},
+		{"variable", "$foo", "Variable references"},
+		{"interpolated dqstring", `Get-Process -Name "svc $var"`, "Double-quoted"},
 		{"subexpression", "(Get-Date).ToString()", "Subexpressions"},
 		{"semicolon", "Get-Process; Get-Service", "Statement separators"},
 		{"redirection", "Get-Process > out.txt", "Output redirection"},

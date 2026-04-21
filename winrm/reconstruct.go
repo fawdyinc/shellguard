@@ -10,7 +10,7 @@ import (
 )
 
 // PowerShellQuote single-quotes a token for safe use in PowerShell.
-// Embedded single quotes are escaped by doubling ('').
+// Embedded single quotes are escaped by doubling (”).
 // Flags (starting with -) and pipeline operators pass through unquoted.
 func PowerShellQuote(token string) string {
 	if token == "" {
@@ -24,12 +24,43 @@ func PowerShellQuote(token string) string {
 	if strings.HasPrefix(token, "@{") {
 		return token
 	}
+	// Env refs pass through unquoted so PowerShell resolves the variable at
+	// execution time. The parser's EnvRef token already validated the shape.
+	if isPSEnvRef(token) {
+		return token
+	}
 	// Identifiers that are safe don't need quoting.
 	if isPSSafeToken(token) {
 		return token
 	}
 	// Single-quote with embedded quote doubling.
 	return "'" + strings.ReplaceAll(token, "'", "''") + "'"
+}
+
+// isPSEnvRef returns true if the token matches the parser's EnvRef shape:
+// $env: followed by a legal identifier. Case-insensitive "env".
+func isPSEnvRef(token string) bool {
+	if len(token) < 6 || token[0] != '$' {
+		return false
+	}
+	e, n, v, colon := token[1], token[2], token[3], token[4]
+	if (e != 'e' && e != 'E') || (n != 'n' && n != 'N') || (v != 'v' && v != 'V') || colon != ':' {
+		return false
+	}
+	rest := token[5:]
+	if len(rest) == 0 {
+		return false
+	}
+	for i, r := range rest {
+		ok := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '_'
+		if i > 0 {
+			ok = ok || (r >= '0' && r <= '9')
+		}
+		if !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // ReconstructPowerShellCommand rebuilds a validated pipeline into a PowerShell
