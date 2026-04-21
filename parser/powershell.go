@@ -15,15 +15,35 @@ import (
 )
 
 // PowerShell lexer definition. Order matters: longer/more-specific tokens first.
+//
+// Tokens are defined up-front for characters that will appear in future grammar
+// productions (PSSafeExpr, calculated properties, env refs). Today most of
+// them have no valid use, so any input that produces them participle rejects
+// at parse time — diagnoseParseError maps that rejection back to a targeted
+// user message in ParsePowerShell. As grammar productions land that use these
+// tokens, the corresponding rejections naturally flip to accepts.
 var psLexer = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "Whitespace", Pattern: `[ \t]+`},
 	{Name: "HashOpen", Pattern: `@\{`},
 	{Name: "HashClose", Pattern: `\}`},
 	{Name: "Pipe", Pattern: `\|`},
+	{Name: "DoubleColon", Pattern: `::`},
 	{Name: "Eq", Pattern: `=`},
 	{Name: "Semi", Pattern: `;`},
 	{Name: "Comma", Pattern: `,`},
+	{Name: "LBrace", Pattern: `\{`},
+	{Name: "LParen", Pattern: `\(`},
+	{Name: "RParen", Pattern: `\)`},
+	{Name: "LBracket", Pattern: `\[`},
+	{Name: "RBracket", Pattern: `\]`},
+	// EnvRef must precede Dollar; case-insensitive "env" prefix.
+	{Name: "EnvRef", Pattern: `\$[eE][nN][vV]:[a-zA-Z_][a-zA-Z0-9_]*`},
+	{Name: "Dollar", Pattern: `\$`},
 	{Name: "String", Pattern: `'[^']*'`},
+	// DQString allows any non-quote byte in the body. Content safety (no $,
+	// no backtick) is validated at parse time by the grammar productions
+	// that accept DQString; until those land, DQString is unparseable.
+	{Name: "DQString", Pattern: `"[^"]*"`},
 	{Name: "Number", Pattern: `[0-9]+`},
 	{Name: "Flag", Pattern: `-[a-zA-Z_][a-zA-Z0-9_]*`},
 	// Ident allows dots, hyphens, wildcards (*), colons, and backslashes for
@@ -94,17 +114,15 @@ var psParser = participle.MustBuild[PSPipeline](
 	participle.Elide("Whitespace"),
 )
 
-// dangerousChars maps characters that should be rejected with actionable messages
-// before parsing. These are checked in order.
-var dangerousChars = []struct {
+// preScanRejects holds characters that have no representation in any grammar
+// production — rejecting them before parsing gives a targeted error message
+// faster than waiting for participle to fail. Every other character-level
+// restriction is enforced by the grammar itself (see diagnoseParseError).
+var preScanRejects = []struct {
 	char    string
 	message string
 }{
-	{"$", "Variable references ($) are not allowed. To read environment variables, use: Get-ChildItem Env:VARIABLE_NAME — then use the returned value literally in your next command."},
 	{"`", "Backtick escaping/continuation is not allowed."},
-	{"\"", "Double-quoted strings are not allowed (prevents variable interpolation). Use single quotes: '...'"},
-	{"(", "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."},
-	{")", "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."},
 	{"&", "The call operator (&) is not allowed. Use cmdlet names directly."},
 }
 
@@ -130,7 +148,7 @@ func ParsePowerShell(command string) (*Pipeline, error) {
 
 	parsed, err := psParser.ParseString("", trimmed)
 	if err != nil {
-		return nil, &ParseError{Message: fmt.Sprintf("PowerShell parse error: %v", err)}
+		return nil, diagnoseParseError(trimmed, err)
 	}
 
 	segments, err := convertPSPipeline(parsed)
@@ -145,8 +163,11 @@ func ParsePowerShell(command string) (*Pipeline, error) {
 	return &Pipeline{Segments: segments}, nil
 }
 
-// preScanDangerous rejects characters that are not in the safe grammar.
-// It skips characters inside single-quoted strings.
+// preScanDangerous rejects characters that aren't in any grammar production,
+// producing a targeted error message. Characters that are potentially valid
+// in future productions (e.g., `{`, `$`, `"`, `(`, `)`) are deferred to the
+// parser; diagnoseParseError translates participle's "unexpected token" error
+// back into a user-friendly message for inputs the grammar still rejects.
 func preScanDangerous(input string) error {
 	inSingleQuote := false
 	for i := 0; i < len(input); i++ {
@@ -159,34 +180,62 @@ func preScanDangerous(input string) error {
 			continue
 		}
 
-		// Check redirections (multi-char patterns first).
 		for _, pat := range redirectionPatterns {
 			if i+len(pat) <= len(input) && input[i:i+len(pat)] == pat {
 				return &ParseError{Message: "Output redirection is not allowed. Command output is captured automatically."}
 			}
 		}
 
-		// Check semicolons outside @{}.
-		if ch == ';' {
-			// Check if we're inside a hashtable by looking for preceding @{
-			if !insideHashtable(input, i) {
-				return &ParseError{Message: "Statement separators (;) are not allowed. Use pipeline (|) to chain commands."}
-			}
-			continue
-		}
-
-		// Check script blocks: { without preceding @
-		if ch == '{' && (i == 0 || input[i-1] != '@') {
-			return &ParseError{Message: "Script blocks are not supported. Use simplified Where-Object syntax: Where-Object PropertyName -eq Value"}
-		}
-
-		for _, dc := range dangerousChars {
+		for _, dc := range preScanRejects {
 			if string(ch) == dc.char {
 				return &ParseError{Message: dc.message}
 			}
 		}
 	}
 	return nil
+}
+
+// diagnoseParseError inspects a failed parse and produces a targeted error
+// message for inputs containing characters that the grammar doesn't yet
+// accept. This is the translation layer that lets pre-scan shrink to just
+// the always-invalid characters while preserving helpful error messages.
+//
+// Characters here match grammar productions that are either unreleased or
+// constrained to specific positions. When a grammar workstream lands, its
+// characters stop triggering parse failures and these messages never fire.
+func diagnoseParseError(input string, parseErr error) error {
+	inSingleQuote := false
+	for i := 0; i < len(input); i++ {
+		ch := input[i]
+		if ch == '\'' {
+			inSingleQuote = !inSingleQuote
+			continue
+		}
+		if inSingleQuote {
+			continue
+		}
+
+		switch ch {
+		case '$':
+			return &ParseError{Message: "Variable references ($) are not allowed. To read environment variables, use: Get-ChildItem Env:VARIABLE_NAME — then use the returned value literally in your next command."}
+		case '"':
+			return &ParseError{Message: "Double-quoted strings are not allowed (prevents variable interpolation). Use single quotes: '...'"}
+		case '(', ')':
+			return &ParseError{Message: "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."}
+		case '[', ']':
+			return &ParseError{Message: "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."}
+		case '{':
+			if i == 0 || input[i-1] != '@' {
+				return &ParseError{Message: "Script blocks are not supported. Use simplified Where-Object syntax: Where-Object PropertyName -eq Value"}
+			}
+		case ';':
+			if !insideHashtable(input, i) {
+				return &ParseError{Message: "Statement separators (;) are not allowed. Use pipeline (|) to chain commands."}
+			}
+		}
+	}
+
+	return &ParseError{Message: fmt.Sprintf("PowerShell parse error: %v", parseErr)}
 }
 
 // insideHashtable checks if position pos is inside a @{...} block.
