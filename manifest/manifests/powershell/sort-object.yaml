@@ -1,0 +1,10 @@
+name: sort-object
+description: Sort objects by property values
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-Descending"
+stdin: true
+stdout: true

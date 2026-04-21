@@ -1,0 +1,77 @@
+# Commands that already parse cleanly on the current grammar.
+# These lock in existing behavior as the grammar evolves.
+entries:
+  - command: "Get-Process"
+    source: baseline
+    expect: parses
+    reason: bare-cmdlet
+
+  - command: "whoami"
+    source: baseline
+    expect: parses
+    reason: single-word-cmdlet
+
+  - command: "Get-Process -Name svchost"
+    source: baseline
+    expect: parses
+    reason: cmdlet-with-flag
+
+  - command: "Get-Process -Name svc | Select-Object Id,Name"
+    source: baseline
+    expect: parses
+    reason: pipeline-two-segments
+
+  - command: "Get-Process | Where-Object CPU -gt 10 | Sort-Object CPU -Descending | Select-Object -First 5"
+    source: baseline
+    expect: parses
+    reason: pipeline-multi-segment
+
+  - command: "Where-Object PropertyName -eq Running"
+    source: baseline
+    expect: parses
+    reason: where-object-simplified
+
+  - command: "Get-Content -Path 'C:\\logs\\app.log'"
+    source: baseline
+    expect: parses
+    reason: single-quoted-path
+
+  - command: "Get-WinEvent -FilterHashtable @{LogName='System'; Level=2}"
+    source: baseline
+    expect: parses
+    reason: hashtable-string-values
+
+  - command: "Get-WinEvent -MaxEvents 100"
+    source: baseline
+    expect: parses
+    reason: numeric-flag-value
+
+  - command: "Get-ChildItem -Filter *.log"
+    source: baseline
+    expect: parses
+    reason: wildcard-ident
+
+  - command: "Get-Content -Path 'C:\\logs\\app.log' -Tail 50"
+    source: baseline
+    expect: parses
+    reason: get-content-tail
+
+  - command: "Select-Object -Property Name"
+    source: baseline
+    expect: parses
+    reason: select-object-property
+
+  - command: "Get-Service -Name w3svc"
+    source: baseline
+    expect: parses
+    reason: get-service
+
+  - command: "Test-Connection -ComputerName localhost -Count 1"
+    source: baseline
+    expect: parses
+    reason: test-connection
+
+  - command: "Get-Process | Measure-Object"
+    source: baseline
+    expect: parses
+    reason: measure-object

@@ -1,0 +1,8 @@
+name: tracert
+description: Trace route to host
+category: network
+shell: powershell
+timeout: 60
+flags: []
+stdin: false
+stdout: true

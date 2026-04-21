@@ -1,0 +1,11 @@
+name: get-scheduledtask
+description: Retrieve scheduled task definitions
+category: system
+shell: powershell
+flags:
+  - flag: "-TaskName"
+    takes_value: true
+  - flag: "-TaskPath"
+    takes_value: true
+stdin: false
+stdout: true

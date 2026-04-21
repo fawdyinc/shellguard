@@ -1,0 +1,4 @@
+name: invoke-command
+shell: powershell
+deny: true
+reason: "Remote command execution not allowed."

@@ -1,0 +1,6 @@
+name: get-netfirewallportfilter
+description: Retrieve port filter details for firewall rules
+category: network
+shell: powershell
+stdin: true
+stdout: true

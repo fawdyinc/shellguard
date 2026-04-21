@@ -1,0 +1,15 @@
+name: get-localgroupmember
+description: Retrieve members of a local group
+category: system
+shell: powershell
+flags:
+  - flag: "-Group"
+    takes_value: true
+  - flag: "-Member"
+    takes_value: true
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-SID"
+    takes_value: true
+stdin: false
+stdout: true

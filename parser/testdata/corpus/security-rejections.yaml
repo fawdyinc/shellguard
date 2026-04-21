@@ -1,0 +1,64 @@
+# Dangerous patterns that must ALWAYS reject, now and after every workstream.
+# If any of these ever flip to `parses`, the grammar safety invariant broke.
+entries:
+  - command: "& cmd.exe /c dir"
+    source: security
+    expect: rejects
+    reason: call-operator
+
+  - command: "Get-Process `\n-Name svc"
+    source: security
+    expect: rejects
+    reason: backtick-continuation
+
+  - command: "Get-Process > output.txt"
+    source: security
+    expect: rejects
+    reason: stdout-redirection
+
+  - command: "Get-Process >> output.txt"
+    source: security
+    expect: rejects
+    reason: stdout-append-redirection
+
+  - command: "Get-Process 2> errors.txt"
+    source: security
+    expect: rejects
+    reason: stderr-redirection
+
+  - command: "Remove-Item foo; Get-Process"
+    source: security
+    expect: rejects
+    reason: semicolon-chain
+
+  # DQString with $ interpolation must reject at parse time even when
+  # the wrapped cmdlet would otherwise parse.
+  - command: 'Invoke-Expression "malicious $payload"'
+    source: security
+    expect: rejects
+    reason: invoke-expression-interpolated-dquoted
+
+  - command: '"hello $world"'
+    source: security
+    expect: rejects
+    reason: string-interpolation
+
+  - command: "$(Get-Date)"
+    source: security
+    expect: rejects
+    reason: command-substitution
+
+  - command: "Get-Process -Id (Get-Content pid.txt)"
+    source: security
+    expect: rejects
+    reason: subexpression-arg
+
+  - command: "(Get-Date).ToString()"
+    source: security
+    expect: rejects
+    reason: subexpression-method-call
+
+  - command: ""
+    source: security
+    expect: rejects
+    reason: empty-input

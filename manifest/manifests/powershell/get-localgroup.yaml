@@ -1,0 +1,11 @@
+name: get-localgroup
+description: Retrieve local security groups
+category: system
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-SID"
+    takes_value: true
+stdin: false
+stdout: true

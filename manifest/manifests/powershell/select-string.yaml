@@ -1,0 +1,13 @@
+name: select-string
+description: Find text in strings and files
+category: text
+shell: powershell
+regex_arg_position: 0
+flags:
+  - flag: "-Pattern"
+    takes_value: true
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-SimpleMatch"
+stdin: true
+stdout: true

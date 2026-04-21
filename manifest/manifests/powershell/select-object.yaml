@@ -1,0 +1,15 @@
+name: select-object
+description: Select properties of objects
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-First"
+    takes_value: true
+  - flag: "-Last"
+    takes_value: true
+  - flag: "-ExpandProperty"
+    takes_value: true
+stdin: true
+stdout: true

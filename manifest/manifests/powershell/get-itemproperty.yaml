@@ -1,0 +1,13 @@
+name: get-itemproperty
+description: Get item properties
+category: filesystem
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+stdin: false
+stdout: true

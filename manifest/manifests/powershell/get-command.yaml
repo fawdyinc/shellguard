@@ -1,0 +1,19 @@
+name: get-command
+description: List available cmdlets, functions, and aliases
+category: utility
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Module"
+    takes_value: true
+  - flag: "-CommandType"
+    takes_value: true
+  - flag: "-Noun"
+    takes_value: true
+  - flag: "-Verb"
+    takes_value: true
+  - flag: "-All"
+  - flag: "-ListImported"
+stdin: false
+stdout: true

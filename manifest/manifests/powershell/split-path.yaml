@@ -1,0 +1,19 @@
+name: split-path
+description: Extract a component from a path
+category: utility
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+  - flag: "-Parent"
+  - flag: "-Leaf"
+  - flag: "-LeafBase"
+  - flag: "-Extension"
+  - flag: "-Qualifier"
+  - flag: "-NoQualifier"
+  - flag: "-IsAbsolute"
+  - flag: "-Resolve"
+stdin: false
+stdout: true

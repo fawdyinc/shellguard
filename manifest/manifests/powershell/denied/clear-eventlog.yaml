@@ -1,0 +1,4 @@
+name: clear-eventlog
+shell: powershell
+deny: true
+reason: "Destructive. Use Get-WinEvent to read instead."

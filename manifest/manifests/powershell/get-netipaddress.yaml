@@ -1,0 +1,9 @@
+name: get-netipaddress
+description: Get IP address configuration
+category: network
+shell: powershell
+flags:
+  - flag: "-InterfaceAlias"
+    takes_value: true
+stdin: false
+stdout: true

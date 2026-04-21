@@ -1,0 +1,4 @@
+name: start-service
+shell: powershell
+deny: true
+reason: "Service modification not allowed. Use Get-Service to check status."

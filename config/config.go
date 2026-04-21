@@ -60,8 +60,16 @@ type Config struct {
 	MaxSleepSeconds  *int               `yaml:"max_sleep_seconds"`
 	DisabledTools    []string           `yaml:"disabled_tools"`
 	SSH              *SSHConfig         `yaml:"ssh"`
+	WinRM            *WinRMConfig       `yaml:"winrm"`
 	ManifestDir      *string            `yaml:"manifest_dir"`
 	AutoConnect      *AutoConnectConfig `yaml:"-"` // env-only, not from config file
+}
+
+// WinRMConfig holds WinRM-specific configuration.
+type WinRMConfig struct {
+	ConnectTimeout *duration `yaml:"connect_timeout"`
+	UseTLS         *bool     `yaml:"use_tls"`
+	Insecure       *bool     `yaml:"insecure"`
 }
 
 // SSHConfig holds SSH-specific configuration.
@@ -201,6 +209,31 @@ func (c *Config) applyEnvOverrides() error {
 			c.SSH = &SSHConfig{}
 		}
 		c.SSH.KnownHostsFile = &v
+	}
+
+	if v, ok := os.LookupEnv("SHELLGUARD_WINRM_CONNECT_TIMEOUT"); ok {
+		if c.WinRM == nil {
+			c.WinRM = &WinRMConfig{}
+		}
+		d := &duration{}
+		if err := d.unmarshalText(v); err != nil {
+			return fmt.Errorf("parse SHELLGUARD_WINRM_CONNECT_TIMEOUT: %w", err)
+		}
+		c.WinRM.ConnectTimeout = d
+	}
+	if v, ok := os.LookupEnv("SHELLGUARD_WINRM_USE_TLS"); ok {
+		if c.WinRM == nil {
+			c.WinRM = &WinRMConfig{}
+		}
+		b := v == "true" || v == "1"
+		c.WinRM.UseTLS = &b
+	}
+	if v, ok := os.LookupEnv("SHELLGUARD_WINRM_INSECURE"); ok {
+		if c.WinRM == nil {
+			c.WinRM = &WinRMConfig{}
+		}
+		b := v == "true" || v == "1"
+		c.WinRM.Insecure = &b
 	}
 
 	// Auto-connect env vars (presence of SHELLGUARD_HOST triggers auto-connect).

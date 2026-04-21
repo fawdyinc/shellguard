@@ -1,0 +1,13 @@
+name: get-smbshare
+description: Retrieve SMB shares hosted by this machine
+category: system
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-ScopeName"
+    takes_value: true
+  - flag: "-Special"
+    takes_value: true
+stdin: false
+stdout: true

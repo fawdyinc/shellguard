@@ -1,0 +1,9 @@
+name: get-hotfix
+description: Get installed hotfixes
+category: system
+shell: powershell
+flags:
+  - flag: "-Id"
+    takes_value: true
+stdin: false
+stdout: true

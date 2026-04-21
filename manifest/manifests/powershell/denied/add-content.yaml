@@ -1,0 +1,4 @@
+name: add-content
+shell: powershell
+deny: true
+reason: "Write operations not allowed. Use Get-Content to read files."

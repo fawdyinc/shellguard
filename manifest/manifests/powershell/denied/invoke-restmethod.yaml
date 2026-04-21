@@ -1,0 +1,4 @@
+name: invoke-restmethod
+shell: powershell
+deny: true
+reason: "HTTP requests not allowed."

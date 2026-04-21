@@ -1,0 +1,4 @@
+name: set-item
+shell: powershell
+deny: true
+reason: "Property modification not allowed. Use Get-Item or Get-ItemProperty to read."

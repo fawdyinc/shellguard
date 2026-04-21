@@ -1,0 +1,16 @@
+name: get-childitem
+description: List directory contents
+category: filesystem
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-Recurse"
+  - flag: "-Filter"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+  - flag: "-Name"
+allows_path_args: true
+stdin: false
+stdout: true

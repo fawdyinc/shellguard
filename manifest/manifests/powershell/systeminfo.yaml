@@ -1,0 +1,7 @@
+name: systeminfo
+description: Display system information
+category: system
+shell: powershell
+flags: []
+stdin: false
+stdout: true

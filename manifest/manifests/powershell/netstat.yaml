@@ -1,0 +1,7 @@
+name: netstat
+description: Display network connections
+category: network
+shell: powershell
+flags: []
+stdin: false
+stdout: true

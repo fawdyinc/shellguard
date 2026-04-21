@@ -1,0 +1,4 @@
+name: clear-content
+shell: powershell
+deny: true
+reason: "Destructive. Use Get-Content to read instead."

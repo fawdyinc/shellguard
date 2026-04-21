@@ -1,0 +1,7 @@
+name: get-psdrive
+description: Get PowerShell drive information
+category: storage
+shell: powershell
+flags: []
+stdin: false
+stdout: true

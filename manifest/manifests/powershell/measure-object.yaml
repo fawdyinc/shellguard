@@ -1,0 +1,13 @@
+name: measure-object
+description: Calculate numeric properties of objects
+category: utility
+shell: powershell
+flags:
+  - flag: "-Sum"
+  - flag: "-Average"
+  - flag: "-Maximum"
+  - flag: "-Minimum"
+  - flag: "-Property"
+    takes_value: true
+stdin: true
+stdout: true

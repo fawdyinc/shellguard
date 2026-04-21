@@ -34,6 +34,9 @@ type ConnectParams struct {
 	IdentityFile string `json:"identity_file,omitempty"`
 	Password     string `json:"password,omitempty"`
 	Passphrase   string `json:"passphrase,omitempty"`
+	Transport    string `json:"transport,omitempty"`
+	UseTLS       bool   `json:"use_tls,omitempty"`
+	Insecure     bool   `json:"insecure,omitempty"`
 }
 
 // DisconnectParams are the parameters for the "disconnect" command.

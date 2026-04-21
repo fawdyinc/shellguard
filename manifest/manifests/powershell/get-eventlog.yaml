@@ -1,0 +1,14 @@
+name: get-eventlog
+description: Get events from classic event logs
+category: logs
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-LogName"
+    takes_value: true
+  - flag: "-Newest"
+    takes_value: true
+  - flag: "-EntryType"
+    takes_value: true
+stdin: false
+stdout: true

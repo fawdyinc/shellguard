@@ -16,6 +16,38 @@ var (
 	globChars          = regexp.MustCompile(`[*?\[]`)
 )
 
+// psCommonParams are PowerShell common parameters allowed globally for all
+// PowerShell cmdlets. These are checked before manifest flag validation.
+// See: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters
+var psCommonParams = map[string]bool{
+	"-ErrorAction":        true,
+	"-ErrorVariable":      true,
+	"-WarningAction":      true,
+	"-WarningVariable":    true,
+	"-InformationAction":  true,
+	"-InformationVariable": true,
+	"-OutVariable":        true,
+	"-OutBuffer":          true,
+	"-PipelineVariable":   true,
+	"-Verbose":            true,
+	"-Debug":              true,
+	"-ProgressAction":     true,
+}
+
+// psCommonParamsTakesValue indicates which common params expect a value.
+var psCommonParamsTakesValue = map[string]bool{
+	"-ErrorAction":        true,
+	"-ErrorVariable":      true,
+	"-WarningAction":      true,
+	"-WarningVariable":    true,
+	"-InformationAction":  true,
+	"-InformationVariable": true,
+	"-OutVariable":        true,
+	"-OutBuffer":          true,
+	"-PipelineVariable":   true,
+	"-ProgressAction":     true,
+}
+
 type ValidationError struct {
 	Message string
 }
@@ -51,6 +83,9 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 
 	m := registry[command]
 	if m == nil {
+		if closest := closestCmdlet(command, registry); closest != "" {
+			return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available. Did you mean '%s'?", command, closest)}
+		}
 		return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available.", command)}
 	}
 	if m.Deny {
@@ -58,6 +93,61 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 	}
 
 	return validateArgs(command, args, m)
+}
+
+// closestCmdlet returns the registry cmdlet name closest to command by
+// Levenshtein distance, up to a small threshold. Returns "" when no allowed
+// cmdlet is close enough — short commands would otherwise match too much.
+func closestCmdlet(command string, registry map[string]*manifest.Manifest) string {
+	if len(command) < 3 {
+		return ""
+	}
+	threshold := 2
+	if len(command) >= 8 {
+		threshold = 3
+	}
+	best := ""
+	bestDist := threshold + 1
+	for name, m := range registry {
+		if m == nil || m.Deny {
+			continue
+		}
+		d := levenshtein(command, name)
+		if d < bestDist {
+			bestDist = d
+			best = name
+		}
+	}
+	if bestDist > threshold {
+		return ""
+	}
+	return best
+}
+
+func levenshtein(a, b string) int {
+	if len(a) == 0 {
+		return len(b)
+	}
+	if len(b) == 0 {
+		return len(a)
+	}
+	prev := make([]int, len(b)+1)
+	cur := make([]int, len(b)+1)
+	for j := range prev {
+		prev[j] = j
+	}
+	for i := 1; i <= len(a); i++ {
+		cur[0] = i
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+			cur[j] = min(prev[j]+1, cur[j-1]+1, prev[j-1]+cost)
+		}
+		prev, cur = cur, prev
+	}
+	return prev[len(b)]
 }
 
 func validateSudo(segment parser.PipelineSegment, registry map[string]*manifest.Manifest) error {
@@ -174,6 +264,8 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 		return err
 	}
 
+	isPowerShell := m.Shell == "powershell"
+
 	idx := 0
 	positionalIdx := 0
 	for idx < len(args) {
@@ -185,6 +277,16 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 			}
 
 			flagName, inlineValue, hasInline := splitLongFlag(arg)
+
+			// Allow PowerShell common parameters globally.
+			if isPowerShell && psCommonParams[flagName] {
+				if psCommonParamsTakesValue[flagName] && !hasInline {
+					idx++ // skip the value
+				}
+				idx++
+				continue
+			}
+
 			if err := validateFlag(command, flagName, m); err != nil {
 				return err
 			}
@@ -212,8 +314,11 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 				}
 			}
 			if m.RegexArgPosition == nil || positionalIdx != *m.RegexArgPosition {
-				if err := checkGlobInPositional(arg); err != nil {
-					return err
+				// Skip glob checking for PowerShell (wildcards are common in PS).
+				if !isPowerShell {
+					if err := checkGlobInPositional(arg); err != nil {
+						return err
+					}
 				}
 			}
 			positionalIdx++

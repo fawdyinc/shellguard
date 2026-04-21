@@ -1,0 +1,12 @@
+name: group-object
+description: Group pipeline objects by property value
+category: utility
+shell: powershell
+flags:
+  - flag: "-Property"
+    takes_value: true
+  - flag: "-NoElement"
+  - flag: "-CaseSensitive"
+  - flag: "-AsHashTable"
+stdin: true
+stdout: true

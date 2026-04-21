@@ -1,0 +1,14 @@
+name: get-appxpackage
+description: List installed AppX (Windows Store) packages
+category: system
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-Publisher"
+    takes_value: true
+  - flag: "-AllUsers"
+  - flag: "-User"
+    takes_value: true
+stdin: false
+stdout: true

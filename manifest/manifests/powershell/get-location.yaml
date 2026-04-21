@@ -1,0 +1,12 @@
+name: get-location
+description: Get the current working location (directory)
+category: system
+shell: powershell
+flags:
+  - flag: "-PSProvider"
+    takes_value: true
+  - flag: "-PSDrive"
+    takes_value: true
+  - flag: "-Stack"
+stdin: false
+stdout: true

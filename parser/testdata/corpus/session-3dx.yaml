@@ -1,0 +1,101 @@
+# Commands from the 3dx investigation session (ses_252a83796ffedk7cXAmutOY5tq).
+# Mix of commands that work today and commands that motivated this plan.
+# As each workstream lands, flip `expect` on the affected entries and re-run
+# to see the delta. The grouping by `reason` tag drives prioritization.
+entries:
+  # ---- Already works ----
+  - command: "Get-Service"
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: bare-get-service
+
+  - command: "Get-Process -Name dsls"
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: get-process-by-name
+
+  - command: "Get-PSDrive -PSProvider FileSystem"
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: get-psdrive-bare
+
+  # ---- Workstream C: calculated property in Select-Object ----
+  - command: "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,2)}}"
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: calculated-property-in-select
+
+  - command: "Get-Volume | Select-Object DriveLetter, @{N='SizeGB';E={[math]::Round($_.Size/1GB,2)}}"
+    source: synthetic
+    expect: parses
+    reason: calculated-property-in-select
+
+  # ---- Workstream C: DQString with safe content (no $ or backtick) ----
+  - command: 'Get-Content -Path "C:\DassaultSystemes\R2026x\3DSpace\logs\mxtrace.log" -Tail 50'
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: double-quoted-literal-path
+
+  - command: 'Get-ChildItem -Path "C:\Program Files\DassaultSystemes"'
+    source: synthetic
+    expect: parses
+    reason: double-quoted-literal-path
+
+  # ---- Fails today: manifest miss (Workstream D — grammar accepts, validator rejects) ----
+  # Note: these parse fine; the grammar doesn't gate on cmdlet identity. They're
+  # manifest-layer rejections, not parser rejections. Included here to widen the
+  # harness over time; for parser-only testing they all `parses`.
+  - command: "Get-CimInstance Win32_Service"
+    source: ses_252a83796ffedk7cXAmutOY5tq
+    expect: parses
+    reason: get-ciminstance-manifest-miss
+
+  - command: "Get-NetFirewallRule -Enabled True"
+    source: synthetic
+    expect: parses
+    reason: get-netfirewallrule-manifest-miss
+
+  - command: "Get-ScheduledTask | Where-Object State -eq Ready"
+    source: synthetic
+    expect: parses
+    reason: get-scheduledtask-manifest-miss
+
+  - command: "Test-NetConnection -ComputerName localhost -Port 443"
+    source: synthetic
+    expect: parses
+    reason: test-netconnection-manifest-miss
+
+  # IP literals fail the lexer today (Number is [0-9]+, no dots).
+  # Real surprise from corpus run — flagged for a future workstream.
+  - command: "Test-NetConnection -ComputerName 127.0.0.1 -Port 443"
+    source: synthetic
+    expect: rejects
+    reason: ip-address-literal
+
+  - command: "Get-Process | ForEach-Object ProcessName"
+    source: synthetic
+    expect: parses
+    reason: foreach-object-simplified-manifest-miss
+
+  - command: "Get-Process | Group-Object -Property ProcessName -NoElement"
+    source: synthetic
+    expect: parses
+    reason: group-object-manifest-miss
+
+  # ---- Workstream C: compound Where-Object filter via PSSafeExpr block ----
+  - command: "Get-Service | Where-Object { $_.Status -eq 'Running' -and $_.StartType -eq 'Automatic' }"
+    source: synthetic
+    expect: parses
+    reason: compound-where-object-block
+
+  # ---- Workstream C: env var read ($env:VARNAME) ----
+  - command: "Get-ChildItem $env:USERPROFILE"
+    source: synthetic
+    expect: parses
+    reason: env-var-read
+
+  # ---- Deprecated cmdlet that should route to Get-CimInstance (Workstream E) ----
+  - command: "Get-WmiObject Win32_OperatingSystem"
+    source: synthetic
+    expect: parses
+    reason: deprecated-get-wmiobject

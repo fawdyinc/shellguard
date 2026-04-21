@@ -1,0 +1,4 @@
+name: wmic
+shell: powershell
+deny: true
+reason: "Use Get-CimInstance instead."

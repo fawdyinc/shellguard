@@ -10,8 +10,10 @@ import (
 	"github.com/fawdyinc/shellguard/config"
 	"github.com/fawdyinc/shellguard/control"
 	"github.com/fawdyinc/shellguard/manifest"
+	"github.com/fawdyinc/shellguard/parser"
 	"github.com/fawdyinc/shellguard/server"
 	"github.com/fawdyinc/shellguard/ssh"
+	"github.com/fawdyinc/shellguard/winrm"
 )
 
 type Config struct {
@@ -109,7 +111,20 @@ func New(cfg Config) (*server.Core, error) {
 		coreOpts = append(coreOpts, server.WithDisabledTools(userCfg.DisabledTools))
 	}
 
-	return server.NewCore(registry, runner, cfg.Logger, coreOpts...), nil
+	core := server.NewCore(registry, runner, cfg.Logger, coreOpts...)
+
+	// Wire PowerShell parser and reconstructor.
+	core.ParsePS = parser.ParsePowerShell
+	core.ReconstructPS = winrm.ReconstructPowerShellCommand
+
+	// Create WinRM manager.
+	winrmDialer := &winrm.WinRMDialer{}
+	if userCfg.WinRM != nil && userCfg.WinRM.ConnectTimeout != nil {
+		winrmDialer.ConnectTimeout = userCfg.WinRM.ConnectTimeout.Duration()
+	}
+	core.WinRMRunner = winrm.NewWinRMManager(winrmDialer)
+
+	return core, nil
 }
 
 // RunStdio creates a server from cfg and runs it over stdin/stdout.

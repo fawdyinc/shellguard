@@ -1,0 +1,4 @@
+name: iex
+shell: powershell
+deny: true
+reason: "Alias for Invoke-Expression. Not allowed."

@@ -1,0 +1,9 @@
+name: convertto-json
+description: Convert objects to JSON
+category: utility
+shell: powershell
+flags:
+  - flag: "-Depth"
+    takes_value: true
+stdin: true
+stdout: true

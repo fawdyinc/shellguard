@@ -1,0 +1,11 @@
+name: get-culture
+description: Get the current culture setting
+category: system
+shell: powershell
+flags:
+  - flag: "-NoUserOverrides"
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-ListAvailable"
+stdin: false
+stdout: true

@@ -1,0 +1,6 @@
+name: whoami
+description: Display current user identity
+category: system
+shell: powershell
+stdin: false
+stdout: true

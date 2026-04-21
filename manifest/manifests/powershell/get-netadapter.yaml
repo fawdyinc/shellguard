@@ -1,0 +1,9 @@
+name: get-netadapter
+description: Get network adapter information
+category: network
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+stdin: false
+stdout: true

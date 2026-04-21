@@ -1,0 +1,11 @@
+name: get-smbconnection
+description: Retrieve active outbound SMB client connections
+category: system
+shell: powershell
+flags:
+  - flag: "-ServerName"
+    takes_value: true
+  - flag: "-UserName"
+    takes_value: true
+stdin: false
+stdout: true

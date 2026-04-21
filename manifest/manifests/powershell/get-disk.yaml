@@ -1,0 +1,7 @@
+name: get-disk
+description: Get disk information
+category: storage
+shell: powershell
+flags: []
+stdin: false
+stdout: true

@@ -1,0 +1,4 @@
+name: powershell
+shell: powershell
+deny: true
+reason: "Shell execution not allowed."

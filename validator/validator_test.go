@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/fawdyinc/shellguard/manifest"
@@ -39,6 +40,27 @@ func TestRejectsUnknownCommand(t *testing.T) {
 	err := validateOne(t, "definitely-not-a-command")
 	if err == nil {
 		t.Fatal("expected unknown command error")
+	}
+}
+
+func TestSuggestsClosestCmdlet(t *testing.T) {
+	err := validateOne(t, "get-procces") // typo for get-process
+	if err == nil {
+		t.Fatal("expected unknown command error with suggestion")
+	}
+	if !strings.Contains(err.Error(), "Did you mean") || !strings.Contains(err.Error(), "get-process") {
+		t.Errorf("expected suggestion for get-process, got: %v", err)
+	}
+}
+
+func TestNoSuggestionForFarCommand(t *testing.T) {
+	// "zzz" is too far from any allowed cmdlet — no suggestion.
+	err := validateOne(t, "zzz")
+	if err == nil {
+		t.Fatal("expected unknown command error")
+	}
+	if strings.Contains(err.Error(), "Did you mean") {
+		t.Errorf("did not expect suggestion for zzz, got: %v", err)
 	}
 }
 

@@ -19,6 +19,9 @@ func (a *CoreAdapter) Connect(ctx context.Context, params ConnectParams) error {
 		IdentityFile: params.IdentityFile,
 		Password:     params.Password,
 		Passphrase:   params.Passphrase,
+		Transport:    params.Transport,
+		UseTLS:       params.UseTLS,
+		Insecure:     params.Insecure,
 	})
 	return err
 }

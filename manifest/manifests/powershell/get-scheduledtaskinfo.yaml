@@ -1,0 +1,6 @@
+name: get-scheduledtaskinfo
+description: Retrieve scheduled task run history metadata
+category: system
+shell: powershell
+stdin: true
+stdout: true

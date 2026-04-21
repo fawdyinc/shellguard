@@ -1,0 +1,19 @@
+name: get-package
+description: List installed packages
+category: system
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-ProviderName"
+    takes_value: true
+  - flag: "-RequiredVersion"
+    takes_value: true
+  - flag: "-MinimumVersion"
+    takes_value: true
+  - flag: "-MaximumVersion"
+    takes_value: true
+  - flag: "-Scope"
+    takes_value: true
+stdin: false
+stdout: true

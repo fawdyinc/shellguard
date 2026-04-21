@@ -1,0 +1,11 @@
+name: get-service
+description: List Windows services
+category: services
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-DisplayName"
+    takes_value: true
+stdin: false
+stdout: true

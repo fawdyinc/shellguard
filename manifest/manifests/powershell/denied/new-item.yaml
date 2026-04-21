@@ -1,0 +1,4 @@
+name: new-item
+shell: powershell
+deny: true
+reason: "File/directory creation not allowed. Use Test-Path to check existence."

@@ -1,0 +1,14 @@
+name: get-acl
+description: Retrieve file or registry ACLs (read-only)
+category: filesystem
+shell: powershell
+flags:
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+  - flag: "-Audit"
+  - flag: "-AllCentralAccessPolicies"
+allows_path_args: true
+stdin: false
+stdout: true
