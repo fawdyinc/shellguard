@@ -1,0 +1,12 @@
+name: get-netadapterstatistics
+description: Get network adapter send/receive byte, packet, and error counters
+category: network
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-InterfaceDescription"
+    takes_value: true
+  - flag: "-IncludeHidden"
+stdin: false
+stdout: true

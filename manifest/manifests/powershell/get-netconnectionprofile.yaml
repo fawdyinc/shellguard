@@ -1,0 +1,19 @@
+name: get-netconnectionprofile
+description: Get network connection profile (Public / Private / DomainAuthenticated)
+category: network
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-InterfaceIndex"
+    takes_value: true
+  - flag: "-InterfaceAlias"
+    takes_value: true
+  - flag: "-NetworkCategory"
+    takes_value: true
+  - flag: "-IPv4Connectivity"
+    takes_value: true
+  - flag: "-IPv6Connectivity"
+    takes_value: true
+stdin: false
+stdout: true

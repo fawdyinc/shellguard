@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 288; got != want {
+	if got, want := len(registry), 294; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -210,6 +210,13 @@ func TestPowerShellDiagnosticManifests(t *testing.T) {
 		{"get-winevent", []string{"-ProviderName", "-FilterXPath"}},
 		{"select-object", []string{"-Unique", "-Skip", "-Index"}},
 		{"sort-object", []string{"-Unique", "-Top", "-Bottom"}},
+		// SIMULIA / 3DEXPERIENCE diagnostic additions (2026-04-22)
+		{"select-xml", []string{"-XPath", "-Path", "-Namespace"}},
+		{"get-netfirewallprofile", []string{"-Name", "-All"}},
+		{"get-netipinterface", []string{"-InterfaceIndex", "-AddressFamily", "-Forwarding"}},
+		{"get-netconnectionprofile", []string{"-Name", "-InterfaceAlias", "-NetworkCategory"}},
+		{"get-netadapterstatistics", []string{"-Name", "-InterfaceDescription"}},
+		{"convertfrom-stringdata", []string{"-StringData", "-Delimiter"}},
 	}
 	for _, tc := range cases {
 		m, ok := registry[tc.name]

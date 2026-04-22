@@ -169,3 +169,40 @@ entries:
     source: baseline
     expect: parses
     reason: get-timezone
+
+  # ---- SIMULIA / 3DEXPERIENCE diagnostic additions (2026-04-22) ----
+
+  - command: "Select-Xml -Path 'C:\\app\\Apache24\\conf\\httpd.conf' -XPath '/Directory'"
+    source: baseline
+    expect: parses
+    reason: select-xml-path
+
+  - command: "Get-Content 'server.xml' -Raw | Select-Xml -XPath '//Connector'"
+    source: baseline
+    expect: parses
+    reason: select-xml-pipeline
+
+  - command: "Get-NetFirewallProfile -Name Domain"
+    source: baseline
+    expect: parses
+    reason: get-netfirewallprofile
+
+  - command: "Get-NetIPInterface -AddressFamily IPv4 -Forwarding Enabled"
+    source: baseline
+    expect: parses
+    reason: get-netipinterface
+
+  - command: "Get-NetConnectionProfile -InterfaceAlias Ethernet"
+    source: baseline
+    expect: parses
+    reason: get-netconnectionprofile
+
+  - command: "Get-NetAdapterStatistics -Name Ethernet"
+    source: baseline
+    expect: parses
+    reason: get-netadapterstatistics
+
+  - command: "Get-Content 'app.properties' -Raw | ConvertFrom-StringData"
+    source: baseline
+    expect: parses
+    reason: convertfrom-stringdata

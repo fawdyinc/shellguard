@@ -1,0 +1,15 @@
+name: get-netfirewallprofile
+description: Get Windows Firewall profile configuration (Domain / Private / Public)
+category: network
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-All"
+  - flag: "-PolicyStore"
+    takes_value: true
+  - flag: "-AssociatedNetFirewallRule"
+  - flag: "-AssociatedNetIPsecRule"
+  - flag: "-AssociatedNetIPsecMainModeRule"
+stdin: false
+stdout: true

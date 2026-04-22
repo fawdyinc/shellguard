@@ -1,0 +1,20 @@
+name: select-xml
+description: Run XPath queries against XML content (files, strings, or XmlDocument objects)
+category: utility
+shell: powershell
+flags:
+  - flag: "-XPath"
+    takes_value: true
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-LiteralPath"
+    takes_value: true
+  - flag: "-Xml"
+    takes_value: true
+  - flag: "-Content"
+    takes_value: true
+  - flag: "-Namespace"
+    takes_value: true
+allows_path_args: true
+stdin: true
+stdout: true
