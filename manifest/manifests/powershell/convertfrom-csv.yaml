@@ -1,0 +1,12 @@
+name: convertfrom-csv
+description: Parse CSV text into objects
+category: utility
+shell: powershell
+flags:
+  - flag: "-Delimiter"
+    takes_value: true
+  - flag: "-Header"
+    takes_value: true
+  - flag: "-UseCulture"
+stdin: true
+stdout: true

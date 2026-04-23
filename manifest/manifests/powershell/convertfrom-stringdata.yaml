@@ -1,0 +1,11 @@
+name: convertfrom-stringdata
+description: Parse key/value string data (.properties / .ini-style) into a hashtable
+category: utility
+shell: powershell
+flags:
+  - flag: "-StringData"
+    takes_value: true
+  - flag: "-Delimiter"
+    takes_value: true
+stdin: true
+stdout: true

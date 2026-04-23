@@ -9,5 +9,11 @@ flags:
   - flag: "-Minimum"
   - flag: "-Property"
     takes_value: true
+  - flag: "-Line"
+  - flag: "-Word"
+  - flag: "-Character"
+  - flag: "-StandardDeviation"
+  - flag: "-AllStats"
+  - flag: "-IgnoreWhiteSpace"
 stdin: true
 stdout: true

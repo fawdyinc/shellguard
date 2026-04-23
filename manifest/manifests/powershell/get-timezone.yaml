@@ -1,0 +1,12 @@
+name: get-timezone
+description: Get the current system time zone
+category: system
+shell: powershell
+flags:
+  - flag: "-Id"
+    takes_value: true
+  - flag: "-Name"
+    takes_value: true
+  - flag: "-ListAvailable"
+stdin: false
+stdout: true

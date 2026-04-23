@@ -55,12 +55,15 @@ func quoteForTest(s string) string {
 }
 
 func isQuoteFreeToken(s string) bool {
+	// Forward-slash-containing tokens (XPath `/Directory`, URLs `http://...`)
+	// aren't accepted bare by the Ident lexer and must reconstruct as quoted
+	// strings to round-trip.
 	for _, r := range s {
 		switch {
 		case r >= 'a' && r <= 'z':
 		case r >= 'A' && r <= 'Z':
 		case r >= '0' && r <= '9':
-		case r == '_' || r == '-' || r == '.' || r == ':' || r == '*' || r == '\\' || r == ',' || r == '/':
+		case r == '_' || r == '-' || r == '.' || r == ':' || r == '*' || r == '\\':
 		default:
 			return false
 		}

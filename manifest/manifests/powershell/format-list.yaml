@@ -5,5 +5,10 @@ shell: powershell
 flags:
   - flag: "-Property"
     takes_value: true
+  - flag: "-GroupBy"
+    takes_value: true
+  - flag: "-View"
+    takes_value: true
+  - flag: "-ShowError"
 stdin: true
 stdout: true

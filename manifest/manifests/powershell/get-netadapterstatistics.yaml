@@ -1,17 +1,12 @@
-name: get-netadapter
-description: Get network adapter information
+name: get-netadapterstatistics
+description: Get network adapter send/receive byte, packet, and error counters
 category: network
 shell: powershell
 flags:
   - flag: "-Name"
     takes_value: true
-  - flag: "-InterfaceIndex"
-    takes_value: true
-  - flag: "-InterfaceAlias"
-    takes_value: true
   - flag: "-InterfaceDescription"
     takes_value: true
-  - flag: "-Physical"
   - flag: "-IncludeHidden"
 stdin: false
 stdout: true

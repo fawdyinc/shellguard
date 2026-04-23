@@ -1,0 +1,11 @@
+name: convertfrom-json
+description: Parse a JSON string into an object
+category: utility
+shell: powershell
+flags:
+  - flag: "-Depth"
+    takes_value: true
+  - flag: "-AsHashtable"
+  - flag: "-NoEnumerate"
+stdin: true
+stdout: true

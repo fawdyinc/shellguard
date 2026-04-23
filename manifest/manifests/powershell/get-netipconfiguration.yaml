@@ -1,17 +1,15 @@
-name: get-netadapter
-description: Get network adapter information
+name: get-netipconfiguration
+description: Get consolidated IP / gateway / DNS configuration per interface
 category: network
 shell: powershell
 flags:
-  - flag: "-Name"
-    takes_value: true
   - flag: "-InterfaceIndex"
     takes_value: true
   - flag: "-InterfaceAlias"
     takes_value: true
-  - flag: "-InterfaceDescription"
+  - flag: "-CompartmentId"
     takes_value: true
-  - flag: "-Physical"
-  - flag: "-IncludeHidden"
+  - flag: "-All"
+  - flag: "-Detailed"
 stdin: false
 stdout: true

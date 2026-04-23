@@ -7,5 +7,15 @@ flags:
     takes_value: true
   - flag: "-LocalPort"
     takes_value: true
+  - flag: "-LocalAddress"
+    takes_value: true
+  - flag: "-RemoteAddress"
+    takes_value: true
+  - flag: "-RemotePort"
+    takes_value: true
+  - flag: "-OwningProcess"
+    takes_value: true
+  - flag: "-AppliedSetting"
+    takes_value: true
 stdin: false
 stdout: true
