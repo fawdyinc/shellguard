@@ -206,3 +206,20 @@ entries:
     source: baseline
     expect: parses
     reason: convertfrom-stringdata
+
+  # ---- HTTP healthcheck additions (2026-04-22) ----
+
+  - command: "Invoke-WebRequest -Uri 'http://localhost:8080/health' -UseBasicParsing -TimeoutSec 10"
+    source: baseline
+    expect: parses
+    reason: invoke-webrequest-healthcheck
+
+  - command: "Invoke-WebRequest -Uri 'https://localhost:443/3dspace/' -Method Head -UseBasicParsing"
+    source: baseline
+    expect: parses
+    reason: invoke-webrequest-head
+
+  - command: "Invoke-RestMethod -Uri 'http://localhost:8080/api/v1/status' -TimeoutSec 5"
+    source: baseline
+    expect: parses
+    reason: invoke-restmethod-json

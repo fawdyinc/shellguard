@@ -55,18 +55,15 @@ func quoteForTest(s string) string {
 }
 
 func isQuoteFreeToken(s string) bool {
-	// Leading `/` is a forward-slash path-like token (e.g. XPath `/Directory`,
-	// `//Connector`) that the Ident lexer won't accept as a bare argument — it
-	// must be reconstructed wrapped in quotes so it re-parses as a String.
-	if strings.HasPrefix(s, "/") {
-		return false
-	}
+	// Forward-slash-containing tokens (XPath `/Directory`, URLs `http://...`)
+	// aren't accepted bare by the Ident lexer and must reconstruct as quoted
+	// strings to round-trip.
 	for _, r := range s {
 		switch {
 		case r >= 'a' && r <= 'z':
 		case r >= 'A' && r <= 'Z':
 		case r >= '0' && r <= '9':
-		case r == '_' || r == '-' || r == '.' || r == ':' || r == '*' || r == '\\' || r == '/':
+		case r == '_' || r == '-' || r == '.' || r == ':' || r == '*' || r == '\\':
 		default:
 			return false
 		}

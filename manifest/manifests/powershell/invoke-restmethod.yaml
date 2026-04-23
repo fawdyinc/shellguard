@@ -1,0 +1,89 @@
+name: invoke-restmethod
+description: Send an HTTP request and parse the response (JSON/XML) — GET/HEAD only
+category: network
+shell: powershell
+timeout: 60
+flags:
+  - flag: "-Uri"
+    takes_value: true
+  - flag: "-Method"
+    takes_value: true
+    allowed_values: ["GET", "Get", "get", "HEAD", "Head", "head"]
+  - flag: "-UseBasicParsing"
+  - flag: "-TimeoutSec"
+    takes_value: true
+  - flag: "-MaximumRedirection"
+    takes_value: true
+  - flag: "-UserAgent"
+    takes_value: true
+  - flag: "-DisableKeepAlive"
+  - flag: "-SslProtocol"
+    takes_value: true
+  - flag: "-NoProxy"
+  - flag: "-HttpVersion"
+    takes_value: true
+  - flag: "-FollowRelLink"
+  - flag: "-MaximumFollowRelLink"
+    takes_value: true
+  - flag: "-Body"
+    deny: true
+    reason: "Request bodies are not allowed (read-only diagnostic policy)."
+  - flag: "-InFile"
+    deny: true
+    reason: "File uploads are not allowed."
+  - flag: "-Form"
+    deny: true
+    reason: "Form uploads are not allowed."
+  - flag: "-OutFile"
+    deny: true
+    reason: "Writing responses to disk is not allowed."
+  - flag: "-Credential"
+    deny: true
+    reason: "Credential use is not allowed — avoid exposing secrets to the agent."
+  - flag: "-UseDefaultCredentials"
+    deny: true
+    reason: "Passing the current user's credentials upstream is not allowed."
+  - flag: "-CertificateThumbprint"
+    deny: true
+    reason: "Client certificate authentication is not allowed."
+  - flag: "-Certificate"
+    deny: true
+    reason: "Client certificate authentication is not allowed."
+  - flag: "-Proxy"
+    deny: true
+    reason: "Proxy override is not allowed (could redirect traffic to attacker-controlled hosts)."
+  - flag: "-ProxyCredential"
+    deny: true
+    reason: "Proxy credentials are not allowed."
+  - flag: "-ProxyUseDefaultCredentials"
+    deny: true
+    reason: "Proxy credential reuse is not allowed."
+  - flag: "-SkipCertificateCheck"
+    deny: true
+    reason: "TLS certificate verification bypass is not allowed."
+  - flag: "-SkipHttpErrorCheck"
+    deny: true
+    reason: "HTTP error suppression is not allowed."
+  - flag: "-AllowInsecureRedirect"
+    deny: true
+    reason: "Redirect downgrades (HTTPS to HTTP) are not allowed."
+  - flag: "-AllowUnencryptedAuthentication"
+    deny: true
+    reason: "Plaintext authentication is not allowed."
+  - flag: "-SessionVariable"
+    deny: true
+    reason: "Stateful web sessions are not allowed."
+  - flag: "-WebSession"
+    deny: true
+    reason: "Stateful web sessions are not allowed."
+  - flag: "-CustomMethod"
+    deny: true
+    reason: "Only GET and HEAD methods are allowed (use -Method)."
+  - flag: "-Headers"
+    deny: true
+    reason: "Custom headers are not allowed (risk of leaking auth tokens upstream)."
+  - flag: "-Resume"
+    deny: true
+    reason: "-Resume requires writing to disk, which is not allowed."
+stdin: false
+stdout: true
