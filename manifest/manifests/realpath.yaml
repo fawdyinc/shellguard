@@ -1,0 +1,28 @@
+name: realpath
+description: Print resolved absolute path
+category: filesystem
+flags:
+  - flag: "-e"
+  - flag: "--canonicalize-existing"
+  - flag: "-m"
+  - flag: "--canonicalize-missing"
+  - flag: "-L"
+  - flag: "--logical"
+  - flag: "-P"
+  - flag: "--physical"
+  - flag: "-q"
+  - flag: "--quiet"
+  - flag: "-s"
+  - flag: "--strip"
+  - flag: "--no-symlinks"
+  - flag: "-z"
+  - flag: "--zero"
+  - flag: "--relative-to"
+    takes_value: true
+  - flag: "--relative-base"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+allows_path_args: true
+stdin: false
+stdout: true

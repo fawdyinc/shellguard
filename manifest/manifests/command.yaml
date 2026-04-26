@@ -1,0 +1,8 @@
+name: command
+description: Look up a command by name (only -v / -V introspection allowed)
+category: system_info
+flags:
+  - flag: "-v"
+  - flag: "-V"
+stdin: false
+stdout: true

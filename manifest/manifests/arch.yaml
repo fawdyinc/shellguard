@@ -1,0 +1,8 @@
+name: arch
+description: Print machine hardware name
+category: system_info
+flags:
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

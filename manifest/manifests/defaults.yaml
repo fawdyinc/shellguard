@@ -1,0 +1,9 @@
+name: defaults
+description: macOS user defaults parent manifest (read-only via subcommands)
+category: system_info
+flags:
+  - flag: "-currentHost"
+  - flag: "-host"
+    takes_value: true
+stdin: false
+stdout: true

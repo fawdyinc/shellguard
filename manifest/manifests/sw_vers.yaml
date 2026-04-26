@@ -1,0 +1,10 @@
+name: sw_vers
+description: Print macOS software version information
+category: system_info
+flags:
+  - flag: "-productName"
+  - flag: "-productVersion"
+  - flag: "-productVersionExtra"
+  - flag: "-buildVersion"
+stdin: false
+stdout: true

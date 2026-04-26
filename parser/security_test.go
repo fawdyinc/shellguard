@@ -826,8 +826,10 @@ func TestSecurityRedirectionsRejected(t *testing.T) {
 		"cat < /etc/passwd",
 		"cat << EOF\nhello\nEOF",
 		"cat <<< 'hello'",
-		"ls 2>&1",
+		// `2>&1` in front of a pipe would change what the next command sees.
+		"ls 2>&1 | grep foo",
 		"exec 3>/tmp/evil",
+		// `1>&2` redirects stdout to stderr — caller would lose stdout.
 		"ls 1>&2",
 	} {
 		mustParseErr(t, input, "")

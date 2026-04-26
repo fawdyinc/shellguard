@@ -1,0 +1,6 @@
+name: launchctl_print-disabled
+description: Print a list of disabled services in a launchd domain
+category: services
+flags: []
+stdin: false
+stdout: true
