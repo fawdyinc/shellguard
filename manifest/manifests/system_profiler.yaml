@@ -1,0 +1,13 @@
+name: system_profiler
+description: Report system hardware and software configuration (macOS)
+category: system_info
+flags:
+  - flag: "-detailLevel"
+    takes_value: true
+  - flag: "-xml"
+  - flag: "-json"
+  - flag: "-listDataTypes"
+  - flag: "-timeout"
+    takes_value: true
+stdin: false
+stdout: true

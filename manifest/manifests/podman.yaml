@@ -1,8 +1,9 @@
-name: kubectl
-description: Kubernetes CLI parent manifest
+name: podman
+description: Podman CLI parent manifest
 category: containers
 flags:
   - flag: "--version"
+  - flag: "-v"
   - flag: "--help"
   - flag: "-h"
 stdin: false

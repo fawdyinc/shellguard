@@ -77,8 +77,8 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 		return validateXargs(segment, registry)
 	}
 
-	if manifest.SubcommandCommands[command] && len(args) > 0 {
-		return validateSubcommand(command, args, registry)
+	if manifest.SubcommandCommands[command] {
+		return validateSubcommandCommand(command, args, registry)
 	}
 
 	m := registry[command]
@@ -230,6 +230,70 @@ func validateXargs(segment parser.PipelineSegment, registry map[string]*manifest
 	return validateSegment(wrapped, registry, false)
 }
 
+// validateSubcommandCommand validates commands that dispatch by subcommand
+// (e.g. systemctl, kubectl, defaults). It consumes any leading parent-manifest
+// flags, then requires the next positional to resolve to a registered
+// subcommand manifest. Without this routing, prepending a parent-allowed flag
+// like `--no-pager` would skip the subcommand allowlist and let an arbitrary
+// positional (`start`, `write`, `mask`) fall through to the parent's permissive
+// validateArgs — defeating the read-only-only subcommand restriction.
+func validateSubcommandCommand(command string, args []string, registry map[string]*manifest.Manifest) error {
+	parent := registry[command]
+	if parent == nil {
+		return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available.", command)}
+	}
+	if parent.Deny {
+		return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available: %s", command, parent.Reason)}
+	}
+
+	idx, err := consumeLeadingParentFlags(command, args, parent)
+	if err != nil {
+		return err
+	}
+
+	// Parent-only invocation (e.g. `kubectl --version`) — flags already validated.
+	if idx >= len(args) {
+		return nil
+	}
+
+	return validateSubcommand(command, args[idx:], registry)
+}
+
+// consumeLeadingParentFlags advances through args while each token is a flag
+// that validates against the parent manifest. Returns the index of the first
+// non-flag token (or len(args) if all tokens were flags).
+func consumeLeadingParentFlags(command string, args []string, parent *manifest.Manifest) (int, error) {
+	idx := 0
+	for idx < len(args) {
+		arg := args[idx]
+		if !strings.HasPrefix(arg, "-") || arg == "-" {
+			return idx, nil
+		}
+		flagName, inlineValue, hasInline := splitLongFlag(arg)
+		if err := validateFlag(command, flagName, parent); err != nil {
+			return idx, err
+		}
+		flagObj := parent.GetFlag(flagName)
+		if flagObj != nil && flagObj.TakesValue {
+			if hasInline {
+				if err := validateFlagValue(command, flagObj, inlineValue); err != nil {
+					return idx, err
+				}
+			} else {
+				idx++
+				if idx >= len(args) {
+					return idx, &ValidationError{Message: fmt.Sprintf("Flag '%s' requires a value.", flagName)}
+				}
+				if err := validateFlagValue(command, flagObj, args[idx]); err != nil {
+					return idx, err
+				}
+			}
+		}
+		idx++
+	}
+	return idx, nil
+}
+
 func validateSubcommand(command string, args []string, registry map[string]*manifest.Manifest) error {
 	if command == "aws" && len(args) >= 2 {
 		k := fmt.Sprintf("%s_%s_%s", command, args[0], args[1])
@@ -261,6 +325,9 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 		return err
 	}
 	if err := validateTarExtractRequiresStdout(command, args); err != nil {
+		return err
+	}
+	if err := validateCommandRequiresIntrospectionFlag(command, args); err != nil {
 		return err
 	}
 
@@ -448,6 +515,23 @@ func validateUnzipRequiresMode(command string, args []string) error {
 		return &ValidationError{Message: "unzip requires -l (list) or -p (extract to stdout)."}
 	}
 	return nil
+}
+
+// validateCommandRequiresIntrospectionFlag rejects use of the POSIX `command`
+// builtin without `-v` or `-V`. Without one of those flags, `command <cmd>` is
+// not introspection — it executes <cmd>, turning the manifest into a universal
+// bypass for every other allowlisted command. Requiring one of the
+// introspection flags guarantees `command` only prints a description and exits.
+func validateCommandRequiresIntrospectionFlag(command string, args []string) error {
+	if command != "command" {
+		return nil
+	}
+	for _, a := range args {
+		if a == "-v" || a == "-V" {
+			return nil
+		}
+	}
+	return &ValidationError{Message: "command requires -v or -V (introspection only; bare 'command <cmd>' would execute <cmd> and bypass the allowlist)."}
 }
 
 func validateTarExtractRequiresStdout(command string, args []string) error {

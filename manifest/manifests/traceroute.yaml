@@ -1,0 +1,22 @@
+name: traceroute
+description: Trace route to a network host
+category: networking
+flags:
+  - flag: "-n"
+  - flag: "-q"
+    takes_value: true
+  - flag: "-w"
+    takes_value: true
+  - flag: "-m"
+    takes_value: true
+  - flag: "-p"
+    takes_value: true
+  - flag: "-4"
+  - flag: "-6"
+  - flag: "-I"
+  - flag: "-T"
+  - flag: "-U"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

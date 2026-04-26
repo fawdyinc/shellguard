@@ -1,0 +1,32 @@
+name: sysctl
+description: Read kernel parameters at runtime (writes denied)
+category: system_info
+flags:
+  - flag: "-a"
+  - flag: "-A"
+  - flag: "-X"
+  - flag: "-n"
+  - flag: "-N"
+  - flag: "-e"
+  - flag: "-q"
+  - flag: "--all"
+  - flag: "--values"
+  - flag: "--names"
+  - flag: "--ignore"
+  - flag: "--quiet"
+  - flag: "--help"
+  - flag: "--version"
+  - flag: "-w"
+    deny: true
+    reason: "Writing kernel parameters is not allowed"
+  - flag: "--write"
+    deny: true
+    reason: "Writing kernel parameters is not allowed"
+  - flag: "-p"
+    deny: true
+    reason: "Loading sysctl config files is not allowed"
+  - flag: "--load"
+    deny: true
+    reason: "Loading sysctl config files is not allowed"
+stdin: false
+stdout: true

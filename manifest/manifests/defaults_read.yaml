@@ -1,0 +1,6 @@
+name: defaults_read
+description: Read macOS user defaults
+category: system_info
+flags: []
+stdin: false
+stdout: true

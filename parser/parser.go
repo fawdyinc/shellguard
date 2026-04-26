@@ -56,7 +56,7 @@ func Parse(command string) (*Pipeline, error) {
 	}
 
 	segments := make([]PipelineSegment, 0, 4)
-	if err := walkStmt(file.Stmts[0], &segments, ""); err != nil {
+	if err := walkStmt(file.Stmts[0], &segments, "", false); err != nil {
 		return nil, err
 	}
 	if len(segments) == 0 {
@@ -69,20 +69,66 @@ func Parse(command string) (*Pipeline, error) {
 	return &Pipeline{Segments: segments}, nil
 }
 
-func walkStmt(stmt *syntax.Stmt, segments *[]PipelineSegment, operator string) error {
+// walkStmt walks a statement. pipedOut is true when this stmt's stdout is
+// consumed by a downstream pipe — that affects whether '2>&1' is a no-op
+// (safe to strip) or actually changes what the next command sees.
+func walkStmt(stmt *syntax.Stmt, segments *[]PipelineSegment, operator string, pipedOut bool) error {
 	if stmt.Background {
 		return &ParseError{Message: "Background execution is not allowed."}
 	}
-	if len(stmt.Redirs) > 0 {
-		return &ParseError{Message: "Redirections are not supported. stderr is captured separately."}
+	for _, r := range stmt.Redirs {
+		if !isStripableRedir(r, pipedOut) {
+			return &ParseError{Message: "Redirections are not supported; stderr is captured separately. (Tip: '2>/dev/null' is auto-stripped, and '2>&1' is auto-stripped on commands whose stdout isn't piped further.)"}
+		}
 	}
 	if stmt.Cmd == nil {
 		return &ParseError{Message: "Unsupported shell construct."}
 	}
-	return walkCommand(stmt.Cmd, segments, operator)
+	return walkCommand(stmt.Cmd, segments, operator, pipedOut)
 }
 
-func walkCommand(cmd syntax.Command, segments *[]PipelineSegment, operator string) error {
+// isStripableRedir reports whether r is a true no-op given that the executor
+// already captures stdout and stderr into separate buffers. Stripping such a
+// redirection cannot change what the caller observes.
+func isStripableRedir(r *syntax.Redirect, pipedOut bool) bool {
+	if r.Hdoc != nil {
+		return false
+	}
+	fd := ""
+	if r.N != nil {
+		fd = r.N.Value
+	}
+	target := redirTargetLiteral(r.Word)
+
+	switch r.Op {
+	case syntax.RdrOut:
+		// `2>/dev/null`: stderr is already segregated, so silencing it
+		// changes nothing observable on stdout. Safe in any context.
+		return fd == "2" && target == "/dev/null"
+	case syntax.DplOut:
+		// `2>&1`: merges stderr into stdout. If stdout is piped onward, the
+		// downstream command would see stderr too — stripping changes that.
+		// Otherwise it's redundant with our stream-splitting executor.
+		return fd == "2" && target == "1" && !pipedOut
+	}
+	return false
+}
+
+// redirTargetLiteral returns the literal text of a redirection's right-hand
+// word (e.g. "/dev/null" or "1"). Returns "" for anything that requires
+// expansion, quoting, or composition — those are never auto-stripped.
+func redirTargetLiteral(w *syntax.Word) string {
+	if w == nil || len(w.Parts) != 1 {
+		return ""
+	}
+	lit, ok := w.Parts[0].(*syntax.Lit)
+	if !ok {
+		return ""
+	}
+	return lit.Value
+}
+
+func walkCommand(cmd syntax.Command, segments *[]PipelineSegment, operator string, pipedOut bool) error {
 	switch c := cmd.(type) {
 	case *syntax.CallExpr:
 		if len(c.Assigns) > 0 {
@@ -121,10 +167,16 @@ func walkCommand(cmd syntax.Command, segments *[]PipelineSegment, operator strin
 		if op != "|" && op != "&&" && op != "||" {
 			return &ParseError{Message: fmt.Sprintf("Unsupported operator: %s", op)}
 		}
-		if err := walkStmt(c.X, segments, operator); err != nil {
+		// X feeds the pipe iff this binary is a pipe; Y inherits the parent's
+		// piped-out state (it is the producer for whatever consumes us).
+		xPiped := pipedOut
+		if op == "|" {
+			xPiped = true
+		}
+		if err := walkStmt(c.X, segments, operator, xPiped); err != nil {
 			return err
 		}
-		return walkStmt(c.Y, segments, op)
+		return walkStmt(c.Y, segments, op, pipedOut)
 
 	case *syntax.Subshell:
 		return &ParseError{Message: "Subshells are not allowed."}

@@ -1,6 +1,10 @@
 name: svn
 description: Subversion parent manifest
 category: version_control
-flags: []
+flags:
+  - flag: "--version"
+  - flag: "-V"
+  - flag: "--help"
+  - flag: "-h"
 stdin: false
 stdout: true

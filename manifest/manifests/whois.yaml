@@ -1,0 +1,16 @@
+name: whois
+description: Look up records in WHOIS databases
+category: networking
+flags:
+  - flag: "-h"
+    takes_value: true
+  - flag: "-p"
+    takes_value: true
+  - flag: "-H"
+  - flag: "-I"
+  - flag: "-V"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

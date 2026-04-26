@@ -1,0 +1,26 @@
+name: host
+description: DNS lookup utility
+category: networking
+flags:
+  - flag: "-a"
+  - flag: "-A"
+  - flag: "-c"
+    takes_value: true
+  - flag: "-d"
+  - flag: "-l"
+  - flag: "-N"
+    takes_value: true
+  - flag: "-r"
+  - flag: "-s"
+  - flag: "-t"
+    takes_value: true
+  - flag: "-T"
+  - flag: "-U"
+  - flag: "-v"
+  - flag: "-w"
+  - flag: "-W"
+    takes_value: true
+  - flag: "-4"
+  - flag: "-6"
+stdin: false
+stdout: true

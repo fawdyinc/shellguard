@@ -1,0 +1,12 @@
+name: getent
+description: Query system databases (passwd, group, hosts, services, etc.)
+category: system_info
+flags:
+  - flag: "-s"
+    takes_value: true
+  - flag: "--service"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true
