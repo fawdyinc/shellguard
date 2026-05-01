@@ -910,7 +910,9 @@ func (c *Core) Sleep(ctx context.Context, in SleepInput) (map[string]any, error)
 type ServerOptions struct {
 	// Name is the MCP server implementation name. Default: "shellguard".
 	Name string
-	// Version is the MCP server implementation version. Default: "0.2.0".
+	// Version is the MCP server implementation version. The release binary
+	// passes the build-time version (set via -ldflags by goreleaser); when
+	// unset (e.g. in tests) it falls back to "dev".
 	Version string
 	// AutoConnect, when non-nil, causes an automatic SSH connection after
 	// the MCP handshake completes (via InitializedHandler).
@@ -919,7 +921,7 @@ type ServerOptions struct {
 
 func NewMCPServer(core *Core, opts ...ServerOptions) *mcp.Server {
 	name := "shellguard"
-	version := "0.2.0"
+	version := "dev"
 	if len(opts) > 0 {
 		if opts[0].Name != "" {
 			name = opts[0].Name

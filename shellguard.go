@@ -30,7 +30,8 @@ type Config struct {
 	// Name overrides the MCP server implementation name (default: "shellguard").
 	Name string
 
-	// Version overrides the MCP server implementation version (default: "0.2.0").
+	// Version overrides the MCP server implementation version. The release
+	// binary passes the build-time version; when unset it falls back to "dev".
 	Version string
 }
 
