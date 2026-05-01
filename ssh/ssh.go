@@ -52,6 +52,7 @@ type ConnectionParams struct {
 	Passphrase   string // decrypt passphrase-protected key
 	UseTLS       bool   // WinRM: use HTTPS (port 5986)
 	Insecure     bool   // WinRM: skip TLS certificate verification
+	Command      string // Local transport: command line to spawn under a PTY
 }
 
 type ManagedConnection struct {

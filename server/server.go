@@ -131,6 +131,7 @@ type ConnectInput struct {
 	Transport    string `json:"transport,omitempty" jsonschema:"Transport type: ssh (default), local, or winrm"`
 	UseTLS       bool   `json:"use_tls,omitempty" jsonschema:"WinRM: use HTTPS (port 5986)"`
 	Insecure     bool   `json:"insecure,omitempty" jsonschema:"WinRM: skip TLS certificate verification"`
+	Command      string `json:"command,omitempty" jsonschema:"Local transport: shell command line spawned under a PTY (e.g. 'bash', 'zsh -l', 'ssh user@host -o ProxyJump=bastion'). The subprocess is held open for the lifetime of the connection."`
 }
 
 type ExecuteInput struct {
@@ -252,6 +253,21 @@ func (c *Core) Connect(ctx context.Context, in ConnectInput) (map[string]any, er
 	start := time.Now()
 
 	if strings.EqualFold(in.Transport, "local") {
+		if strings.TrimSpace(in.Command) != "" {
+			if err := c.LocalRunner.Connect(ctx, ssh.ConnectionParams{
+				Host:    in.Host,
+				Command: in.Command,
+			}); err != nil {
+				c.logger.InfoContext(ctx, "connect",
+					"host", in.Host,
+					"transport", "local",
+					"outcome", "error",
+					"error", err.Error(),
+					"duration_ms", time.Since(start).Milliseconds(),
+				)
+				return nil, err
+			}
+		}
 		c.setConnected(in.Host, TransportLocal, ShellBash, true)
 		c.logger.InfoContext(ctx, "connect",
 			"host", in.Host,

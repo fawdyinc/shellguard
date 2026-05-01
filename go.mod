@@ -3,7 +3,10 @@ module github.com/fawdyinc/shellguard
 go 1.25.9
 
 require (
+	github.com/alecthomas/participle/v2 v2.1.4
+	github.com/creack/pty v1.1.24
 	github.com/kevinburke/ssh_config v1.4.0
+	github.com/masterzen/winrm v0.0.0-20250927112105-5f8e6c707321
 	github.com/modelcontextprotocol/go-sdk v1.4.1
 	github.com/pkg/sftp v1.13.10
 	golang.org/x/crypto v0.47.0
@@ -14,7 +17,6 @@ require (
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20210404020558-97928f7e12b6 // indirect
-	github.com/alecthomas/participle/v2 v2.1.4 // indirect
 	github.com/bodgit/ntlmssp v0.0.0-20240506230425-31973bb52d9b // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
@@ -30,7 +32,6 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
-	github.com/masterzen/winrm v0.0.0-20250927112105-5f8e6c707321 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/tidwall/transform v0.0.0-20201103190739-32f242e2dbde // indirect

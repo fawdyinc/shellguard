@@ -37,6 +37,10 @@ type ConnectParams struct {
 	Transport    string `json:"transport,omitempty"`
 	UseTLS       bool   `json:"use_tls,omitempty"`
 	Insecure     bool   `json:"insecure,omitempty"`
+	// Command is the shell command line for transport="local". It is spawned
+	// under a PTY (via `sh -c`) and held open for the lifetime of the
+	// connection; subsequent execs are routed through that PTY.
+	Command string `json:"command,omitempty"`
 }
 
 // DisconnectParams are the parameters for the "disconnect" command.

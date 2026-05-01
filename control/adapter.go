@@ -22,6 +22,7 @@ func (a *CoreAdapter) Connect(ctx context.Context, params ConnectParams) error {
 		Transport:    params.Transport,
 		UseTLS:       params.UseTLS,
 		Insecure:     params.Insecure,
+		Command:      params.Command,
 	})
 	return err
 }
