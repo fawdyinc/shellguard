@@ -1,0 +1,11 @@
+name: tty
+description: Print the file name of the terminal connected to standard input
+category: system_info
+flags:
+  - flag: "-s"
+  - flag: "--silent"
+  - flag: "--quiet"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

@@ -1,0 +1,16 @@
+name: mountpoint
+description: Determine if a directory is a mountpoint
+category: filesystem
+flags:
+  - flag: "-d"
+  - flag: "--fs-devno"
+  - flag: "-q"
+  - flag: "--quiet"
+  - flag: "-x"
+  - flag: "--devno"
+  - flag: "--nofollow"
+  - flag: "--help"
+  - flag: "--version"
+allows_path_args: true
+stdin: false
+stdout: true

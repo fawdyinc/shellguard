@@ -1,0 +1,22 @@
+name: arp
+description: Display the kernel ARP cache (read-only; -d/-s denied)
+category: networking
+flags:
+  - flag: "-a"
+  - flag: "-e"
+  - flag: "-n"
+  - flag: "-v"
+  - flag: "-i"
+    takes_value: true
+  - flag: "-H"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+  - flag: "-d"
+    deny: true
+    reason: "Deleting ARP entries is not allowed"
+  - flag: "-s"
+    deny: true
+    reason: "Setting ARP entries is not allowed"
+stdin: false
+stdout: true

@@ -1,0 +1,11 @@
+name: getconf
+description: Query system configuration variables
+category: system_info
+flags:
+  - flag: "-a"
+  - flag: "-v"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

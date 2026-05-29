@@ -1,6 +1,8 @@
 name: aws
 description: AWS CLI parent manifest
 category: cloud
-flags: []
+flags:
+  - flag: "--version"
+  - flag: "--help"
 stdin: false
 stdout: true

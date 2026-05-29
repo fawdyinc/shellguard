@@ -1,0 +1,18 @@
+name: locale
+description: Get locale-specific information
+category: system_info
+flags:
+  - flag: "-a"
+  - flag: "-m"
+  - flag: "-c"
+  - flag: "-k"
+  - flag: "-v"
+  - flag: "--all-locales"
+  - flag: "--charmaps"
+  - flag: "--category-name"
+  - flag: "--keyword-name"
+  - flag: "--verbose"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

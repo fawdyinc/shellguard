@@ -1,0 +1,8 @@
+name: groups
+description: Print group memberships for a user
+category: system_info
+flags:
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

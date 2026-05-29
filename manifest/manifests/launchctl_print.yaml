@@ -1,0 +1,6 @@
+name: launchctl_print
+description: Print structured information about a launchd domain or service
+category: services
+flags: []
+stdin: false
+stdout: true

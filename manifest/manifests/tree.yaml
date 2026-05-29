@@ -1,0 +1,42 @@
+name: tree
+description: List contents of directories in a tree-like format
+category: filesystem
+flags:
+  - flag: "-a"
+  - flag: "-d"
+  - flag: "-l"
+  - flag: "-f"
+  - flag: "-x"
+  - flag: "-L"
+    takes_value: true
+  - flag: "-R"
+  - flag: "-P"
+    takes_value: true
+    pattern_value: true
+  - flag: "-I"
+    takes_value: true
+    pattern_value: true
+  - flag: "--noreport"
+  - flag: "-J"
+  - flag: "-X"
+  - flag: "-H"
+    takes_value: true
+  - flag: "--charset"
+    takes_value: true
+  - flag: "--filelimit"
+    takes_value: true
+  - flag: "--dirsfirst"
+  - flag: "--prune"
+  - flag: "-s"
+  - flag: "-h"
+  - flag: "-D"
+  - flag: "-Q"
+  - flag: "-N"
+  - flag: "-p"
+  - flag: "-u"
+  - flag: "-g"
+  - flag: "--help"
+  - flag: "--version"
+allows_path_args: true
+stdin: false
+stdout: true

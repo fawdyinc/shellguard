@@ -1,6 +1,10 @@
 name: docker
 description: Docker CLI parent manifest
 category: containers
-flags: []
+flags:
+  - flag: "--version"
+  - flag: "-v"
+  - flag: "--help"
+  - flag: "-h"
 stdin: false
 stdout: true

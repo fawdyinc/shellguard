@@ -1,0 +1,21 @@
+name: id
+description: Print user and group identity
+category: system_info
+flags:
+  - flag: "-u"
+  - flag: "-g"
+  - flag: "-G"
+  - flag: "-n"
+  - flag: "-r"
+  - flag: "-a"
+  - flag: "-Z"
+  - flag: "--user"
+  - flag: "--group"
+  - flag: "--groups"
+  - flag: "--name"
+  - flag: "--real"
+  - flag: "--zero"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

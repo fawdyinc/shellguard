@@ -100,9 +100,47 @@ func TestParseRejectsRedirections(t *testing.T) {
 		"cat < /etc/passwd",
 		"cat << EOF\nhello\nEOF",
 		"cat <<< 'hello'",
-		"ls 2>&1",
+		// `2>&1` is rejected when stdout feeds a pipe (semantics-changing).
+		"ls 2>&1 | grep foo",
+		// `2>&1` to anything other than fd 1 is not a no-op.
+		"ls 2>&3",
+		// Discarding stdout is not a no-op — the caller asked for it gone.
+		"ls > /dev/null",
 	} {
 		mustParseErr(t, tc, "Redirections")
+	}
+}
+
+func TestParseStripsHarmlessRedirections(t *testing.T) {
+	// These redirections are no-ops given the executor captures stdout and
+	// stderr into separate buffers. Parsing should succeed and yield the
+	// underlying command unchanged.
+	cases := []struct {
+		input       string
+		wantSegs    int
+		wantCommand string
+	}{
+		{"ls /tmp 2>/dev/null", 1, "ls"},
+		{"ls /tmp 2> /dev/null", 1, "ls"},
+		{"ls 2>&1", 1, "ls"},
+		// 2>/dev/null on a piped producer: stderr never reached the pipe
+		// anyway, so stripping it is observably identical.
+		{"ls /tmp 2>/dev/null | grep foo", 2, "ls"},
+		// 2>&1 on the final pipeline segment: its stdout isn't piped further,
+		// so merging stderr changes nothing the caller can observe.
+		{"ls /tmp | grep foo 2>&1", 2, "ls"},
+		// Multiple harmless redirs.
+		{"ls /tmp 2>/dev/null 2>&1", 1, "ls"},
+	}
+	for _, tc := range cases {
+		p := mustParse(t, tc.input)
+		if got := len(p.Segments); got != tc.wantSegs {
+			t.Errorf("Parse(%q): len(Segments) = %d, want %d", tc.input, got, tc.wantSegs)
+			continue
+		}
+		if got := p.Segments[0].Command; got != tc.wantCommand {
+			t.Errorf("Parse(%q): Command = %q, want %q", tc.input, got, tc.wantCommand)
+		}
 	}
 }
 

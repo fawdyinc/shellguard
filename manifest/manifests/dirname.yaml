@@ -1,0 +1,10 @@
+name: dirname
+description: Strip last component from file name
+category: filesystem
+flags:
+  - flag: "-z"
+  - flag: "--zero"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

@@ -1,0 +1,16 @@
+name: basename
+description: Strip directory and suffix from filenames
+category: filesystem
+flags:
+  - flag: "-a"
+  - flag: "--multiple"
+  - flag: "-s"
+    takes_value: true
+  - flag: "--suffix"
+    takes_value: true
+  - flag: "-z"
+  - flag: "--zero"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

@@ -1,0 +1,10 @@
+name: podman_ps
+description: List Podman containers
+category: containers
+flags:
+  - flag: "-a"
+  - flag: "--format"
+  - flag: "--filter"
+  - flag: "-f"
+stdin: false
+stdout: true

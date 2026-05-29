@@ -1,6 +1,21 @@
 name: systemctl
 description: systemd parent manifest
 category: services
-flags: []
+flags:
+  - flag: "--version"
+  - flag: "--help"
+  - flag: "-h"
+  - flag: "--no-pager"
+  - flag: "--no-legend"
+  - flag: "--all"
+  - flag: "--failed"
+  - flag: "--type"
+    takes_value: true
+  - flag: "--state"
+    takes_value: true
+  - flag: "--output"
+    takes_value: true
+  - flag: "--user"
+  - flag: "--system"
 stdin: false
 stdout: true

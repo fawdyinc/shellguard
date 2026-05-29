@@ -4,7 +4,17 @@ category: services
 flags:
   - flag: "--type"
     takes_value: true
+  - flag: "--state"
+    takes_value: true
   - flag: "--failed"
+  - flag: "--all"
+  - flag: "--plain"
   - flag: "--no-pager"
+  - flag: "--no-legend"
+  - flag: "--output"
+    takes_value: true
+  - flag: "--reverse"
+  - flag: "--user"
+  - flag: "--system"
 stdin: false
 stdout: true

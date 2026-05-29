@@ -1,0 +1,8 @@
+name: users
+description: Print the user names of users currently logged in
+category: system_info
+flags:
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

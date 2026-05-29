@@ -1,0 +1,6 @@
+name: launchctl_list
+description: List launchd jobs
+category: services
+flags: []
+stdin: false
+stdout: true

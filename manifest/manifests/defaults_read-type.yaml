@@ -1,0 +1,6 @@
+name: defaults_read-type
+description: Read the type of a macOS user default value
+category: system_info
+flags: []
+stdin: false
+stdout: true

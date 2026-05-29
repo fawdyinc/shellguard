@@ -1,0 +1,30 @@
+name: mtr
+description: Network diagnostic combining ping and traceroute (read-only)
+category: networking
+flags:
+  - flag: "-r"
+  - flag: "--report"
+  - flag: "-c"
+    takes_value: true
+  - flag: "--report-cycles"
+    takes_value: true
+  - flag: "-n"
+  - flag: "--no-dns"
+  - flag: "-w"
+  - flag: "--report-wide"
+  - flag: "-4"
+  - flag: "-6"
+  - flag: "-T"
+  - flag: "--tcp"
+  - flag: "-U"
+  - flag: "--udp"
+  - flag: "-P"
+    takes_value: true
+  - flag: "--port"
+    takes_value: true
+  - flag: "-j"
+  - flag: "--json"
+  - flag: "--help"
+  - flag: "--version"
+stdin: false
+stdout: true

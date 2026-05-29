@@ -1,0 +1,10 @@
+name: which
+description: Locate a command in the user's PATH
+category: system_info
+flags:
+  - flag: "-a"
+  - flag: "-s"
+  - flag: "--version"
+  - flag: "--help"
+stdin: false
+stdout: true
