@@ -11,5 +11,14 @@ flags:
     takes_value: true
   - flag: "-ExpandProperty"
     takes_value: true
+  - flag: "-Unique"
+  - flag: "-Skip"
+    takes_value: true
+  - flag: "-SkipLast"
+    takes_value: true
+  - flag: "-Index"
+    takes_value: true
+  - flag: "-ExcludeProperty"
+    takes_value: true
 stdin: true
 stdout: true

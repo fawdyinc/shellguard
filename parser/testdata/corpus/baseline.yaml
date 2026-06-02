@@ -75,3 +75,151 @@ entries:
     source: baseline
     expect: parses
     reason: measure-object
+
+  # ---- Flag coverage additions (2026-04-21 follow-up) ----
+
+  - command: "Get-Content -Path 'C:\\logs\\app.log' -Raw"
+    source: baseline
+    expect: parses
+    reason: get-content-raw
+
+  - command: "Select-String -Pattern 'error' -Path 'C:\\logs\\app.log' -Context 3,3"
+    source: baseline
+    expect: parses
+    reason: select-string-context
+
+  - command: "Get-ChildItem -Path 'C:\\logs' -Recurse -Filter *.log -Force -File -Depth 3"
+    source: baseline
+    expect: parses
+    reason: get-childitem-depth-force
+
+  - command: "Get-WinEvent -ProviderName 'Microsoft-Windows-Kernel' -MaxEvents 20"
+    source: baseline
+    expect: parses
+    reason: get-winevent-provider
+
+  - command: "Get-WinEvent -ListLog *"
+    source: baseline
+    expect: parses
+    reason: get-winevent-listlog
+
+  - command: "Get-Process -IncludeUserName | Sort-Object CPU -Descending | Select-Object -First 10 -Unique"
+    source: baseline
+    expect: parses
+    reason: get-process-includeusername-sort-unique
+
+  - command: "Get-Service -DependentServices -Name w3svc"
+    source: baseline
+    expect: parses
+    reason: get-service-dependent
+
+  - command: "Get-NetTCPConnection -LocalPort 443 -OwningProcess 1234"
+    source: baseline
+    expect: parses
+    reason: get-nettcpconnection-owningprocess
+
+  - command: "Get-NetAdapter -Physical"
+    source: baseline
+    expect: parses
+    reason: get-netadapter-physical
+
+  - command: "Measure-Object -Line -Word -Character"
+    source: baseline
+    expect: parses
+    reason: measure-object-text
+
+  # ---- Tier 1 new cmdlets (2026-04-21 follow-up) ----
+
+  - command: "Get-Process | Get-Member"
+    source: baseline
+    expect: parses
+    reason: get-member
+
+  - command: "Get-Content -Path 'data.json' -Raw | ConvertFrom-Json"
+    source: baseline
+    expect: parses
+    reason: convertfrom-json
+
+  - command: "Get-Content -Path 'data.csv' | ConvertFrom-Csv -Delimiter ','"
+    source: baseline
+    expect: parses
+    reason: convertfrom-csv
+
+  - command: "Get-NetIPConfiguration -Detailed"
+    source: baseline
+    expect: parses
+    reason: get-netipconfiguration
+
+  - command: "Get-DnsClientServerAddress -InterfaceIndex 12 -AddressFamily IPv4"
+    source: baseline
+    expect: parses
+    reason: get-dnsclientserveraddress
+
+  - command: "Get-Uptime -Since"
+    source: baseline
+    expect: parses
+    reason: get-uptime
+
+  - command: "Get-FileHash -Path 'C:\\setup.exe' -Algorithm SHA256"
+    source: baseline
+    expect: parses
+    reason: get-filehash
+
+  - command: "Get-TimeZone -ListAvailable"
+    source: baseline
+    expect: parses
+    reason: get-timezone
+
+  # ---- SIMULIA / 3DEXPERIENCE diagnostic additions (2026-04-22) ----
+
+  - command: "Select-Xml -Path 'C:\\app\\Apache24\\conf\\httpd.conf' -XPath '/Directory'"
+    source: baseline
+    expect: parses
+    reason: select-xml-path
+
+  - command: "Get-Content 'server.xml' -Raw | Select-Xml -XPath '//Connector'"
+    source: baseline
+    expect: parses
+    reason: select-xml-pipeline
+
+  - command: "Get-NetFirewallProfile -Name Domain"
+    source: baseline
+    expect: parses
+    reason: get-netfirewallprofile
+
+  - command: "Get-NetIPInterface -AddressFamily IPv4 -Forwarding Enabled"
+    source: baseline
+    expect: parses
+    reason: get-netipinterface
+
+  - command: "Get-NetConnectionProfile -InterfaceAlias Ethernet"
+    source: baseline
+    expect: parses
+    reason: get-netconnectionprofile
+
+  - command: "Get-NetAdapterStatistics -Name Ethernet"
+    source: baseline
+    expect: parses
+    reason: get-netadapterstatistics
+
+  - command: "Get-Content 'app.properties' -Raw | ConvertFrom-StringData"
+    source: baseline
+    expect: parses
+    reason: convertfrom-stringdata
+
+  # ---- HTTP healthcheck additions (2026-04-22) ----
+
+  - command: "Invoke-WebRequest -Uri 'http://localhost:8080/health' -UseBasicParsing -TimeoutSec 10"
+    source: baseline
+    expect: parses
+    reason: invoke-webrequest-healthcheck
+
+  - command: "Invoke-WebRequest -Uri 'https://localhost:443/3dspace/' -Method Head -UseBasicParsing"
+    source: baseline
+    expect: parses
+    reason: invoke-webrequest-head
+
+  - command: "Invoke-RestMethod -Uri 'http://localhost:8080/api/v1/status' -TimeoutSec 5"
+    source: baseline
+    expect: parses
+    reason: invoke-restmethod-json

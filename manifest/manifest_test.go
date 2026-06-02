@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 280; got != want {
+	if got, want := len(registry), 294; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -52,7 +52,7 @@ func TestDenyManifestReasonsAndCount(t *testing.T) {
 		}
 	}
 
-	if got, want := denyCount, 125; got != want {
+	if got, want := denyCount, 123; got != want {
 		t.Fatalf("deny manifest count = %d, want %d", got, want)
 	}
 }
@@ -194,6 +194,32 @@ func TestPowerShellDiagnosticManifests(t *testing.T) {
 		{"get-localuser", []string{"-Name"}},
 		{"get-help", []string{"-Name", "-Examples"}},
 		{"get-command", []string{"-Name", "-Module"}},
+		{"get-member", []string{"-MemberType", "-Static"}},
+		{"convertfrom-json", []string{"-Depth", "-AsHashtable"}},
+		{"convertfrom-csv", []string{"-Delimiter", "-Header"}},
+		{"get-netipconfiguration", []string{"-InterfaceIndex", "-Detailed"}},
+		{"get-dnsclientserveraddress", []string{"-InterfaceIndex", "-AddressFamily"}},
+		{"get-uptime", []string{"-Since"}},
+		{"get-filehash", []string{"-Algorithm", "-LiteralPath"}},
+		{"get-timezone", []string{"-ListAvailable"}},
+		// Flag coverage additions
+		{"get-content", []string{"-Raw", "-Encoding"}},
+		{"select-string", []string{"-Context", "-AllMatches", "-Quiet", "-Encoding"}},
+		{"get-childitem", []string{"-Force", "-File", "-Directory", "-Depth"}},
+		{"get-process", []string{"-IncludeUserName", "-Module"}},
+		{"get-winevent", []string{"-ProviderName", "-FilterXPath"}},
+		{"select-object", []string{"-Unique", "-Skip", "-Index"}},
+		{"sort-object", []string{"-Unique", "-Top", "-Bottom"}},
+		// SIMULIA / 3DEXPERIENCE diagnostic additions (2026-04-22)
+		{"select-xml", []string{"-XPath", "-Path", "-Namespace"}},
+		{"get-netfirewallprofile", []string{"-Name", "-All"}},
+		{"get-netipinterface", []string{"-InterfaceIndex", "-AddressFamily", "-Forwarding"}},
+		{"get-netconnectionprofile", []string{"-Name", "-InterfaceAlias", "-NetworkCategory"}},
+		{"get-netadapterstatistics", []string{"-Name", "-InterfaceDescription"}},
+		{"convertfrom-stringdata", []string{"-StringData", "-Delimiter"}},
+		// HTTP healthcheck cmdlets (restricted allow, GET/HEAD only)
+		{"invoke-webrequest", []string{"-Uri", "-Method", "-UseBasicParsing", "-TimeoutSec"}},
+		{"invoke-restmethod", []string{"-Uri", "-Method", "-UseBasicParsing", "-TimeoutSec"}},
 	}
 	for _, tc := range cases {
 		m, ok := registry[tc.name]
@@ -236,6 +262,54 @@ func TestPowerShellDiagnosticManifests(t *testing.T) {
 	}
 	if !strings.Contains(wmi.Reason, "Get-CimInstance") {
 		t.Errorf("get-wmiobject reason should mention Get-CimInstance, got %q", wmi.Reason)
+	}
+
+	// Invoke-WebRequest / Invoke-RestMethod are allowed for healthchecks, but
+	// write-capable / credential / bypass flags must be explicitly denied to
+	// match the read-only diagnostic policy (mirrors curl's GET-only pattern).
+	httpMustDeny := []string{
+		"-Body", "-InFile", "-Form", "-OutFile",
+		"-Credential", "-UseDefaultCredentials", "-CertificateThumbprint", "-Certificate",
+		"-Proxy", "-ProxyCredential", "-ProxyUseDefaultCredentials",
+		"-SkipCertificateCheck", "-AllowInsecureRedirect", "-AllowUnencryptedAuthentication",
+		"-SessionVariable", "-WebSession", "-CustomMethod", "-Headers",
+	}
+	for _, cmdlet := range []string{"invoke-webrequest", "invoke-restmethod"} {
+		m, ok := registry[cmdlet]
+		if !ok {
+			t.Errorf("missing manifest %q", cmdlet)
+			continue
+		}
+		if m.Deny {
+			t.Errorf("%s should be allowed (restricted), not denied", cmdlet)
+		}
+		for _, flagName := range httpMustDeny {
+			f := m.GetFlag(flagName)
+			if f == nil {
+				t.Errorf("%s: missing entry for %s (must be explicitly denied)", cmdlet, flagName)
+				continue
+			}
+			if !f.Deny {
+				t.Errorf("%s: %s must be denied", cmdlet, flagName)
+			}
+			if f.Reason == "" {
+				t.Errorf("%s: %s deny must have a reason", cmdlet, flagName)
+			}
+		}
+		// -Method must be restricted to GET/HEAD.
+		method := m.GetFlag("-Method")
+		if method == nil {
+			t.Errorf("%s: missing -Method flag", cmdlet)
+			continue
+		}
+		if len(method.AllowedValues) == 0 {
+			t.Errorf("%s: -Method must have allowed_values", cmdlet)
+		}
+		for _, v := range method.AllowedValues {
+			if !strings.EqualFold(v, "GET") && !strings.EqualFold(v, "HEAD") {
+				t.Errorf("%s: -Method allowed_values should only contain GET/HEAD, got %q", cmdlet, v)
+			}
+		}
 	}
 }
 

@@ -6,5 +6,13 @@ flags:
   - flag: "-Property"
     takes_value: true
   - flag: "-AutoSize"
+  - flag: "-Wrap"
+  - flag: "-GroupBy"
+    takes_value: true
+  - flag: "-HideTableHeaders"
+  - flag: "-RepeatHeader"
+  - flag: "-View"
+    takes_value: true
+  - flag: "-ShowError"
 stdin: true
 stdout: true

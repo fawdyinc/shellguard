@@ -1,0 +1,8 @@
+name: get-uptime
+description: Get the elapsed time since the system last booted
+category: system
+shell: powershell
+flags:
+  - flag: "-Since"
+stdin: false
+stdout: true

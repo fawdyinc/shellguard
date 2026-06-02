@@ -1,0 +1,26 @@
+name: get-netipinterface
+description: Get IP interface configuration (forwarding, MTU, metric, DHCP state)
+category: network
+shell: powershell
+flags:
+  - flag: "-InterfaceIndex"
+    takes_value: true
+  - flag: "-InterfaceAlias"
+    takes_value: true
+  - flag: "-AddressFamily"
+    takes_value: true
+  - flag: "-CompartmentId"
+    takes_value: true
+  - flag: "-IncludeAllCompartments"
+  - flag: "-ConnectionState"
+    takes_value: true
+  - flag: "-Dhcp"
+    takes_value: true
+  - flag: "-Advertising"
+    takes_value: true
+  - flag: "-Forwarding"
+    takes_value: true
+  - flag: "-PolicyStore"
+    takes_value: true
+stdin: false
+stdout: true

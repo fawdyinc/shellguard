@@ -10,5 +10,21 @@ flags:
     takes_value: true
   - flag: "-FilterHashtable"
     takes_value: true
+  - flag: "-FilterXPath"
+    takes_value: true
+  - flag: "-FilterXml"
+    takes_value: true
+  - flag: "-ProviderName"
+    takes_value: true
+  - flag: "-ComputerName"
+    takes_value: true
+  - flag: "-ListLog"
+    takes_value: true
+  - flag: "-ListProvider"
+    takes_value: true
+  - flag: "-Oldest"
+  - flag: "-Path"
+    takes_value: true
+  - flag: "-Force"
 stdin: false
 stdout: true

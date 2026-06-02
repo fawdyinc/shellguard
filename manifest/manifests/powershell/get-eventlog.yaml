@@ -10,5 +10,23 @@ flags:
     takes_value: true
   - flag: "-EntryType"
     takes_value: true
+  - flag: "-After"
+    takes_value: true
+  - flag: "-Before"
+    takes_value: true
+  - flag: "-Source"
+    takes_value: true
+  - flag: "-Message"
+    takes_value: true
+  - flag: "-Index"
+    takes_value: true
+  - flag: "-InstanceId"
+    takes_value: true
+  - flag: "-List"
+  - flag: "-ComputerName"
+    takes_value: true
+  - flag: "-UserName"
+    takes_value: true
+  - flag: "-AsBaseObject"
 stdin: false
 stdout: true

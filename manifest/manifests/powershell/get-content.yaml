@@ -11,6 +11,14 @@ flags:
     takes_value: true
   - flag: "-LiteralPath"
     takes_value: true
+  - flag: "-Raw"
+  - flag: "-Encoding"
+    takes_value: true
+  - flag: "-Stream"
+    takes_value: true
+  - flag: "-Delimiter"
+    takes_value: true
+  - flag: "-Force"
 allows_path_args: true
 stdin: false
 stdout: true
