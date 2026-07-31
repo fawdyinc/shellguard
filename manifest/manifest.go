@@ -71,6 +71,18 @@ func (m *Manifest) GetFlag(name string) *Flag {
 			return &m.Flags[i]
 		}
 	}
+	// PowerShell parameter names are case-insensitive. Manifest files are not
+	// consistent about casing (get-service declares -Name, where-object
+	// declares -match), so fall back to a case-folded match rather than
+	// requiring callers to guess. POSIX flags stay case-sensitive: -v and -V
+	// are routinely different options.
+	if m.Shell == "powershell" {
+		for i := range m.Flags {
+			if strings.EqualFold(m.Flags[i].Flag, name) {
+				return &m.Flags[i]
+			}
+		}
+	}
 	return nil
 }
 

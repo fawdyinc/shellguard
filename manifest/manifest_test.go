@@ -256,3 +256,47 @@ func TestLoadFromFS_DuplicateNameErrors(t *testing.T) {
 		t.Fatalf("error type = %T, want *ManifestError", err)
 	}
 }
+
+func TestGetFlagCaseInsensitiveForPowerShell(t *testing.T) {
+	registry, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded() error = %v", err)
+	}
+
+	where := registry["where-object"]
+	if where == nil {
+		t.Fatal("where-object manifest missing")
+	}
+	for _, name := range []string{"-match", "-Match", "-MATCH", "-like", "-Like"} {
+		if f := where.GetFlag(name); f == nil {
+			t.Errorf("where-object.GetFlag(%q) = nil, want flag", name)
+		}
+	}
+
+	svc := registry["get-service"]
+	if svc == nil {
+		t.Fatal("get-service manifest missing")
+	}
+	for _, name := range []string{"-Name", "-name", "-NAME"} {
+		if f := svc.GetFlag(name); f == nil {
+			t.Errorf("get-service.GetFlag(%q) = nil, want flag", name)
+		}
+	}
+}
+
+func TestGetFlagCaseSensitiveForPosix(t *testing.T) {
+	registry, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded() error = %v", err)
+	}
+	ls := registry["ls"]
+	if ls == nil {
+		t.Fatal("ls manifest missing")
+	}
+	if f := ls.GetFlag("-L"); f != nil {
+		if ls.GetFlag("-l") == nil {
+			t.Skip("ls has no -l flag to contrast against")
+		}
+		t.Error("ls.GetFlag(\"-L\") matched case-insensitively; POSIX flags must stay case-sensitive")
+	}
+}
