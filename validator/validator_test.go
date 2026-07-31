@@ -262,3 +262,34 @@ func TestPosixFlagBundlingStillWorks(t *testing.T) {
 		t.Fatalf("ls -la should still validate via flag bundling: %v", err)
 	}
 }
+
+func TestPowerShellWildcardAllowedInFlagValue(t *testing.T) {
+	if err := validateOne(t, "get-service", "-Name", "3D*"); err != nil {
+		t.Fatalf("get-service -Name '3D*': unexpected error %v", err)
+	}
+	if err := validateOne(t, "Get-Service", "-Name", "Apache*"); err != nil {
+		t.Fatalf("Get-Service -Name 'Apache*': unexpected error %v", err)
+	}
+}
+
+func TestPowerShellCommaSeparatedFlagValueAccepted(t *testing.T) {
+	// The parser currently collapses -Name 'a*','b*' into a single value rather
+	// than an array. Correct tokenization is Phase 3 parser work; what matters
+	// here is that the collapsed value no longer trips the glob check.
+	if err := validateOne(t, "get-service", "-Name", `3D*","Apache*","SQL*`); err != nil {
+		t.Fatalf("comma-separated -Name value: unexpected error %v", err)
+	}
+}
+
+func TestPosixGlobInFlagValueStillRejected(t *testing.T) {
+	// find -maxdepth takes a value and is not declared pattern_value, so a glob
+	// there is exactly the case the check exists for. (The plan named grep -f,
+	// but grep has no -f flag at all, so that case never reached the glob check.)
+	err := validateOne(t, "find", "-maxdepth", "*")
+	if err == nil {
+		t.Fatal("expected glob rejection for POSIX flag value")
+	}
+	if !strings.Contains(err.Error(), "Glob pattern") {
+		t.Errorf("expected glob rejection for POSIX flag value, got: %v", err)
+	}
+}

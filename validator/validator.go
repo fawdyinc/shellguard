@@ -314,7 +314,7 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 			flagObj := m.GetFlag(flagName)
 			if flagObj != nil && flagObj.TakesValue {
 				if hasInline {
-					if err := validateFlagValue(command, flagObj, inlineValue); err != nil {
+					if err := validateFlagValue(command, m, flagObj, inlineValue); err != nil {
 						return err
 					}
 				} else {
@@ -322,7 +322,7 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 					if idx >= len(args) {
 						return &ValidationError{Message: fmt.Sprintf("Flag '%s' requires a value.", flagName)}
 					}
-					if err := validateFlagValue(command, flagObj, args[idx]); err != nil {
+					if err := validateFlagValue(command, m, flagObj, args[idx]); err != nil {
 						return err
 					}
 				}
@@ -400,7 +400,7 @@ func validateFlag(command, flag string, m *manifest.Manifest) error {
 			if sub.TakesValue {
 				inlineVal := flag[i+1:]
 				if inlineVal != "" {
-					if err := validateFlagValue(command, sub, inlineVal); err != nil {
+					if err := validateFlagValue(command, m, sub, inlineVal); err != nil {
 						return err
 					}
 				}
@@ -413,7 +413,7 @@ func validateFlag(command, flag string, m *manifest.Manifest) error {
 	return &ValidationError{Message: fmt.Sprintf("Flag '%s' is not recognized for '%s'.", flag, command) + allowedFlagHint(m)}
 }
 
-func validateFlagValue(command string, flag *manifest.Flag, value string) error {
+func validateFlagValue(command string, m *manifest.Manifest, flag *manifest.Flag, value string) error {
 	if len(flag.AllowedValues) > 0 {
 		ok := false
 		for _, allowed := range flag.AllowedValues {
@@ -429,6 +429,13 @@ func validateFlagValue(command string, flag *manifest.Flag, value string) error 
 
 	if command == "psql" && flag.Flag == "-c" {
 		return validateSQL(value)
+	}
+
+	// PowerShell wildcards in parameter values (-Name '3D*') are matched by the
+	// cmdlet itself, not expanded by a shell, so they are legitimate. This
+	// mirrors the existing exemption for PowerShell positional arguments.
+	if m.Shell == "powershell" {
+		return nil
 	}
 
 	if !flag.PatternValue && globChars.MatchString(value) {
