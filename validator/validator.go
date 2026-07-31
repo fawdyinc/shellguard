@@ -384,7 +384,10 @@ func validateFlag(command, flag string, m *manifest.Manifest) error {
 		return nil
 	}
 
-	if len(flag) > 2 && !strings.HasPrefix(flag, "--") {
+	// PowerShell has no short-flag bundling: -Match is one parameter, not
+	// -M -a -t -c -h. Splitting it produces errors naming flags the user never
+	// typed. Only POSIX commands get the bundling interpretation.
+	if m.Shell != "powershell" && len(flag) > 2 && !strings.HasPrefix(flag, "--") {
 		for i := 1; i < len(flag); i++ {
 			subFlag := "-" + string(flag[i])
 			sub := m.GetFlag(subFlag)

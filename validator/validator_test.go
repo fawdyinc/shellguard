@@ -243,3 +243,22 @@ func TestPosixCommandsRemainCaseSensitive(t *testing.T) {
 		}
 	}
 }
+
+func TestPowerShellUnknownFlagNotSplitIntoShortFlags(t *testing.T) {
+	err := validateOne(t, "where-object", "-NotARealParameter")
+	if err == nil {
+		t.Fatal("expected rejection for unknown PowerShell parameter")
+	}
+	if strings.Contains(err.Error(), "'-N'") {
+		t.Errorf("error split the parameter into a short flag cluster: %v", err)
+	}
+	if !strings.Contains(err.Error(), "-NotARealParameter") {
+		t.Errorf("error should name the whole parameter, got: %v", err)
+	}
+}
+
+func TestPosixFlagBundlingStillWorks(t *testing.T) {
+	if err := validateOne(t, "ls", "-la"); err != nil {
+		t.Fatalf("ls -la should still validate via flag bundling: %v", err)
+	}
+}
