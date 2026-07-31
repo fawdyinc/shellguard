@@ -143,6 +143,24 @@ func (s *Server) handleConn(ctx context.Context, conn net.Conn) {
 	}
 }
 
+// normalizeTransport resolves an empty transport to the ssh default, matching
+// the connection handler's own behaviour.
+func normalizeTransport(t string) string {
+	if t == "" {
+		return "ssh"
+	}
+	return t
+}
+
+// shellForTransport reports which shell a transport drives. Callers use this to
+// confirm a Windows connection actually negotiated PowerShell.
+func shellForTransport(t string) string {
+	if t == "winrm" {
+		return "powershell"
+	}
+	return "bash"
+}
+
 func (s *Server) dispatch(ctx context.Context, req Request) Response {
 	switch req.Command {
 	case "connect":
@@ -153,10 +171,13 @@ func (s *Server) dispatch(ctx context.Context, req Request) Response {
 		if err := s.handler.Connect(ctx, params); err != nil {
 			return Response{Error: err.Error()}
 		}
+		transport := normalizeTransport(params.Transport)
 		data, _ := json.Marshal(map[string]string{
-			"host":    params.Host,
-			"key":     params.Host,
-			"message": "Connected to " + params.Host,
+			"host":      params.Host,
+			"key":       params.Host,
+			"message":   "Connected to " + params.Host,
+			"transport": transport,
+			"shell":     shellForTransport(transport),
 		})
 		return Response{OK: true, Data: data}
 
