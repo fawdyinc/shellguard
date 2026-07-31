@@ -183,3 +183,27 @@ func TestSystemSSHDialerImplementsInterface(t *testing.T) {
 	// Compile-time check that SystemSSHDialer implements Dialer.
 	var _ Dialer = (*SystemSSHDialer)(nil)
 }
+
+func TestSSHTransportFailureDetection(t *testing.T) {
+	transport := []string{
+		"ssh: connect to host 10.0.0.1 port 22: Connection refused",
+		"ssh: Could not resolve hostname nope: Name or service not known",
+		"Permission denied (publickey,password).",
+		"kex_exchange_identification: read: Connection reset by peer",
+		"Host key verification failed.",
+	}
+	for _, stderr := range transport {
+		if !sshTransportFailure(255, stderr) {
+			t.Errorf("sshTransportFailure(255, %q) = false, want true", stderr)
+		}
+	}
+
+	// A remote command that legitimately exits 255 must not be misread.
+	if sshTransportFailure(255, "myapp: fatal: bad config\n") {
+		t.Error("remote command exit 255 misclassified as transport failure")
+	}
+	// Transport-looking stderr on a non-255 exit is a remote command's output.
+	if sshTransportFailure(1, "ssh: connect to host foo port 22: Connection refused") {
+		t.Error("non-255 exit misclassified as transport failure")
+	}
+}

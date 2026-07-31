@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +20,21 @@ const (
 	defaultControlDir     = "/tmp/shellguard-ctl"
 	controlPersistSeconds = 30
 )
+
+// sshTransportErrors match stderr the ssh client itself emits when it cannot
+// establish or use a connection, as opposed to output from the remote command.
+var sshTransportErrors = regexp.MustCompile(`(?m)^(ssh: |kex_exchange_identification:|Permission denied \(|Host key verification failed|Connection closed by |Control socket connect\()`)
+
+// sshTransportFailure reports whether an ssh invocation failed to reach the
+// remote host, rather than running a command there that exited non-zero.
+//
+// The ssh client exits 255 on connection failure, but a remote command may also
+// legitimately exit 255, so the exit code alone is ambiguous. Requiring ssh's
+// own stderr signature alongside it keeps the false-positive rate near zero: a
+// remote command would have to both exit 255 and emit ssh-formatted diagnostics.
+func sshTransportFailure(exitCode int, stderr string) bool {
+	return exitCode == 255 && sshTransportErrors.MatchString(stderr)
+}
 
 // SystemSSHDialer implements Dialer by spawning the system ssh binary.
 // It uses ControlMaster for connection multiplexing so that only the
@@ -152,6 +168,9 @@ func (c *systemSSHClient) Execute(ctx context.Context, command string, timeout t
 	}
 
 	if exitErr, ok := err.(*exec.ExitError); ok {
+		if sshTransportFailure(exitErr.ExitCode(), stderr.String()) {
+			return ExecResult{}, fmt.Errorf("ssh transport failure: %s", strings.TrimSpace(stderr.String()))
+		}
 		return ExecResult{
 			Stdout:    stdout.String(),
 			Stderr:    stderr.String(),
