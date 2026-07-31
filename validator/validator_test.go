@@ -219,3 +219,27 @@ func TestNumericCountShorthandAllowed(t *testing.T) {
 		t.Fatalf("head -20 should be allowed: %v", err)
 	}
 }
+
+func TestPowerShellCmdletsAreCaseInsensitive(t *testing.T) {
+	cases := []string{
+		"Get-Service", "get-service", "GET-SERVICE",
+		"Get-CimInstance", "Where-Object", "Select-Object",
+		"Format-Table", "Sort-Object", "Get-Process",
+		"Get-WinEvent", "Get-ChildItem", "Get-Volume",
+		"Get-NetTcpConnection", "Format-List", "Get-HotFix",
+	}
+	for _, name := range cases {
+		if err := validateOne(t, name); err != nil {
+			t.Errorf("validate %q: unexpected error %v", name, err)
+		}
+	}
+}
+
+func TestPosixCommandsRemainCaseSensitive(t *testing.T) {
+	cases := []string{"LS", "Ls", "CAT", "Df", "UNAME"}
+	for _, name := range cases {
+		if err := validateOne(t, name); err == nil {
+			t.Errorf("validate %q: expected rejection, POSIX lookup must stay case-sensitive", name)
+		}
+	}
+}

@@ -81,7 +81,7 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 		return validateSubcommand(command, args, registry)
 	}
 
-	m := registry[command]
+	m := lookupManifest(command, registry)
 	if m == nil {
 		if closest := closestCmdlet(command, registry); closest != "" {
 			return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available. Did you mean '%s'?", command, closest)}
@@ -122,6 +122,26 @@ func closestCmdlet(command string, registry map[string]*manifest.Manifest) strin
 		return ""
 	}
 	return best
+}
+
+// lookupManifest resolves command against the registry. PowerShell cmdlet names
+// are case-insensitive in PowerShell itself, but registry keys come from the
+// manifest `name:` field, which is lowercase. So an exact miss falls back to a
+// case-folded scan restricted to manifests declaring shell: powershell.
+//
+// The fallback runs only after the exact lookup misses, and only matches
+// PowerShell manifests — POSIX command lookup stays case-sensitive, because on
+// Unix `LS` and `ls` are genuinely different commands.
+func lookupManifest(command string, registry map[string]*manifest.Manifest) *manifest.Manifest {
+	if m := registry[command]; m != nil {
+		return m
+	}
+	for _, m := range registry {
+		if m != nil && m.Shell == "powershell" && strings.EqualFold(m.Name, command) {
+			return m
+		}
+	}
+	return nil
 }
 
 func levenshtein(a, b string) int {
