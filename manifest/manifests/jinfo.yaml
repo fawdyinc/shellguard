@@ -1,0 +1,23 @@
+name: jinfo
+description: Print JVM command-line flags and system properties
+category: java
+shell: bash
+# Source: JDK 21 jinfo man page.
+#
+# `-flag name` reads one flag, but `-flag +name` and `-flag name=value` SET it
+# on the running JVM. All three are spelled -flag, so the read-only form cannot
+# be separated from the writing forms by flag name alone -- -flag is denied
+# whole and -flags prints every flag anyway.
+flags:
+  - flag: "-flags"
+    description: "Print the command-line flags passed to the JVM"
+  - flag: "-sysprops"
+    description: "Print Java system properties as name-value pairs"
+  - flag: "-h"
+  - flag: "-help"
+  - flag: "-flag"
+    takes_value: true
+    deny: true
+    reason: "'jinfo -flag +Name' and '-flag Name=value' set VM flags on the running process. Use 'jinfo -flags <pid>', which prints every flag and its value."
+stdin: false
+stdout: true

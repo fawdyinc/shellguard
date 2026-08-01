@@ -1,0 +1,65 @@
+name: apache2
+description: Apache HTTP Server binary on Debian/Ubuntu -- version, module, and configuration inspection
+category: web
+shell: bash
+# Source: httpd.apache.org/docs/2.4/programs/httpd.html. Debian and Ubuntu
+# install the same binary under the name apache2; the option set is identical.
+# The registry is keyed by manifest name with a duplicate-name guard, so this is
+# a separate manifest rather than an alias.
+requires_one_of: ["-v", "-V", "-l", "-L", "-M", "-S", "-t", "-h"]
+flags:
+  - flag: "-v"
+    description: "Print the version and exit"
+  - flag: "-V"
+    description: "Print the version and build parameters, then exit"
+  - flag: "-l"
+    description: "List modules compiled into the server"
+  - flag: "-L"
+    description: "List directives provided by static modules"
+  - flag: "-M"
+    description: "Dump the list of loaded static and shared modules"
+  - flag: "-S"
+    description: "Show the virtual host settings as parsed from the config"
+  - flag: "-t"
+    description: "Run configuration syntax tests only"
+  - flag: "-h"
+    description: "Summarize the available command-line options"
+  - flag: "-f"
+    takes_value: true
+    description: "Read directives from this config file instead of the default"
+  - flag: "-d"
+    takes_value: true
+    description: "Set the initial ServerRoot"
+  - flag: "-k"
+    takes_value: true
+    deny: true
+    reason: "-k start|stop|restart|graceful signals the running server. Inspection only: use -t to test the config and -S to see what it parsed."
+  - flag: "-X"
+    deny: true
+    reason: "-X runs the server in the foreground with a single worker -- it starts apache2. Use -t for a syntax check and -S for the parsed configuration."
+  - flag: "-D"
+    takes_value: true
+    deny: true
+    reason: "-D sets a configuration parameter for <IfDefine>, and -DFOREGROUND/-DNO_DETACH change how the server starts."
+  - flag: "-C"
+    takes_value: true
+    deny: true
+    reason: "-C injects a configuration directive processed before the config files, which can change any server setting."
+  - flag: "-c"
+    takes_value: true
+    deny: true
+    reason: "-c injects a configuration directive processed after the config files, which can change any server setting."
+  - flag: "-E"
+    takes_value: true
+    deny: true
+    reason: "-E redirects startup error messages into a file, which writes to disk."
+  - flag: "-e"
+    takes_value: true
+    deny: true
+    reason: "-e sets the LogLevel during server startup, and only applies when the server is starting."
+  - flag: "-T"
+    deny: true
+    reason: "-T skips the document root check at startup, and only applies when the server is starting."
+allows_path_args: false
+stdin: false
+stdout: true

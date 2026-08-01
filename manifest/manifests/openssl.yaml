@@ -1,0 +1,11 @@
+name: openssl
+description: OpenSSL parent manifest
+category: security
+shell: bash
+# openssl dispatches on a subcommand, and most of its subcommands generate keys,
+# sign certificates, or encrypt files. Subcommand manifests are the allowlist:
+# only x509, rsa, s_client, verify, and version are reachable. genrsa, req, ca,
+# enc, and the rest have no manifest and are refused.
+flags: []
+stdin: false
+stdout: true

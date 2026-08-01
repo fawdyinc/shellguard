@@ -20,32 +20,32 @@ var (
 // PowerShell cmdlets. These are checked before manifest flag validation.
 // See: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters
 var psCommonParams = map[string]bool{
-	"-ErrorAction":        true,
-	"-ErrorVariable":      true,
-	"-WarningAction":      true,
-	"-WarningVariable":    true,
-	"-InformationAction":  true,
+	"-ErrorAction":         true,
+	"-ErrorVariable":       true,
+	"-WarningAction":       true,
+	"-WarningVariable":     true,
+	"-InformationAction":   true,
 	"-InformationVariable": true,
-	"-OutVariable":        true,
-	"-OutBuffer":          true,
-	"-PipelineVariable":   true,
-	"-Verbose":            true,
-	"-Debug":              true,
-	"-ProgressAction":     true,
+	"-OutVariable":         true,
+	"-OutBuffer":           true,
+	"-PipelineVariable":    true,
+	"-Verbose":             true,
+	"-Debug":               true,
+	"-ProgressAction":      true,
 }
 
 // psCommonParamsTakesValue indicates which common params expect a value.
 var psCommonParamsTakesValue = map[string]bool{
-	"-ErrorAction":        true,
-	"-ErrorVariable":      true,
-	"-WarningAction":      true,
-	"-WarningVariable":    true,
-	"-InformationAction":  true,
+	"-ErrorAction":         true,
+	"-ErrorVariable":       true,
+	"-WarningAction":       true,
+	"-WarningVariable":     true,
+	"-InformationAction":   true,
 	"-InformationVariable": true,
-	"-OutVariable":        true,
-	"-OutBuffer":          true,
-	"-PipelineVariable":   true,
-	"-ProgressAction":     true,
+	"-OutVariable":         true,
+	"-OutBuffer":           true,
+	"-PipelineVariable":    true,
+	"-ProgressAction":      true,
 }
 
 type ValidationError struct {
@@ -466,6 +466,11 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 				if err := checkRestrictedPath(arg, m); err != nil {
 					return err
 				}
+			}
+			if pa := m.PositionalAllowlist; pa != nil && positionalIdx == pa.Index && !pa.Allows(arg) {
+				return &ValidationError{Message: fmt.Sprintf(
+					"'%s' is not an allowed argument for '%s' in that position. Allowed: %s.",
+					arg, command, strings.Join(pa.Values, ", "))}
 			}
 			if m.RegexArgPosition == nil || positionalIdx != *m.RegexArgPosition {
 				// Skip glob checking for PowerShell (wildcards are common in PS).

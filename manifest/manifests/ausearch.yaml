@@ -1,0 +1,82 @@
+name: ausearch
+description: Query the audit daemon logs
+category: security
+shell: bash
+# Source: ausearch(8), audit userspace. A read-only query tool over the audit
+# logs -- the one option that writes is --checkpoint, denied below.
+flags:
+  - flag: "-m"
+    takes_value: true
+    description: "Search by message/record type, e.g. avc"
+  - flag: "--message"
+    takes_value: true
+  - flag: "-ts"
+    takes_value: true
+    description: "Start time, e.g. recent, today, or a date"
+  - flag: "--start"
+    takes_value: true
+  - flag: "-te"
+    takes_value: true
+    description: "End time"
+  - flag: "--end"
+    takes_value: true
+  - flag: "-ua"
+    takes_value: true
+    description: "Match any user ID variant"
+  - flag: "--uid-all"
+    takes_value: true
+  - flag: "-ui"
+    takes_value: true
+    description: "Match a specific user ID"
+  - flag: "--uid"
+    takes_value: true
+  - flag: "-c"
+    takes_value: true
+    description: "Search by command name"
+  - flag: "--comm"
+    takes_value: true
+  - flag: "-i"
+    description: "Interpret numeric values as text"
+  - flag: "--interpret"
+  - flag: "-k"
+    takes_value: true
+    description: "Search by audit rule key"
+  - flag: "--key"
+    takes_value: true
+  - flag: "-f"
+    takes_value: true
+    description: "Search by filename"
+  - flag: "--file"
+    takes_value: true
+  - flag: "-p"
+    takes_value: true
+    description: "Search by process ID"
+  - flag: "--pid"
+    takes_value: true
+  - flag: "-sv"
+    takes_value: true
+    description: "Filter by success or failure"
+  - flag: "--success"
+    takes_value: true
+  - flag: "-x"
+    takes_value: true
+    description: "Search by executable name"
+  - flag: "--executable"
+    takes_value: true
+  - flag: "--format"
+    takes_value: true
+    description: "Output format: raw, default, interpret, csv, or text"
+  - flag: "--input"
+    takes_value: true
+    description: "Read from this log file or directory instead of the default"
+  - flag: "-h"
+  - flag: "--help"
+  - flag: "-v"
+  - flag: "--version"
+  - flag: "--checkpoint"
+    takes_value: true
+    deny: true
+    reason: "--checkpoint writes a checkpoint file recording the last event output. Use -ts to bound the search by time instead."
+allows_path_args: false
+stdin: true
+stdout: true

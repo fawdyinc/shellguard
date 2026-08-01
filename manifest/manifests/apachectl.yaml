@@ -1,0 +1,17 @@
+name: apachectl
+description: Apache control script parent manifest
+category: web
+shell: bash
+# Source: httpd.apache.org/docs/2.4/programs/apachectl.html
+#
+# apachectl dispatches on a subcommand: start, stop, restart, graceful, and
+# graceful-stop all change server state, while configtest, status, and
+# fullstatus only read. Subcommand manifests are the allowlist -- anything
+# without an apachectl_<subcommand> manifest is refused, so the state-changing
+# five need no explicit deny.
+#
+# apachectl also passes httpd options straight through, which would reach -k and
+# -X. Those are not routed here: use the httpd manifest directly for -V/-S/-M.
+flags: []
+stdin: false
+stdout: true

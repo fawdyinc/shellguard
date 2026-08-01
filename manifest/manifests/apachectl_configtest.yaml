@@ -1,0 +1,7 @@
+name: apachectl_configtest
+description: Run a configuration file syntax test
+category: web
+shell: bash
+flags: []
+stdin: false
+stdout: true

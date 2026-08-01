@@ -1,0 +1,23 @@
+name: openssl_version
+description: Print the OpenSSL version and build configuration
+category: security
+shell: bash
+# Source: `openssl version -help` (OpenSSL 3.x).
+flags:
+  - flag: "-a"
+    description: "Show all data"
+  - flag: "-b"
+  - flag: "-c"
+  - flag: "-d"
+    description: "Show the configuration directory"
+  - flag: "-e"
+  - flag: "-f"
+  - flag: "-m"
+  - flag: "-o"
+  - flag: "-p"
+  - flag: "-r"
+  - flag: "-v"
+  - flag: "-help"
+allows_path_args: false
+stdin: false
+stdout: true

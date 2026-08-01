@@ -1,0 +1,28 @@
+name: md5sum
+description: Compute or check MD5 message digests
+category: files
+shell: bash
+# Source: md5sum(1), GNU coreutils. Reads its operands and writes digests to
+# stdout; --check reads a digest list and compares. Nothing is modified.
+flags:
+  - flag: "-b"
+  - flag: "--binary"
+  - flag: "-c"
+    description: "Read checksums from the files and check them"
+  - flag: "--check"
+  - flag: "-t"
+  - flag: "--text"
+  - flag: "-z"
+  - flag: "--zero"
+  - flag: "--tag"
+  - flag: "--ignore-missing"
+  - flag: "--quiet"
+  - flag: "--status"
+  - flag: "--strict"
+  - flag: "-w"
+  - flag: "--warn"
+  - flag: "--help"
+  - flag: "--version"
+allows_path_args: true
+stdin: true
+stdout: true

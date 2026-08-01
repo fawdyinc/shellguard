@@ -1,0 +1,59 @@
+name: openssl_x509
+description: Print and inspect X.509 certificates
+category: security
+shell: bash
+# Source: `openssl x509 -help` (OpenSSL 3.x).
+#
+# Only the printing and checking options are declared. The certificate output
+# options -- -out, -new, -req, -key, -signkey, -days, -set_serial, -x509toreq --
+# generate or sign certificates and are therefore absent from the allowlist.
+flags:
+  - flag: "-in"
+    takes_value: true
+    description: "Certificate input file (default stdin)"
+  - flag: "-inform"
+    takes_value: true
+    allowed_values: ["PEM", "DER", "pem", "der"]
+  - flag: "-noout"
+    description: "No output except what is explicitly requested"
+  - flag: "-text"
+    description: "Print the certificate in text form"
+  - flag: "-fingerprint"
+  - flag: "-serial"
+  - flag: "-subject"
+  - flag: "-issuer"
+  - flag: "-dates"
+  - flag: "-startdate"
+  - flag: "-enddate"
+  - flag: "-purpose"
+  - flag: "-modulus"
+  - flag: "-pubkey"
+  - flag: "-email"
+  - flag: "-alias"
+  - flag: "-multi"
+  - flag: "-hash"
+  - flag: "-subject_hash"
+  - flag: "-issuer_hash"
+  - flag: "-ocsp_uri"
+  - flag: "-ocspid"
+  - flag: "-ext"
+    takes_value: true
+  - flag: "-nameopt"
+    takes_value: true
+  - flag: "-certopt"
+    takes_value: true
+  - flag: "-dateopt"
+    takes_value: true
+  - flag: "-checkend"
+    takes_value: true
+    description: "Exit 1 if the certificate expires within this many seconds"
+  - flag: "-checkhost"
+    takes_value: true
+  - flag: "-checkemail"
+    takes_value: true
+  - flag: "-checkip"
+    takes_value: true
+  - flag: "-help"
+allows_path_args: false
+stdin: true
+stdout: true

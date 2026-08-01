@@ -1,0 +1,20 @@
+name: jmap
+description: Print heap, class loader, and finalizer statistics for a running JVM
+category: java
+shell: bash
+# Source: JDK 21 jmap man page. It documents exactly four options.
+flags:
+  - flag: "-clstats"
+    description: "Print class loader statistics of the Java heap"
+  - flag: "-finalizerinfo"
+    description: "Print objects awaiting finalization"
+  - flag: "-histo"
+    description: "Print a histogram of the Java object heap"
+  - flag: "-histo:live"
+    deny: true
+    reason: "The 'live' suboption counts only live objects, which requires a full GC of the target JVM first. Use 'jmap -histo <pid>' for a histogram without collecting."
+  - flag: "-dump"
+    deny: true
+    reason: "Heap dumps write a file the size of the live heap and pause the JVM while writing. Use 'jmap -histo <pid>' to find what is retaining memory."
+stdin: false
+stdout: true

@@ -1,0 +1,7 @@
+name: apachectl_status
+description: Display a brief status report from mod_status
+category: web
+shell: bash
+flags: []
+stdin: false
+stdout: true

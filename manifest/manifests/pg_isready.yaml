@@ -1,0 +1,42 @@
+name: pg_isready
+description: Check the connection status of a PostgreSQL server
+category: database
+shell: bash
+# Source: pg_isready(1), PostgreSQL 16. Opens a connection and reports status
+# through the exit code; it issues no SQL.
+flags:
+  - flag: "-d"
+    takes_value: true
+    description: "Database name or connection string"
+  - flag: "--dbname"
+    takes_value: true
+  - flag: "-h"
+    takes_value: true
+    description: "Host name, or a directory for the Unix-domain socket"
+  - flag: "--host"
+    takes_value: true
+  - flag: "-p"
+    takes_value: true
+    description: "TCP port or Unix-domain socket file extension"
+  - flag: "--port"
+    takes_value: true
+  - flag: "-q"
+    description: "Do not display a status message"
+  - flag: "--quiet"
+  - flag: "-t"
+    takes_value: true
+    description: "Seconds to wait for a connection"
+  - flag: "--timeout"
+    takes_value: true
+  - flag: "-U"
+    takes_value: true
+    description: "Connect as this user"
+  - flag: "--username"
+    takes_value: true
+  - flag: "-V"
+  - flag: "--version"
+  - flag: "-?"
+  - flag: "--help"
+allows_path_args: false
+stdin: false
+stdout: true

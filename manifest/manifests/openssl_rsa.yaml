@@ -1,0 +1,44 @@
+name: openssl_rsa
+description: Inspect an RSA key's modulus and consistency without printing the key
+category: security
+shell: bash
+# Source: `openssl rsa -help` (OpenSSL 3.x).
+#
+# `openssl rsa -in key.pem` PRINTS THE PRIVATE KEY to stdout -- that is its
+# default behaviour, not an opt-in. -noout suppresses it, so -noout is required
+# here rather than optional. -text is likewise absent: it prints the key's
+# components, which for a private key includes the private exponent and primes.
+#
+# The one legitimate use this leaves is the cert/key match check:
+#   openssl rsa -noout -modulus -in key.pem | md5sum
+# compared against the same over `openssl x509 -noout -modulus -in cert.pem`.
+requires_one_of: ["-noout"]
+flags:
+  - flag: "-noout"
+    description: "Do not print the key itself"
+  - flag: "-in"
+    takes_value: true
+    description: "Input key file"
+  - flag: "-inform"
+    takes_value: true
+    allowed_values: ["PEM", "DER", "pem", "der"]
+  - flag: "-pubin"
+    description: "Expect a public key in the input file"
+  - flag: "-modulus"
+    description: "Print the RSA key modulus"
+  - flag: "-check"
+    description: "Verify key consistency"
+  - flag: "-help"
+  - flag: "-text"
+    deny: true
+    reason: "-text prints the key's components, which for a private key includes the private exponent and primes. Use -modulus for the cert/key match check."
+  - flag: "-out"
+    takes_value: true
+    deny: true
+    reason: "-out writes the key to a file."
+  - flag: "-pubout"
+    deny: true
+    reason: "-pubout converts the key rather than inspecting it. Use -modulus to compare a key against a certificate."
+allows_path_args: false
+stdin: true
+stdout: true

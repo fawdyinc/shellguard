@@ -25,6 +25,8 @@ var SubcommandCommands = map[string]bool{
 	"systemctl": true,
 	"aws":       true,
 	"abaqus":    true,
+	"apachectl": true,
+	"openssl":   true,
 }
 
 //go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml manifests/packs/*/*.yaml
@@ -48,6 +50,26 @@ type Flag struct {
 	Reason        string   `yaml:"reason"`
 }
 
+// PositionalAllowlist restricts the positional argument at Index (0-based,
+// counting only non-flag arguments) to one of Values. Positional arguments at
+// other indexes are unaffected, and an invocation with fewer positionals than
+// Index is not constrained -- the tool itself rejects those.
+type PositionalAllowlist struct {
+	Index  int      `yaml:"index"`
+	Values []string `yaml:"values"`
+}
+
+// Allows reports whether value is permitted at the constrained position.
+// Matching is case-sensitive: jcmd's diagnostic command names are.
+func (p *PositionalAllowlist) Allows(value string) bool {
+	for _, v := range p.Values {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
 type Manifest struct {
 	Name             string   `yaml:"name"`
 	Description      string   `yaml:"description"`
@@ -63,6 +85,12 @@ type Manifest struct {
 	RegexArgPosition *int     `yaml:"regex_arg_position"`
 	Shell            string   `yaml:"shell"` // "powershell" or "" (bash)
 	RequiresOneOf    []string `yaml:"requires_one_of"`
+	// PositionalAllowlist constrains one positional argument to a fixed set of
+	// values. Flag validation cannot reach tools that dispatch on a positional
+	// word rather than a flag -- jcmd's diagnostic command sits at positional 1
+	// (after the pid), and jcmd GC.run, VM.set_flag, and JVMTI.agent_load all
+	// change the target JVM. Without this, such a tool is all-or-nothing.
+	PositionalAllowlist *PositionalAllowlist `yaml:"positional_allowlist"`
 	// AllowsFlagBundling re-enables POSIX-style short-flag bundling for a
 	// manifest that declares shell: powershell. Native Windows executables
 	// (netstat, tracert, ping) run on a Windows host but use DOS-style bundled
@@ -249,23 +277,61 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		}
 	}
 
+	positionalAllowlist, err := parsePositionalAllowlist(data["positional_allowlist"], filePath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Manifest{
-		Name:             name,
-		Description:      defaultString(data, "description"),
-		Category:         defaultString(data, "category"),
-		Timeout:          timeout,
-		Deny:             defaultBool(data, "deny"),
-		Reason:           defaultString(data, "reason"),
-		Flags:            flags,
-		AllowsPathArgs:   defaultBool(data, "allows_path_args"),
-		RestrictedPaths:  restrictedPaths,
-		Stdin:            defaultBool(data, "stdin"),
-		Stdout:           stdout,
-		RegexArgPosition: regexPos,
-		Shell:              defaultString(data, "shell"),
-		RequiresOneOf:      requiresOneOf,
-		AllowsFlagBundling: defaultBool(data, "allows_flag_bundling"),
+		Name:                name,
+		Description:         defaultString(data, "description"),
+		Category:            defaultString(data, "category"),
+		Timeout:             timeout,
+		Deny:                defaultBool(data, "deny"),
+		Reason:              defaultString(data, "reason"),
+		Flags:               flags,
+		AllowsPathArgs:      defaultBool(data, "allows_path_args"),
+		RestrictedPaths:     restrictedPaths,
+		Stdin:               defaultBool(data, "stdin"),
+		Stdout:              stdout,
+		RegexArgPosition:    regexPos,
+		Shell:               defaultString(data, "shell"),
+		RequiresOneOf:       requiresOneOf,
+		AllowsFlagBundling:  defaultBool(data, "allows_flag_bundling"),
+		PositionalAllowlist: positionalAllowlist,
 	}, nil
+}
+
+// parsePositionalAllowlist reads the optional positional_allowlist block. An
+// empty values list would reject every invocation, which reads as a validator
+// bug rather than a manifest bug, so it fails at load time like requires_one_of.
+func parsePositionalAllowlist(raw any, filePath string) (*PositionalAllowlist, error) {
+	if raw == nil {
+		return nil, nil
+	}
+	data, ok := raw.(map[string]any)
+	if !ok {
+		return nil, &ManifestError{Message: fmt.Sprintf("manifest %s: 'positional_allowlist' must be a mapping", filePath)}
+	}
+	index := 0
+	if rawIndex, present := data["index"]; present {
+		parsed, ok := intValueFromAny(rawIndex)
+		if !ok {
+			return nil, &ManifestError{Message: fmt.Sprintf("manifest %s: positional_allowlist 'index' must be an int", filePath)}
+		}
+		index = parsed
+	}
+	if index < 0 {
+		return nil, &ManifestError{Message: fmt.Sprintf("manifest %s: positional_allowlist 'index' must not be negative", filePath)}
+	}
+	values, err := stringSliceValue(data, "values", filePath)
+	if err != nil {
+		return nil, err
+	}
+	if len(values) == 0 {
+		return nil, &ManifestError{Message: fmt.Sprintf("manifest %s: positional_allowlist 'values' must not be empty", filePath)}
+	}
+	return &PositionalAllowlist{Index: index, Values: values}, nil
 }
 
 func parseFlags(raw any, filePath string) ([]Flag, error) {

@@ -1,0 +1,46 @@
+name: jstat
+description: Display JVM performance statistics (GC, class loading, JIT)
+category: java
+shell: bash
+# Source: JDK 21 jstat man page. jstat is documented purely as a monitoring
+# tool: it attaches to a JVM and reads instrumentation counters.
+flags:
+  - flag: "-class"
+    description: "Class loader statistics"
+  - flag: "-compiler"
+    description: "HotSpot JIT compiler statistics"
+  - flag: "-gc"
+    description: "Garbage-collected heap statistics"
+  - flag: "-gccapacity"
+    description: "Generation capacities and their spaces"
+  - flag: "-gccause"
+    description: "GC summary plus the cause of the last and current GC"
+  - flag: "-gcnew"
+    description: "New-generation statistics"
+  - flag: "-gcnewcapacity"
+    description: "New-generation sizes and their spaces"
+  - flag: "-gcold"
+    description: "Old-generation and metaspace statistics"
+  - flag: "-gcoldcapacity"
+    description: "Old-generation sizes"
+  - flag: "-gcmetacapacity"
+    description: "Metaspace sizes"
+  - flag: "-gcutil"
+    description: "Summary of GC statistics as percentages"
+  - flag: "-printcompilation"
+    description: "HotSpot compilation method statistics"
+  - flag: "-options"
+    description: "List the statistics options this jstat supports"
+  - flag: "-help"
+    description: "Display help"
+  - flag: "-t"
+    description: "Prepend a timestamp column"
+  - flag: "-h"
+    takes_value: true
+    description: "Repeat the column header every n samples"
+  - flag: "-J"
+    takes_value: true
+    deny: true
+    reason: "-J passes arbitrary options through to the Java launcher, including agent and classpath options. Use the statistics options directly."
+stdin: false
+stdout: true

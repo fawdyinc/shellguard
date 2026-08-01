@@ -1,0 +1,30 @@
+name: openssl_verify
+description: Verify a certificate chain against trusted CAs
+category: security
+shell: bash
+# Source: `openssl verify -help` (OpenSSL 3.x). Reads certificates and reports
+# whether the chain validates.
+flags:
+  - flag: "-CAfile"
+    takes_value: true
+  - flag: "-CApath"
+    takes_value: true
+  - flag: "-trusted"
+    takes_value: true
+  - flag: "-untrusted"
+    takes_value: true
+  - flag: "-CRLfile"
+    takes_value: true
+  - flag: "-show_chain"
+    description: "Display information about the certificate chain"
+  - flag: "-verbose"
+  - flag: "-purpose"
+    takes_value: true
+  - flag: "-nameopt"
+    takes_value: true
+  - flag: "-no-CAfile"
+  - flag: "-no-CApath"
+  - flag: "-help"
+allows_path_args: true
+stdin: true
+stdout: true

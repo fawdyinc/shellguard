@@ -1,0 +1,46 @@
+name: nginx
+description: nginx binary -- configuration test, dump, and version inspection
+category: web
+shell: bash
+# Source: nginx.org/en/docs/switches.html
+#
+# Bare `nginx` starts the server, so one of the test/print switches is required.
+requires_one_of: ["-t", "-T", "-v", "-V", "-h"]
+flags:
+  - flag: "-t"
+    description: "Test the configuration file syntax and file accessibility"
+  - flag: "-T"
+    description: "Test the configuration and dump it to stdout"
+  - flag: "-v"
+    description: "Print the nginx version"
+  - flag: "-V"
+    description: "Print the version, compiler version, and configure parameters"
+  - flag: "-h"
+    description: "Print help for the command-line parameters"
+  - flag: "-q"
+    description: "Suppress non-error messages during configuration testing"
+  - flag: "-c"
+    takes_value: true
+    description: "Use an alternative configuration file"
+  - flag: "-p"
+    takes_value: true
+    description: "Set the nginx path prefix"
+  - flag: "-s"
+    takes_value: true
+    deny: true
+    reason: "-s stop|quit|reload|reopen signals the running master process. Use -t to test the configuration instead."
+  - flag: "-g"
+    takes_value: true
+    deny: true
+    reason: "-g injects global configuration directives, which can change any server setting."
+  - flag: "-e"
+    takes_value: true
+    deny: true
+    reason: "-e redirects the error log to another file, which writes to disk."
+  - flag: "-l"
+    takes_value: true
+    deny: true
+    reason: "-l opens the nginx control REST API on a port or socket."
+allows_path_args: false
+stdin: false
+stdout: true

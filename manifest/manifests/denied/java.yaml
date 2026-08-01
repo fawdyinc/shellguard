@@ -1,0 +1,3 @@
+name: java
+deny: true
+reason: "The java launcher runs arbitrary code -- use jps -v to list running JVMs, jcmd <pid> VM.version for a JVM's version, and jinfo -flags <pid> for its flags"

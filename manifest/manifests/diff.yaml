@@ -1,0 +1,118 @@
+name: diff
+description: Compare files line by line
+category: files
+shell: bash
+# Source: diff(1), GNU diffutils. diff only reads its operands and writes the
+# comparison to stdout; there is no option that modifies a file.
+flags:
+  - flag: "-u"
+  - flag: "--unified"
+  - flag: "-U"
+    takes_value: true
+  - flag: "-c"
+  - flag: "-C"
+    takes_value: true
+  - flag: "--context"
+  - flag: "-q"
+    description: "Report only whether the files differ"
+  - flag: "--brief"
+  - flag: "-s"
+    description: "Report when two files are the same"
+  - flag: "--report-identical-files"
+  - flag: "-r"
+    description: "Recursively compare subdirectories"
+  - flag: "--recursive"
+  - flag: "-N"
+    description: "Treat absent files as empty"
+  - flag: "--new-file"
+  - flag: "-i"
+    description: "Ignore case differences"
+  - flag: "--ignore-case"
+  - flag: "-w"
+    description: "Ignore all white space"
+  - flag: "--ignore-all-space"
+  - flag: "-b"
+    description: "Ignore changes in the amount of white space"
+  - flag: "--ignore-space-change"
+  - flag: "-B"
+    description: "Ignore changes where lines are all blank"
+  - flag: "--ignore-blank-lines"
+  - flag: "-E"
+    description: "Ignore changes due to tab expansion"
+  - flag: "--ignore-tab-expansion"
+  - flag: "-Z"
+    description: "Ignore white space at line end"
+  - flag: "--ignore-trailing-space"
+  - flag: "-I"
+    takes_value: true
+    pattern_value: true
+    description: "Ignore changes where all lines match this regex"
+  - flag: "--ignore-matching-lines"
+    takes_value: true
+    pattern_value: true
+  - flag: "-a"
+    description: "Treat all files as text"
+  - flag: "--text"
+  - flag: "-y"
+    description: "Output in two columns"
+  - flag: "--side-by-side"
+  - flag: "-W"
+    takes_value: true
+  - flag: "--width"
+    takes_value: true
+  - flag: "--suppress-common-lines"
+  - flag: "--left-column"
+  - flag: "-d"
+    description: "Try hard to find a smaller set of changes"
+  - flag: "--minimal"
+  - flag: "--normal"
+  - flag: "-t"
+    description: "Expand tabs to spaces in output"
+  - flag: "--expand-tabs"
+  - flag: "-T"
+    description: "Make tabs line up by prepending a tab"
+  - flag: "--initial-tab"
+  - flag: "--tabsize"
+    takes_value: true
+  - flag: "-p"
+    description: "Show which C function each change is in"
+  - flag: "--show-c-function"
+  - flag: "-x"
+    takes_value: true
+    pattern_value: true
+    description: "Exclude files matching this pattern"
+  - flag: "--exclude"
+    takes_value: true
+    pattern_value: true
+  - flag: "-X"
+    takes_value: true
+    description: "Exclude files matching any pattern in this file"
+  - flag: "--exclude-from"
+    takes_value: true
+  - flag: "-S"
+    takes_value: true
+    description: "Start with this file when comparing directories"
+  - flag: "--starting-file"
+    takes_value: true
+  - flag: "--from-file"
+    takes_value: true
+  - flag: "--to-file"
+    takes_value: true
+  - flag: "--label"
+    takes_value: true
+  - flag: "--no-dereference"
+  - flag: "--strip-trailing-cr"
+  - flag: "--ignore-file-name-case"
+  - flag: "--horizon-lines"
+    takes_value: true
+  - flag: "--help"
+  - flag: "--version"
+  - flag: "-l"
+    deny: true
+    reason: "-l pipes diff output through the 'pr' program. Read the output directly, or narrow it with head."
+  - flag: "--paginate"
+    deny: true
+    reason: "--paginate pipes diff output through the 'pr' program. Read the output directly, or narrow it with head."
+allows_path_args: true
+stdin: true
+stdout: true

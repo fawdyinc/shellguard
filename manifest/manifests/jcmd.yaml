@@ -1,0 +1,56 @@
+name: jcmd
+description: Send read-only diagnostic commands to a running JVM
+category: java
+shell: bash
+# Source: JDK 21 jcmd man page (docs.oracle.com/en/java/javase/21/docs/specs/man/jcmd.html).
+#
+# jcmd dispatches on a positional word, not a flag, so flag validation cannot
+# reach it: `jcmd <pid> VM.flags` and `jcmd <pid> VM.set_flag` differ only at
+# positional 1. Of the 51 documented diagnostic commands, 24 change the target
+# JVM or write files -- GC.run forces a collection, GC.heap_dump writes an HPROF
+# file, VM.set_flag rewrites a VM flag, and JVMTI.agent_load loads native code
+# into the process. The allowlist below is the 27 that only read state, plus
+# GC.class_histogram.
+positional_allowlist:
+  index: 1
+  values:
+    - "help"
+    - "Compiler.codecache"
+    - "Compiler.codelist"
+    - "Compiler.queue"
+    - "GC.class_histogram"
+    - "GC.finalizer_info"
+    - "GC.heap_info"
+    - "JFR.check"
+    - "ManagementAgent.status"
+    - "PerfCounter.print"
+    - "System.native_heap_info"
+    - "Thread.print"
+    - "VM.class_hierarchy"
+    - "VM.classloader_stats"
+    - "VM.classloaders"
+    - "VM.command_line"
+    - "VM.dynlibs"
+    - "VM.events"
+    - "VM.flags"
+    - "VM.info"
+    - "VM.metaspace"
+    - "VM.native_memory"
+    - "VM.print_touched_methods"
+    - "VM.stringtable"
+    - "VM.symboltable"
+    - "VM.system_properties"
+    - "VM.systemdictionary"
+    - "VM.uptime"
+    - "VM.version"
+flags:
+  - flag: "-l"
+    description: "List running JVMs with main class and arguments"
+  - flag: "-h"
+    description: "Display command-line help"
+  - flag: "-f"
+    takes_value: true
+    deny: true
+    reason: "-f reads diagnostic commands from a file, which bypasses the per-command allowlist entirely. Name the command directly: jcmd <pid> Thread.print"
+stdin: false
+stdout: true

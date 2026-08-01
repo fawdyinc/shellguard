@@ -29,3 +29,25 @@
 # stdin: bool
 # stdout: bool
 # regex_arg_position: int  # Positional arg index that is a regex pattern (exempt from glob check)
+#
+# shell: string           # "bash" (Unix only) | "powershell" (Windows only)
+#                         # Absent means universal -- reachable on either host.
+#
+# allows_flag_bundling: bool
+#                         # Re-enables POSIX short-flag bundling (-ano is -a -n -o)
+#                         # for a manifest declaring shell: powershell. For native
+#                         # Windows executables, which run on Windows but do not use
+#                         # PowerShell parameter conventions.
+#
+# requires_one_of: [string]
+#                         # The command is unsafe with no arguments at all, so at
+#                         # least one of these flags must be present. Every entry
+#                         # must be declared in flags and must not be deny: true.
+#                         # Use when bare invocation does something -- `httpd` starts
+#                         # the web server, `openssl rsa -in key.pem` prints the key.
+#
+# positional_allowlist:   # Restrict one positional argument to a fixed set of values.
+#   index: int            # 0-based, counting only non-flag arguments
+#   values: [string]      # Must be non-empty. Matching is case-sensitive.
+#                         # For tools that dispatch on a positional word rather than
+#                         # a flag: `jcmd <pid> Thread.print` vs `jcmd <pid> GC.run`.

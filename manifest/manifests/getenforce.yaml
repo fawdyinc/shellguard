@@ -1,0 +1,10 @@
+name: getenforce
+description: Report the current SELinux mode (Enforcing, Permissive, or Disabled)
+category: security
+shell: bash
+# Source: getenforce(8), policycoreutils. Takes no options and no arguments.
+# Note the companion setenforce(8) changes the mode and is deliberately absent.
+flags: []
+allows_path_args: false
+stdin: false
+stdout: true

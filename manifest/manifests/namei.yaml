@@ -1,0 +1,35 @@
+name: namei
+description: Follow a pathname until a terminal point is found, showing each component
+category: files
+shell: bash
+# Source: namei(1), util-linux. Resolves a path and prints each component;
+# useful for permission problems partway down a path and for symlink loops.
+flags:
+  - flag: "-l"
+    description: "Long listing format (same as -m -o -v)"
+  - flag: "--long"
+  - flag: "-m"
+    description: "Show the mode bits of each component"
+  - flag: "--modes"
+  - flag: "-n"
+    description: "Do not follow symlinks"
+  - flag: "--nosymlinks"
+  - flag: "-o"
+    description: "Show owner and group of each component"
+  - flag: "--owners"
+  - flag: "-v"
+    description: "Vertically align modes and owners"
+  - flag: "--vertical"
+  - flag: "-x"
+    description: "Show mountpoint directories with a 'D'"
+  - flag: "--mountpoints"
+  - flag: "-Z"
+    description: "Show the security context of each component"
+  - flag: "--context"
+  - flag: "-h"
+  - flag: "--help"
+  - flag: "-V"
+  - flag: "--version"
+allows_path_args: true
+stdin: false
+stdout: true

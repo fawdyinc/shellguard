@@ -1,0 +1,61 @@
+name: openssl_s_client
+description: Connect to a TLS server and report the negotiated session and certificate chain
+category: security
+shell: bash
+# Source: `openssl s_client -help` (OpenSSL 3.x). Opens an outbound TLS
+# connection and prints what it observes, in the same class as curl and wget.
+# -msgfile is absent because it writes protocol output to a file.
+flags:
+  - flag: "-connect"
+    takes_value: true
+    description: "host:port to connect to"
+  - flag: "-servername"
+    takes_value: true
+    description: "SNI server name in the ClientHello"
+  - flag: "-showcerts"
+    description: "Show all certificates sent by the server"
+  - flag: "-starttls"
+    takes_value: true
+    description: "Issue the protocol's STARTTLS command before starting TLS"
+  - flag: "-CAfile"
+    takes_value: true
+  - flag: "-CApath"
+    takes_value: true
+  - flag: "-verify"
+    takes_value: true
+    description: "Turn on peer certificate verification to this depth"
+  - flag: "-status"
+    description: "Send a certificate status request (OCSP stapling)"
+  - flag: "-brief"
+    description: "Restrict output to a brief summary of the connection"
+  - flag: "-prexit"
+    description: "Print session information when the program exits"
+  - flag: "-state"
+  - flag: "-quiet"
+  - flag: "-ign_eof"
+  - flag: "-no_ign_eof"
+  - flag: "-crlf"
+  - flag: "-4"
+  - flag: "-6"
+  - flag: "-tls1"
+  - flag: "-tls1_1"
+  - flag: "-tls1_2"
+  - flag: "-tls1_3"
+  - flag: "-no_ssl3"
+  - flag: "-no_tls1"
+  - flag: "-no_tls1_1"
+  - flag: "-no_tls1_2"
+  - flag: "-no_tls1_3"
+  - flag: "-no_ticket"
+  - flag: "-cipher"
+    takes_value: true
+  - flag: "-ciphersuites"
+    takes_value: true
+  - flag: "-sigalgs"
+    takes_value: true
+  - flag: "-msg"
+  - flag: "-debug"
+  - flag: "-help"
+allows_path_args: false
+stdin: true
+stdout: true
