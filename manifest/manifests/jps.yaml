@@ -1,0 +1,14 @@
+name: jps
+description: List PIDs of running JVM processes. Does not see Java processes launched as a Windows service.
+category: java
+flags:
+  - flag: "-q"
+    description: "PIDs only, no class or argument names."
+  - flag: "-l"
+    description: "Full package name of the main class, or full path of the JAR."
+  - flag: "-m"
+    description: "Arguments passed to main."
+  - flag: "-v"
+    description: "Arguments passed to the JVM."
+stdin: false
+stdout: true

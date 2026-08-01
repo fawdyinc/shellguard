@@ -1,0 +1,16 @@
+name: jstack
+description: Print Java thread dumps for a running JVM. Primary tool for diagnosing hangs and deadlocks.
+category: java
+flags:
+  - flag: "-l"
+    description: "Long listing - includes ownable synchronizers and lock information."
+  - flag: "-e"
+    description: "Extended thread information."
+  - flag: "-F"
+    deny: true
+    reason:
+      "Forces a dump via a more invasive attach mechanism on an unresponsive JVM, and can
+      leave the target in a bad state. Take several ordinary jstack samples first; if the
+      JVM will not respond at all, capture supervised with gcore instead."
+stdin: false
+stdout: true

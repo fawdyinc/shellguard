@@ -1,0 +1,25 @@
+name: snapcore
+shell: bash
+description: "Package a Linux core file with the libraries needed to analyze it into a tar archive. Ships under <3DSpace_install>/linux_a64/code/bin from R2017x onward."
+category: 3dexperience
+timeout: 120
+flags:
+  - flag: "--verbose"
+    description: "Verbose output while archiving."
+  - flag: "--exedir"
+    takes_value: true
+    description: "Directory containing the crashed executable, when `file <core_file>` cannot report a full path."
+  - flag: "--stack"
+    deny: true
+    reason:
+      "Requires Dassault Systemes-internal debug symbols; only functions at Dassault
+      Systemes, not at the customer site. Use the archive form (CORE_FILE TAR_FILE) instead -
+      DS runs --stack there."
+  - flag: "--fullstack"
+    deny: true
+    reason:
+      "Same limitation as --stack: requires DS-internal symbols and does not function at
+      the customer site."
+allows_path_args: true
+stdin: false
+stdout: true
