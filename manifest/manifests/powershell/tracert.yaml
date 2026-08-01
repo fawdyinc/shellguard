@@ -1,8 +1,21 @@
 name: tracert
-description: Trace route to host
+description: Trace the route to a host
 category: network
 shell: powershell
-timeout: 60
-flags: []
+# Native Windows executable using DOS-style switches.
+allows_flag_bundling: true
+flags:
+  - flag: "-d"
+    description: "Do not resolve addresses to hostnames."
+  - flag: "-h"
+    takes_value: true
+    description: "Maximum number of hops."
+  - flag: "-w"
+    takes_value: true
+    description: "Timeout in milliseconds per reply."
+  - flag: "-4"
+    description: "Force IPv4."
+  - flag: "-6"
+    description: "Force IPv6."
 stdin: false
 stdout: true

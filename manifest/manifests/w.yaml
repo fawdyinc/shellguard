@@ -1,6 +1,12 @@
 name: w
 description: Show who is logged on and what they are doing
-category: logs
-flags: []
+category: system
+flags:
+  - flag: "-h"
+    description: "Suppress the header."
+  - flag: "-s"
+    description: "Short format."
+  - flag: "-u"
+    description: "Ignore the username while figuring out current process."
 stdin: false
 stdout: true

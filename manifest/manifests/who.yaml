@@ -1,6 +1,18 @@
 name: who
 description: Show who is logged on
-category: logs
-flags: []
+category: system
+flags:
+  - flag: "-a"
+    description: "All information."
+  - flag: "-b"
+    description: "Time of last system boot."
+  - flag: "-H"
+    description: "Print column headings."
+  - flag: "-q"
+    description: "Count of logged-on users."
+  - flag: "-r"
+    description: "Current runlevel."
+  - flag: "-u"
+    description: "Include idle time."
 stdin: false
 stdout: true
