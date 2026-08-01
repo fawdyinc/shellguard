@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cat manifest/manifests/awk.yaml 2>/dev/null; echo \\\"=== KILL ===\\\"; cat manifest/manifests/kill.yaml 2>/dev/null\",\"description\":\"Read awk and kill manifests\"}",
-  "error": "Exit code 1\n=== KILL ===",
-  "timestamp": "2026-08-01T15:51:46.681Z",
-  "retry_count": 1
-}

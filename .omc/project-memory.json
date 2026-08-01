@@ -26,8 +26,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "gofmt -w manifest/manifest.go validator/validator.go && go build ./... && echo BUILD-OK && TERM=dumb go test ./manifest/ ./validator/ 2>&1 | tail -5",
-    "testCommand": "TERM=dumb go test ./... 2>&1 | grep -v 'no test files' | head -20; echo \"=== done ===\"",
+    "buildCommand": "git diff --stat manifest/manifests/curl.yaml validator/testdata/skill-commands.txt; echo \"=== verify before commit ===\"; go build ./... && go vet ./... && golangci-lint run 2>&1 | tail -2 && TERM=dumb go test -count=1 ./... 2>&1 | grep -v 'no test files' | tail -12",
+    "testCommand": "git diff --stat manifest/manifests/curl.yaml validator/testdata/skill-commands.txt; echo \"=== verify before commit ===\"; go build ./... && go vet ./... && golangci-lint run 2>&1 | tail -2 && TERM=dumb go test -count=1 ./... 2>&1 | grep -v 'no test files' | tail -12",
     "lintCommand": null,
     "devCommand": null,
     "scripts": {}
@@ -188,8 +188,8 @@
   "hotPaths": [
     {
       "path": "validator/validator.go",
-      "accessCount": 57,
-      "lastAccessed": 1785599991585,
+      "accessCount": 60,
+      "lastAccessed": 1785606206967,
       "type": "file"
     },
     {
@@ -199,21 +199,27 @@
       "type": "file"
     },
     {
+      "path": "manifest/manifest_test.go",
+      "accessCount": 24,
+      "lastAccessed": 1785607686777,
+      "type": "file"
+    },
+    {
       "path": "manifest/manifest.go",
       "accessCount": 23,
       "lastAccessed": 1785600243268,
       "type": "file"
     },
     {
-      "path": "manifest/manifest_test.go",
-      "accessCount": 17,
-      "lastAccessed": 1785600867867,
-      "type": "file"
-    },
-    {
       "path": ".superpowers/sdd/2026-07-31-product-packs/task-2-report.md",
       "accessCount": 10,
       "lastAccessed": 1785585019401,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/packs/3dexperience/dscheckls.exe.yaml",
+      "accessCount": 6,
+      "lastAccessed": 1785603922707,
       "type": "file"
     },
     {
@@ -244,12 +250,6 @@
       "path": "server/server.go",
       "accessCount": 4,
       "lastAccessed": 1785595664544,
-      "type": "file"
-    },
-    {
-      "path": "manifest/manifests/packs/3dexperience/dscheckls.exe.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1785598278557,
       "type": "file"
     },
     {
