@@ -499,3 +499,51 @@ func TestRequiresOneOfPosixIgnoresCommonParams(t *testing.T) {
 		t.Errorf("POSIX should reject -ErrorAction as unknown flag, not requires_one_of issue, got: %v", err)
 	}
 }
+
+func TestBlockedExecutableMessageIsTerminal(t *testing.T) {
+	err := validateOne(t, "DSCheckLS.exe", "-l")
+	if err == nil {
+		t.Fatal("expected rejection for an unmanifested executable")
+	}
+	msg := err.Error()
+	// Names the whole binary, not a fragment.
+	if !strings.Contains(msg, "DSCheckLS.exe") {
+		t.Errorf("error should name the binary, got: %v", msg)
+	}
+	// Forecloses the alternatives so the agent stops enumerating them.
+	for _, alt := range []string{"&", "Start-Process", "cmd /c"} {
+		if !strings.Contains(msg, alt) {
+			t.Errorf("error should foreclose %q, got: %v", alt, msg)
+		}
+	}
+	// Must not offer a fuzzy suggestion - that invites another attempt.
+	if strings.Contains(msg, "Did you mean") {
+		t.Errorf("blocked executable must not suggest an alternative command, got: %v", msg)
+	}
+}
+
+func TestBlockedExecutableExtensions(t *testing.T) {
+	blocked := []string{"foo.exe", "FOO.EXE", "foo.bat", "foo.cmd", "foo.com", "foo.ps1"}
+	for _, name := range blocked {
+		if !blockedExecutable(name) {
+			t.Errorf("blockedExecutable(%q) = false, want true", name)
+		}
+	}
+	notBlocked := []string{"ls", "get-service", "foo.exec", "exe", "foo.executable", "foo"}
+	for _, name := range notBlocked {
+		if blockedExecutable(name) {
+			t.Errorf("blockedExecutable(%q) = true, want false", name)
+		}
+	}
+}
+
+// A normal unknown command keeps its existing message, including the fuzzy hint.
+func TestUnknownNonExecutableKeepsSuggestion(t *testing.T) {
+	err := validateOne(t, "get-servic")
+	if err == nil {
+		t.Fatal("expected rejection")
+	}
+	if !strings.Contains(err.Error(), "Did you mean") {
+		t.Errorf("non-executable typo should still get a suggestion, got: %v", err)
+	}
+}

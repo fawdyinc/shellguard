@@ -83,6 +83,12 @@ func validateSegment(segment parser.PipelineSegment, registry map[string]*manife
 
 	m := lookupManifest(command, registry)
 	if m == nil {
+		if blockedExecutable(command) {
+			return &ValidationError{Message: fmt.Sprintf(
+				"Executable launch is blocked. '%s' is not in the allowed tool list. "+
+					"This will not succeed with different syntax - the call operator (&), "+
+					"Start-Process, and cmd /c are all blocked as well.", command)}
+		}
 		if closest := closestCmdlet(command, registry); closest != "" {
 			return &ValidationError{Message: fmt.Sprintf("Command '%s' is not available. Did you mean '%s'?", command, closest)}
 		}
@@ -142,6 +148,26 @@ func lookupManifest(command string, registry map[string]*manifest.Manifest) *man
 		}
 	}
 	return nil
+}
+
+// windowsExecutableExts are the extensions that identify a command as a launch
+// of a Windows program rather than a cmdlet.
+var windowsExecutableExts = []string{".exe", ".bat", ".cmd", ".com", ".ps1"}
+
+// blockedExecutable reports whether command names a Windows executable.
+//
+// This drives a distinct error message, not a distinct policy: an unmanifested
+// executable was already refused. The generic "is not available" message is the
+// same one a typo gets, so agents read it as a syntax problem and retry with
+// the call operator, Start-Process, and cmd /c in turn.
+func blockedExecutable(command string) bool {
+	lower := strings.ToLower(command)
+	for _, ext := range windowsExecutableExts {
+		if strings.HasSuffix(lower, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 func levenshtein(a, b string) int {
