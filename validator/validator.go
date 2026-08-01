@@ -287,9 +287,11 @@ func validateSubcommand(command string, args []string, registry map[string]*mani
 // The scan is position-aware: when a flag takes a value as a separate token,
 // that token is skipped so it is never mistaken for a flag. This prevents
 // false positives like "tool -x -l" satisfying RequiresOneOf: ["-l"] when -l
-// is actually consumed as the value for -x. POSIX bundling (-la) is not
-// supported as a match for RequiresOneOf entries; that's a minor limitation
-// of scanning tokens rather than parsed flags.
+// is actually consumed as the value for -x. PowerShell common parameters are
+// handled the same way as in validateArgs: they are never candidates for a
+// requires_one_of entry, but their value tokens are skipped. POSIX bundling
+// (-la) is not supported as a match for RequiresOneOf entries; that's a minor
+// limitation of scanning tokens rather than parsed flags.
 func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) error {
 	if len(m.RequiresOneOf) == 0 {
 		return nil
@@ -303,6 +305,17 @@ func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) 
 			continue
 		}
 		name, _, hasInline := splitLongFlag(arg)
+
+		// Allow PowerShell common parameters globally. They are never candidates
+		// for a requires_one_of entry, but their value tokens must be skipped.
+		if isPowerShell && psCommonParams[name] {
+			if psCommonParamsTakesValue[name] && !hasInline {
+				idx++ // skip the value
+			}
+			idx++
+			continue
+		}
+
 		for _, req := range m.RequiresOneOf {
 			if name == req || (isPowerShell && strings.EqualFold(name, req)) {
 				return nil

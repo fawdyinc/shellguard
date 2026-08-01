@@ -433,3 +433,69 @@ func TestRequiresOneOfInlineValueSyntax(t *testing.T) {
 		t.Errorf("-x foo --level=5 should be accepted: %v", err)
 	}
 }
+
+func TestRequiresOneOfPowerShellCommonParamValue(t *testing.T) {
+	// When a PowerShell common parameter takes a value, that value is consumed
+	// and should not satisfy a requires_one_of constraint, even if it looks
+	// like a required flag.
+	m := &manifest.Manifest{
+		Name:          "get-service",
+		Shell:         "powershell",
+		RequiresOneOf: []string{"-Force"},
+		Flags: []manifest.Flag{
+			{Flag: "-Force"},
+			{Flag: "-Name", TakesValue: true},
+		},
+	}
+	registry := map[string]*manifest.Manifest{"get-service": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "get-service", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	// -Force as the value for -ErrorAction (a common param that takes a value)
+	// should be rejected — the constraint is not met
+	err := validate("-ErrorAction", "-Force")
+	if err == nil {
+		t.Fatal("get-service -ErrorAction -Force should be rejected: -Force is a value, not a flag")
+	}
+	if !strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("expected requires_one_of error, got: %v", err)
+	}
+
+	// -Force genuinely as a flag should be accepted
+	if err := validate("-Force", "-ErrorAction", "Stop"); err != nil {
+		t.Errorf("-Force -ErrorAction Stop should be accepted: %v", err)
+	}
+
+	// Common param without value should not interfere
+	if err := validate("-Force", "-Verbose"); err != nil {
+		t.Errorf("-Force -Verbose should be accepted: %v", err)
+	}
+}
+
+func TestRequiresOneOfPosixIgnoresCommonParams(t *testing.T) {
+	// POSIX manifests have no special handling for -ErrorAction etc.
+	// They are treated as ordinary flags, unknown and rejected.
+	m := &manifest.Manifest{
+		Name:          "faketool",
+		RequiresOneOf: []string{"-l"},
+		Flags:         []manifest.Flag{{Flag: "-l"}},
+	}
+	registry := map[string]*manifest.Manifest{"faketool": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "faketool", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	// -ErrorAction is not a flag in the manifest, so it's rejected as unknown
+	// (not special-cased like in PowerShell)
+	err := validate("-ErrorAction", "-l")
+	if err == nil {
+		t.Fatal("faketool -ErrorAction -l should be rejected: -ErrorAction is unknown in POSIX manifest")
+	}
+	// Error should be about unknown flag, not requires_one_of
+	if strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("POSIX should reject -ErrorAction as unknown flag, not requires_one_of issue, got: %v", err)
+	}
+}
