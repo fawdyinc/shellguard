@@ -104,7 +104,7 @@ func loadSkillCommands(t *testing.T) []skillCommand {
 	if err != nil {
 		t.Fatalf("open corpus: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var entries []skillCommand
 	scanner := bufio.NewScanner(f)
