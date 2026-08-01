@@ -1,10 +1,25 @@
 name: jq
 description: Command-line JSON processor
 category: text_processing
+# The filter is a positional argument, and jq filter syntax uses [ ] for array
+# indexing -- `.measurements[0].value` is not a failed glob.
+regex_arg_position: 0
 flags:
   - flag: "-r"
   - flag: "-c"
   - flag: "-s"
+  - flag: "-e"
+  - flag: "-n"
+  - flag: "-j"
+  - flag: "-M"
+  - flag: "-S"
+  - flag: "--tab"
+  - flag: "--raw-output"
+  - flag: "--compact-output"
+  - flag: "--arg"
+    takes_value: true
+  - flag: "--argjson"
+    takes_value: true
 allows_path_args: true
 stdin: true
 stdout: true

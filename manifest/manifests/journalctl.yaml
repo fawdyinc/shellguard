@@ -32,6 +32,18 @@ flags:
   - flag: "--reverse"
   - flag: "-x"
   - flag: "--catalog"
+  - flag: "--disk-usage"
+    description: "Report how much disk the journal is using"
+  - flag: "--list-boots"
+    description: "List the boots known to the journal"
+  - flag: "--no-hostname"
+  - flag: "--utc"
+  - flag: "-a"
+  - flag: "--all"
+  - flag: "--lines"
+    takes_value: true
+  # --vacuum-size, --vacuum-time, --vacuum-files, and --rotate are deliberately
+  # absent: they delete or rotate journal data.
   - flag: "-f"
     deny: true
     reason: "Follow mode hangs until timeout. Use --since/--until for bounded queries."

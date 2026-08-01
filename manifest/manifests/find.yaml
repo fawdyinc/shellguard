@@ -23,6 +23,37 @@ flags:
     pattern_value: true
   - flag: "-o"
   - flag: "-print0"
+  - flag: "-print"
+  - flag: "-a"
+  - flag: "-not"
+  - flag: "-mmin"
+    takes_value: true
+    description: "Modified this many minutes ago"
+  - flag: "-amin"
+    takes_value: true
+  - flag: "-cmin"
+    takes_value: true
+  - flag: "-ctime"
+    takes_value: true
+  - flag: "-mindepth"
+    takes_value: true
+  - flag: "-newer"
+    takes_value: true
+  - flag: "-user"
+    takes_value: true
+  - flag: "-group"
+    takes_value: true
+  - flag: "-perm"
+    takes_value: true
+  - flag: "-empty"
+  - flag: "-links"
+    takes_value: true
+  - flag: "-regex"
+    takes_value: true
+    pattern_value: true
+  - flag: "-iregex"
+    takes_value: true
+    pattern_value: true
   - flag: "-exec"
     deny: true
     reason: "Can execute arbitrary commands"

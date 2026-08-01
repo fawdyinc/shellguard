@@ -1,0 +1,16 @@
+name: printf
+description: Format and print arguments
+category: text_processing
+shell: bash
+# Source: printf(1), GNU coreutils. Formats its arguments and writes to stdout.
+# Unlike C's printf there is no %n conversion, so there is no way for a format
+# string to write anywhere.
+#
+# Present mainly for base conversion, which comes up converting a decimal thread
+# ID to the hex nid a JVM thread dump uses: printf '%x\n' 12345
+flags:
+  - flag: "--help"
+  - flag: "--version"
+allows_path_args: false
+stdin: false
+stdout: true

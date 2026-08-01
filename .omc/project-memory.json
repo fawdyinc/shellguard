@@ -1,0 +1,491 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1785599499193,
+  "projectRoot": "/home/jchun/fawdy/shellguard",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Go",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "go.mod"
+        ]
+      },
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "Makefile"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "go",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "gofmt -w manifest/manifest.go validator/validator.go && go build ./... && echo BUILD-OK && TERM=dumb go test ./manifest/ ./validator/ 2>&1 | tail -5",
+    "testCommand": "TERM=dumb go test ./... 2>&1 | grep -v 'no test files' | head -20; echo \"=== done ===\"",
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "cmd": {
+      "path": "cmd",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1785599499189,
+      "keyFiles": []
+    },
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 2,
+      "lastAccessed": 1785599499191,
+      "keyFiles": [
+        "config.go",
+        "config_test.go"
+      ]
+    },
+    "control": {
+      "path": "control",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1785599499191,
+      "keyFiles": [
+        "adapter.go",
+        "control.go",
+        "control_test.go"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1785599499191,
+      "keyFiles": [
+        "ARCHITECTURE.md"
+      ]
+    },
+    "manifest": {
+      "path": "manifest",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1785599499191,
+      "keyFiles": [
+        "loaddir_test.go",
+        "manifest.go",
+        "manifest_test.go"
+      ]
+    },
+    "output": {
+      "path": "output",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1785599499191,
+      "keyFiles": [
+        "output.go",
+        "output_test.go"
+      ]
+    },
+    "parser": {
+      "path": "parser",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "LICENSE",
+        "corpus_test.go",
+        "fuzz_powershell_test.go",
+        "fuzz_test.go",
+        "parser.go"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "local.go",
+        "local_test.go",
+        "server.go",
+        "server_config_test.go",
+        "server_test.go"
+      ]
+    },
+    "ssh": {
+      "path": "ssh",
+      "purpose": null,
+      "fileCount": 15,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "auth.go",
+        "auth_test.go",
+        "fuzz_test.go",
+        "hostkey.go",
+        "hostkey_security_test.go"
+      ]
+    },
+    "toolkit": {
+      "path": "toolkit",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "toolkit.go",
+        "toolkit_test.go"
+      ]
+    },
+    "validator": {
+      "path": "validator",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "attack_vectors_test.go",
+        "corpus_test.go",
+        "curl_test.go",
+        "validator.go",
+        "validator_test.go"
+      ]
+    },
+    "winrm": {
+      "path": "winrm",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1785599499192,
+      "keyFiles": [
+        "fileclient.go",
+        "reconstruct.go",
+        "reconstruct_test.go",
+        "winrm.go",
+        "winrm_test.go"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "validator/validator.go",
+      "accessCount": 57,
+      "lastAccessed": 1785599991585,
+      "type": "file"
+    },
+    {
+      "path": "validator/validator_test.go",
+      "accessCount": 27,
+      "lastAccessed": 1785589522716,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifest.go",
+      "accessCount": 23,
+      "lastAccessed": 1785600243268,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifest_test.go",
+      "accessCount": 17,
+      "lastAccessed": 1785600867867,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-2-report.md",
+      "accessCount": 10,
+      "lastAccessed": 1785585019401,
+      "type": "file"
+    },
+    {
+      "path": "manifest/loaddir_test.go",
+      "accessCount": 5,
+      "lastAccessed": 1785589347338,
+      "type": "file"
+    },
+    {
+      "path": "validator/corpus_test.go",
+      "accessCount": 5,
+      "lastAccessed": 1785589485379,
+      "type": "file"
+    },
+    {
+      "path": "ssh/system.go",
+      "accessCount": 4,
+      "lastAccessed": 1785515316540,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-2-brief.md",
+      "accessCount": 4,
+      "lastAccessed": 1785586491257,
+      "type": "file"
+    },
+    {
+      "path": "server/server.go",
+      "accessCount": 4,
+      "lastAccessed": 1785595664544,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/packs/3dexperience/dscheckls.exe.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1785598278557,
+      "type": "file"
+    },
+    {
+      "path": "control/control.go",
+      "accessCount": 3,
+      "lastAccessed": 1785515366087,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-4-brief.md",
+      "accessCount": 3,
+      "lastAccessed": 1785585853412,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-4-report.md",
+      "accessCount": 3,
+      "lastAccessed": 1785585853760,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-7-brief.md",
+      "accessCount": 3,
+      "lastAccessed": 1785587178152,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-7-report.md",
+      "accessCount": 3,
+      "lastAccessed": 1785587179704,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/powershell/denied/cmd.exe.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1785587390009,
+      "type": "file"
+    },
+    {
+      "path": "validator/testdata/corpus/3dx-licensing.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1785589772421,
+      "type": "file"
+    },
+    {
+      "path": "control/control_test.go",
+      "accessCount": 2,
+      "lastAccessed": 1785515379195,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-1-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785551680341,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-1-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785551680919,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-b8eb669..2247ee1.diff",
+      "accessCount": 2,
+      "lastAccessed": 1785585018732,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-3-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785585321712,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-3-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785585322004,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-ae08388..5bc5c36.diff",
+      "accessCount": 2,
+      "lastAccessed": 1785585854784,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-5-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785586212556,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-5-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785586212916,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-6-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785586743017,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-6-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785586743402,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/powershell/denied/powershell.exe.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1785587009617,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/powershell/denied/reg.exe.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1785587012472,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/powershell/denied/net.exe.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1785587012745,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-8df5803..a42c79e.diff",
+      "accessCount": 2,
+      "lastAccessed": 1785587177787,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-8-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785587375942,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-8-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785587376337,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/packs/3dexperience/abaqus_licensing_dslsstat.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1785587389268,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-9-brief.md",
+      "accessCount": 2,
+      "lastAccessed": 1785587681335,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/task-9-report.md",
+      "accessCount": 2,
+      "lastAccessed": 1785587681492,
+      "type": "file"
+    },
+    {
+      "path": "server/local_test.go",
+      "accessCount": 1,
+      "lastAccessed": 1785515417816,
+      "type": "file"
+    },
+    {
+      "path": "parser/testdata/corpus/session-3dx.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1785516899679,
+      "type": "file"
+    },
+    {
+      "path": "shellguard.go",
+      "accessCount": 1,
+      "lastAccessed": 1785517581687,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-cb78c66..a3813b7.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785551683983,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-a3813b7..b275bfd.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785551929749,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-b275bfd..b8eb669.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785584478508,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-2247ee1..ae08388.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785585322692,
+      "type": "file"
+    },
+    {
+      "path": "server/server_test.go",
+      "accessCount": 1,
+      "lastAccessed": 1785585952750,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-5bc5c36..e91a9ee.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785586213697,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-e91a9ee..8df5803.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785586744330,
+      "type": "file"
+    },
+    {
+      "path": "manifest/manifests/powershell/denied/reg.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1785586942613,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers/sdd/2026-07-31-product-packs/review-a42c79e..ca1588b.diff",
+      "accessCount": 1,
+      "lastAccessed": 1785587377409,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

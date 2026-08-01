@@ -14,6 +14,14 @@ flags:
     takes_value: true
   - flag: "-w"
     takes_value: true
+  - flag: "-H"
+    description: "Show individual threads rather than a process summary"
+  - flag: "-c"
+    description: "Show the full command line"
+  - flag: "-i"
+    description: "Hide idle processes"
+  - flag: "-S"
+    description: "Cumulative time mode"
   - flag: "-d"
     deny: true
     reason: "Only batch mode with fixed iteration count is allowed"

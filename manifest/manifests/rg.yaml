@@ -17,6 +17,35 @@ flags:
     takes_value: true
   - flag: "--type"
     takes_value: true
+  # Context lines. Reading a match without the lines around it is most of the
+  # value of a log search, and every one of these only selects what is printed.
+  - flag: "-A"
+    takes_value: true
+    description: "Show this many lines after each match"
+  - flag: "--after-context"
+    takes_value: true
+  - flag: "-B"
+    takes_value: true
+    description: "Show this many lines before each match"
+  - flag: "--before-context"
+    takes_value: true
+  - flag: "-C"
+    takes_value: true
+    description: "Show this many lines before and after each match"
+  - flag: "--context"
+    takes_value: true
+  - flag: "--glob"
+    takes_value: true
+    pattern_value: true
+    description: "Include or exclude files matching this glob"
+  - flag: "-F"
+    description: "Treat the pattern as a literal string"
+  - flag: "--fixed-strings"
+  - flag: "-m"
+    takes_value: true
+    description: "Stop after this many matches per file"
+  - flag: "--max-count"
+    takes_value: true
 allows_path_args: true
 stdin: true
 stdout: true

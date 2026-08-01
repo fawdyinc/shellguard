@@ -1,6 +1,9 @@
 name: curl
 description: Transfer data from or to a server (GET-only policy)
 category: network
+# A URL is a positional argument, and query strings legitimately contain ? and
+# [ ] -- `curl http://localhost/server-status?auto` is not a failed glob.
+regex_arg_position: 0
 flags:
   - flag: "-I"
   - flag: "-s"
@@ -10,6 +13,11 @@ flags:
   - flag: "-k"
   - flag: "-L"
   - flag: "-v"
+  - flag: "-w"
+    takes_value: true
+    description: "Format what is written to stdout after the transfer"
+  - flag: "--write-out"
+    takes_value: true
   - flag: "-X"
     deny: true
     reason: "Only GET requests are allowed"

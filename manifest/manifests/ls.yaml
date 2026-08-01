@@ -9,6 +9,20 @@ flags:
   - flag: "-t"
   - flag: "-R"
   - flag: "-1"
+  - flag: "-Z"
+    description: "Show the SELinux security context of each file"
+  - flag: "-d"
+    description: "List the directory itself, not its contents"
+  - flag: "-r"
+    description: "Reverse the sort order"
+  - flag: "-S"
+    description: "Sort by file size"
+  - flag: "-i"
+    description: "Show inode numbers"
+  - flag: "-n"
+    description: "Show numeric UID and GID"
+  - flag: "-F"
+    description: "Append an indicator to entries"
 allows_path_args: true
 stdin: false
 stdout: true

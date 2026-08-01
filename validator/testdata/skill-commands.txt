@@ -1,0 +1,238 @@
+# Commands Fawdy's skills recommend, extracted from their fenced
+# bash/powershell blocks. Regenerate with:
+#   scripts/extract-skill-commands.py <fawdy-legacy>/src/lib/skills \
+#     > validator/testdata/skill-commands.txt
+# 232 unique commands; 7 lines dropped as shell constructs.
+# Format: <source>\t<shell>\t<command>
+3dexperience/SKILL.md:37	powershell	Get-Content -Path "PLACEHOLDER\SMA\site\EstablishedProductsConfig.ini"
+3dexperience/SKILL.md:64	powershell	abaqus licensing dslsstat
+3dexperience/SKILL.md:67	powershell	abaqus licensing dslsstat -usage
+3dexperience/SKILL.md:70	powershell	abaqus licensing dslsstat -server jupiter:4085
+3dexperience/SKILL.md:74	powershell	DSCheckLS.exe -l
+3dexperience/SKILL.md:78	powershell	DSCheckLS.exe -r IFW
+3dexperience/SKILL.md:123	powershell	Get-Content -Path "PLACEHOLDER\PLACEHOLDER\SMA\site\custom_v6.env"
+3dexperience/SKILL.md:143	powershell	DSYListInstalls.exe
+3dexperience/SKILL.md:144	powershell	DSYListInstalls.exe -h
+3dexperience/SKILL.md:181	powershell	Get-Service dsls
+3dexperience/SKILL.md:182	powershell	Get-Process -Name dsls
+3dexperience/SKILL.md:193	powershell	Get-Content -Path "C:\DassaultSystemes\R2026x\3DSpace\logs\mxtrace.log" -Tail 50
+3dexperience/SKILL.md:215	powershell	jps
+3dexperience/SKILL.md:218	powershell	jstack PLACEHOLDER
+apache/SKILL.md:20	bash	systemctl status httpd
+apache/SKILL.md:21	bash	systemctl status apache2
+apache/SKILL.md:24	bash	apachectl configtest
+apache/SKILL.md:27	bash	httpd -V
+apache/SKILL.md:28	bash	httpd -M
+apache/SKILL.md:29	bash	httpd -S
+apache/SKILL.md:32	bash	tail -50 /var/log/httpd/error_log
+apache/SKILL.md:33	bash	tail -50 /var/log/apache2/error.log
+apache/SKILL.md:36	bash	ss -tlnp | grep -E "httpd|apache2"
+apache/SKILL.md:43	bash	rg "\[error\]|\[crit\]|\[alert\]|\[emerg\]" /var/log/httpd/error_log | tail -20
+apache/SKILL.md:46	bash	rg "AH[0-9]+" /var/log/httpd/error_log | tail -20
+apache/SKILL.md:49	bash	cut -d' ' -f9 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head
+apache/SKILL.md:52	bash	rg '" 5[0-9][0-9] ' /var/log/httpd/access_log | tail -20
+apache/SKILL.md:55	bash	cut -d' ' -f1 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
+apache/SKILL.md:56	bash	cut -d' ' -f7 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
+apache/SKILL.md:73	bash	ss -tlnp | grep ":80\|:443"
+apache/SKILL.md:74	bash	journalctl -u httpd --since "5 min ago"
+apache/references/access-rewrite.md:7	bash	rg "AH01630|AH01797|client denied|Permission" /var/log/httpd/error_log | tail -10
+apache/references/access-rewrite.md:15	bash	ls -la /var/www/html/
+apache/references/access-rewrite.md:16	bash	namei -l /var/www/html/index.html
+apache/references/access-rewrite.md:24	bash	rg "Require|Order|Allow|Deny" /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
+apache/references/access-rewrite.md:34	bash	getenforce
+apache/references/access-rewrite.md:35	bash	ls -Z /var/www/html/
+apache/references/access-rewrite.md:36	bash	ausearch -m avc -ts recent | grep httpd
+apache/references/access-rewrite.md:48	bash	rg "AllowOverride" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:56	bash	rg "DirectoryIndex" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:69	bash	httpd -M | grep rewrite
+apache/references/access-rewrite.md:72	bash	rg "Rewrite" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:73	bash	rg -l "Rewrite" /var/www --glob ".htaccess"
+apache/references/access-rewrite.md:102	bash	httpd -M | grep status
+apache/references/access-rewrite.md:105	bash	curl -s http://localhost/server-status?auto
+apache/references/config-mpm.md:14	bash	httpd -V | grep "SERVER_CONFIG_FILE\|HTTPD_ROOT"
+apache/references/config-mpm.md:20	bash	find /etc/httpd/ -name "*.conf" -type f
+apache/references/config-mpm.md:21	bash	find /etc/apache2/ -name "*.conf" -type f
+apache/references/config-mpm.md:24	bash	ls -la /etc/apache2/sites-enabled/
+apache/references/config-mpm.md:25	bash	ls /etc/apache2/mods-enabled/
+apache/references/config-mpm.md:28	bash	rg "ProxyPass|ServerName|DocumentRoot" /etc/httpd/
+apache/references/config-mpm.md:29	bash	rg "ProxyPass|ServerName|DocumentRoot" /etc/apache2/
+apache/references/config-mpm.md:32	bash	find /var/www -name ".htaccess" -type f
+apache/references/config-mpm.md:39	bash	rg "ErrorLog|CustomLog" /etc/httpd/ /etc/apache2/
+apache/references/config-mpm.md:46	bash	rg -B5 "ErrorLog|CustomLog" /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
+apache/references/config-mpm.md:58	bash	httpd -V | grep "Server MPM"
+apache/references/config-mpm.md:61	bash	ps aux | grep httpd | wc -l
+apache/references/config-mpm.md:62	bash	ps -eo pid,ppid,%mem,rss,cmd | grep httpd | sort -k4 -rn
+apache/references/config-mpm.md:65	bash	ps -eo rss,cmd --sort=-rss | grep httpd | head -20
+apache/references/config-mpm.md:66	bash	ps -eo rss,cmd | grep httpd | wc -l
+apache/references/proxy-ssl.md:9	bash	rg "proxy.*error|AH0095|AH0110|AH0111|AH0089|AH0203" /var/log/httpd/error_log | tail -20
+apache/references/proxy-ssl.md:26	bash	rg "ProxyPass " /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
+apache/references/proxy-ssl.md:29	bash	curl -v http://127.0.0.1:8080/
+apache/references/proxy-ssl.md:30	bash	ss -tlnp | grep 8080
+apache/references/proxy-ssl.md:33	bash	httpd -M | grep proxy
+apache/references/proxy-ssl.md:45	bash	rg "503|Service Unavailable|AH01121" /var/log/httpd/error_log | tail -10
+apache/references/proxy-ssl.md:49	bash	rg "MaxRequestWorkers|MaxClients|ServerLimit" /etc/httpd/ /etc/apache2/
+apache/references/proxy-ssl.md:59	bash	rg "ProxyTimeout|timeout" /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
+apache/references/proxy-ssl.md:62	bash	rg "^Timeout " /etc/httpd/conf/httpd.conf /etc/apache2/apache2.conf
+apache/references/proxy-ssl.md:65	bash	curl -s -w "time_total: %{time_total}\n" http://127.0.0.1:8080/ | tail -1
+apache/references/proxy-ssl.md:103	bash	openssl s_client -connect localhost:443 -servername example.com | openssl x509 -noout -dates
+apache/references/proxy-ssl.md:106	bash	openssl s_client -connect localhost:443 -servername example.com -showcerts
+apache/references/proxy-ssl.md:109	bash	openssl x509 -noout -modulus -in /etc/httpd/ssl/cert.pem | md5sum
+apache/references/proxy-ssl.md:110	bash	openssl rsa -noout -modulus -in /etc/httpd/ssl/key.pem | md5sum
+apache/references/proxy-ssl.md:117	bash	rg "SSLCertificate|SSLProtocol|SSLCipherSuite" /etc/httpd/ /etc/apache2/
+apache/references/proxy-ssl.md:120	bash	httpd -M | grep ssl
+apache/references/proxy-ssl.md:123	bash	rg "SSL|AH0089|AH02003|AH02561" /var/log/httpd/error_log | tail -20
+docker/SKILL.md:82	bash	docker ps --format '{{.Names}}' --filter 'name=prod-'
+docker/SKILL.md:85	bash	docker inspect prod-api-1 prod-worker-60 prod-worker-bg-60 | jq -r '.[] | "\(.Name) restarts=\(.RestartCount) oom=\(.State.OOMKilled) status=\(.State.Status)"'
+docker/SKILL.md:93	bash	docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.PIDs}}'
+docker/SKILL.md:102	bash	docker logs prod-api-1 --tail 200 --since 30m
+docker/SKILL.md:103	bash	docker logs prod-worker-60 --since 2026-04-26T19:00:00
+docker/SKILL.md:111	bash	docker inspect prod-api-1 | jq '.[].State | {Status, StartedAt, FinishedAt, OOMKilled, ExitCode, RestartCount}'
+docker/SKILL.md:120	bash	docker inspect prod-api-1 | jq '.[].Config | {Cmd, Entrypoint, Env, WorkingDir, User}'
+java-jvm/SKILL.md:27	bash	pgrep -fa java
+java-jvm/SKILL.md:28	bash	jps -lvm
+java-jvm/SKILL.md:29	bash	jcmd -l
+java-jvm/SKILL.md:32	bash	jcmd PLACEHOLDER VM.flags
+java-jvm/SKILL.md:33	bash	jcmd PLACEHOLDER VM.system_properties
+java-jvm/SKILL.md:34	bash	jcmd PLACEHOLDER VM.command_line
+java-jvm/SKILL.md:35	bash	jcmd PLACEHOLDER VM.info
+java-jvm/SKILL.md:42	bash	top -bn1 | grep java
+java-jvm/SKILL.md:45	bash	top -H -p PLACEHOLDER -bn1 | head -20
+java-jvm/SKILL.md:48	bash	printf '%x\n' PLACEHOLDER
+java-jvm/SKILL.md:51	bash	jstack PLACEHOLDER | grep -A 30 "nid=0xPLACEHOLDER"
+java-jvm/SKILL.md:54	bash	jstack PLACEHOLDER | rg -A 30 "nid=0xPLACEHOLDER"
+java-jvm/SKILL.md:73	bash	jstack PLACEHOLDER | grep "java.lang.Thread.State" | sort | uniq -c | sort -rn
+java-jvm/SKILL.md:76	bash	jstack PLACEHOLDER | rg -A 5 "BLOCKED"
+java-jvm/SKILL.md:77	bash	jstack PLACEHOLDER | rg -B 2 -A 10 "waiting to lock"
+java-jvm/SKILL.md:80	bash	jstack PLACEHOLDER | rg -A 20 "Found.*deadlock"
+java-jvm/SKILL.md:83	bash	jcmd PLACEHOLDER Thread.print | rg -A 5 "BLOCKED"
+java-jvm/SKILL.md:100	bash	jstat -gcutil PLACEHOLDER 1000 5
+java-jvm/SKILL.md:103	bash	jmap -histo PLACEHOLDER | head -30
+java-jvm/SKILL.md:104	bash	jcmd PLACEHOLDER GC.class_histogram | head -30
+java-jvm/SKILL.md:107	bash	jcmd PLACEHOLDER GC.heap_info
+java-jvm/SKILL.md:123	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.active | jq .
+java-jvm/SKILL.md:124	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.pending | jq .
+java-jvm/SKILL.md:125	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.timeout | jq .
+java-jvm/SKILL.md:129	bash	jstack PLACEHOLDER | rg -A 5 "HikariPool|getConnection|connectionTimeout"
+java-jvm/SKILL.md:141	bash	systemctl status PLACEHOLDER
+java-jvm/SKILL.md:142	bash	journalctl -u PLACEHOLDER --since "5 min ago"
+java-jvm/SKILL.md:145	bash	rg "APPLICATION FAILED TO START|BeanCreationException|BindException|Address already in use" /var/log/app/
+java-jvm/SKILL.md:152	bash	jcmd PLACEHOLDER VM.version
+java-jvm/SKILL.md:153	bash	jps -v
+java-jvm/SKILL.md:156	bash	ls -la /etc/app/ /var/log/app/ /var/lib/app/
+java-jvm/SKILL.md:163	bash	curl -s localhost:8080/actuator/health | jq .
+java-jvm/SKILL.md:166	bash	curl -s localhost:8080/actuator/threaddump | jq .
+java-jvm/SKILL.md:169	bash	curl -s localhost:8080/actuator/metrics/jvm.memory.used | jq .
+java-jvm/references/gc-memory.md:40	bash	jstat -gc PLACEHOLDER
+java-jvm/references/gc-memory.md:62	bash	jcmd PLACEHOLDER VM.flags | rg "gc|GC"
+java-jvm/references/gc-memory.md:65	bash	find / -name "gc*.log*" -o -name "*gc.log*"
+java-jvm/references/gc-memory.md:71	bash	rg "Full GC|Pause Full" /path/to/gc.log | tail -20
+java-jvm/references/gc-memory.md:72	bash	rg "Pause Young|GC pause" /path/to/gc.log | tail -20
+java-jvm/references/spring-boot.md:35	bash	curl -s http://localhost:8080/actuator/loggers/com.example.myapp | jq .
+java-jvm/references/spring-boot.md:38	bash	curl -s http://localhost:8080/actuator/loggers | jq '.loggers | keys'
+java-jvm/references/spring-boot.md:54	bash	curl -s localhost:8080/actuator/metrics/jvm.gc.pause | jq .
+java-jvm/references/spring-boot.md:57	bash	curl -s localhost:8080/actuator/metrics/tomcat.threads.busy | jq '.measurements[0].value'
+java-jvm/references/spring-boot.md:58	bash	curl -s localhost:8080/actuator/metrics/tomcat.threads.config.max | jq '.measurements[0].value'
+java-jvm/references/spring-boot.md:61	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.active | jq '.measurements[0].value'
+java-jvm/references/spring-boot.md:62	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.pending | jq '.measurements[0].value'
+java-jvm/references/spring-boot.md:63	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.timeout | jq '.measurements[0].value'
+java-jvm/references/spring-boot.md:72	bash	jstack PLACEHOLDER | rg -B2 -A10 "HikariPool|Waiting for connection"
+java-jvm/references/spring-boot.md:92	bash	jstack PLACEHOLDER | rg -A 15 "http-nio.*exec"
+java-jvm/references/spring-boot.md:107	bash	rg "Caused by:|APPLICATION FAILED TO START|Action:" /var/log/app/ | tail -20
+java-jvm/references/spring-boot.md:117	bash	curl -s localhost:8080/actuator/health/db | jq .
+java-jvm/references/spring-boot.md:118	bash	curl -s localhost:8080/actuator/health/diskSpace | jq .
+java-jvm/references/spring-boot.md:133	bash	find / -name "application.properties" -o -name "application.yml" -o -name "application-*.yml" -o -name "application-*.properties"
+java-jvm/references/spring-boot.md:136	bash	curl -s localhost:8080/actuator/env | jq '.activeProfiles'
+java-jvm/references/spring-boot.md:139	bash	curl -s localhost:8080/actuator/env/spring.datasource.url | jq .
+java-jvm/references/spring-boot.md:148	bash	rg "logging.file|logging.path" /path/to/application.properties
+java-jvm/references/spring-boot.md:149	bash	find /var/log -name "*.log" -path "*app*" -o -name "spring*.log"
+java-jvm/references/spring-boot.md:150	bash	rg "Exception|ERROR" /var/log/app/ --glob "*.log" -C2 | tail -50
+nginx/SKILL.md:22	bash	systemctl status nginx
+nginx/SKILL.md:23	bash	pgrep -fa nginx
+nginx/SKILL.md:26	bash	nginx -t
+nginx/SKILL.md:29	bash	tail -50 /var/log/nginx/error.log
+nginx/SKILL.md:32	bash	ss -tlnp | grep nginx
+nginx/SKILL.md:39	bash	nginx -t | grep "configuration file"
+nginx/SKILL.md:42	bash	nginx -T
+nginx/SKILL.md:45	bash	rg "server_name|listen " /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
+nginx/SKILL.md:48	bash	rg "include " /etc/nginx/nginx.conf /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
+nginx/SKILL.md:64	bash	rg "access_log|error_log" /etc/nginx/
+nginx/SKILL.md:67	bash	rg "upstream" /var/log/nginx/error.log | tail -20
+nginx/SKILL.md:70	bash	rg "connect\(\) failed|Connection refused|Connection timed out" /var/log/nginx/error.log | tail -20
+nginx/SKILL.md:73	bash	cut -d' ' -f9 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head
+nginx/SKILL.md:76	bash	rg '" 5[0-9][0-9] ' /var/log/nginx/access.log | tail -20
+nginx/SKILL.md:79	bash	cut -d' ' -f1 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10
+nginx/SKILL.md:105	bash	ls -la /etc/nginx/ssl/
+nginx/SKILL.md:106	bash	ls -la /var/log/nginx/
+nginx/SKILL.md:109	bash	nginx -T | grep "open()"
+nginx/SKILL.md:112	bash	journalctl -u nginx --since "5 min ago"
+nginx/references/proxy-upstream.md:12	bash	rg "upstream" /var/log/nginx/error.log | tail -10
+nginx/references/proxy-upstream.md:15	bash	rg "proxy_pass|upstream" /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
+nginx/references/proxy-upstream.md:38	bash	rg "proxy_connect_timeout|proxy_send_timeout|proxy_read_timeout" /etc/nginx/
+nginx/references/proxy-upstream.md:59	bash	rg -A 10 "upstream " /etc/nginx/
+nginx/references/proxy-upstream.md:62	bash	rg "server " /etc/nginx/conf.d/ --glob "upstream*.conf"
+nginx/references/ssl-performance.md:18	bash	openssl x509 -noout -modulus -in /etc/nginx/ssl/cert.pem | md5sum
+nginx/references/ssl-performance.md:19	bash	openssl rsa -noout -modulus -in /etc/nginx/ssl/key.pem | md5sum
+nginx/references/ssl-performance.md:22	bash	openssl x509 -noout -text -in /etc/nginx/ssl/cert.pem | rg "Subject:|DNS:"
+nginx/references/ssl-performance.md:25	bash	openssl s_client -connect localhost:443 -tls1_2
+nginx/references/ssl-performance.md:26	bash	openssl s_client -connect localhost:443 -tls1_3
+nginx/references/ssl-performance.md:29	bash	rg "ssl_certificate|ssl_protocols|ssl_ciphers" /etc/nginx/
+nginx/references/ssl-performance.md:32	bash	rg "SSL" /var/log/nginx/error.log | tail -20
+nginx/references/ssl-performance.md:51	bash	rg "worker_processes|worker_connections|worker_rlimit" /etc/nginx/nginx.conf
+nginx/references/ssl-performance.md:54	bash	ss -s | grep -i tcp
+nginx/references/ssl-performance.md:73	bash	rg "proxy_buffering|proxy_buffer_size|proxy_buffers" /etc/nginx/
+nginx/references/ssl-performance.md:109	bash	curl -s http://localhost:8080/nginx_status
+postgres/SKILL.md:20	bash	pg_isready -h localhost -p 5432
+postgres/SKILL.md:23	bash	psql -c "SELECT version();"
+postgres/SKILL.md:26	bash	psql -c "SELECT count(*), max_conn FROM pg_stat_activity, (SELECT setting::int AS max_conn FROM pg_settings WHERE name = 'max_connections') mc GROUP BY max_conn;"
+postgres/SKILL.md:29	bash	psql -c "SELECT pid, now() - pg_stat_activity.query_start AS duration, state, left(query, 80) FROM pg_stat_activity WHERE state != 'idle' AND query NOT LIKE '%pg_stat_activity%' ORDER BY duration DESC LIMIT 10;"
+postgres/SKILL.md:32	bash	psql -c "SELECT pid, pg_blocking_pids(pid) AS blocked_by, wait_event_type, wait_event, left(query, 60) FROM pg_stat_activity WHERE pg_blocking_pids(pid) != '{}';"
+postgres/SKILL.md:47	bash	psql -c "SHOW config_file;"
+postgres/SKILL.md:48	bash	psql -c "SHOW data_directory;"
+postgres/SKILL.md:49	bash	psql -c "SHOW log_directory;"
+postgres/SKILL.md:66	bash	psql -c "SELECT * FROM pg_available_extensions WHERE name = 'pg_stat_statements';"
+postgres/SKILL.md:75	bash	psql -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) PLACEHOLDER;"
+postgres/SKILL.md:91	bash	psql -c "SELECT relname, seq_scan, idx_scan, seq_scan - idx_scan AS diff FROM pg_stat_user_tables WHERE seq_scan > 1000 ORDER BY diff DESC LIMIT 10;"
+postgres/SKILL.md:94	bash	psql -c "SELECT indexrelname, idx_scan, pg_size_pretty(pg_relation_size(indexrelid)) AS size FROM pg_stat_user_indexes WHERE idx_scan = 0 ORDER BY pg_relation_size(indexrelid) DESC LIMIT 10;"
+postgres/SKILL.md:111	bash	psql -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state ORDER BY count DESC;"
+postgres/SKILL.md:114	bash	psql -c "SELECT setting FROM pg_settings WHERE name = 'max_connections';"
+postgres/SKILL.md:131	bash	ss -tlnp | grep 5432
+postgres/SKILL.md:134	bash	psql -c "SHOW listen_addresses;"
+postgres/SKILL.md:135	bash	psql -c "SHOW hba_file;"
+postgres/SKILL.md:148	bash	psql -c "SELECT locktype, relation::regclass, mode, granted, pid FROM pg_locks WHERE NOT granted ORDER BY pid;"
+postgres/references/replication-storage.md:11	bash	psql -c "SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replay_lag_bytes FROM pg_stat_replication;"
+postgres/references/replication-storage.md:18	bash	psql -c "SELECT pg_is_in_recovery(), pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn(), pg_last_xact_replay_timestamp();"
+postgres/references/replication-storage.md:21	bash	psql -c "SELECT CASE WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn() THEN 0 ELSE EXTRACT(EPOCH FROM now() - pg_last_xact_replay_timestamp()) END AS lag_seconds;"
+postgres/references/replication-storage.md:30	bash	psql -c "SELECT slot_name, slot_type, active, pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn) AS retained_bytes FROM pg_replication_slots;"
+postgres/references/replication-storage.md:48	bash	psql -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) AS size FROM pg_database ORDER BY pg_database_size(datname) DESC;"
+postgres/references/replication-storage.md:58	bash	psql -c "SELECT relname, n_dead_tup, n_live_tup, round(n_dead_tup::numeric / NULLIF(n_live_tup, 0) * 100, 1) AS dead_pct, last_autovacuum FROM pg_stat_user_tables WHERE n_dead_tup > 10000 ORDER BY n_dead_tup DESC LIMIT 10;"
+postgres/references/replication-storage.md:80	bash	psql -c "SELECT datname, temp_files, pg_size_pretty(temp_bytes) AS temp_size FROM pg_stat_database WHERE temp_files > 0 ORDER BY temp_bytes DESC;"
+postgres/references/replication-storage.md:90	bash	systemctl status postgresql
+postgres/references/replication-storage.md:91	bash	journalctl -u postgresql --since "5 min ago"
+postgres/references/replication-storage.md:103	bash	journalctl -u postgresql -n 50 --no-pager
+unix/SKILL.md:60	bash	find /var/log -name '*.log' -mmin -30 -type f
+unix/SKILL.md:63	bash	rg 'error|exception|fatal' /var/log/ -l
+unix/SKILL.md:64	bash	rg 'error|exception|fatal' /var/log/ -C3
+unix/SKILL.md:65	bash	rg -i 'out.of.memory|oom' /var/log/ -g '*.log'
+unix/SKILL.md:68	bash	zcat / zgrep / bzcat / xzcat
+unix/SKILL.md:69	bash	unzip -l PLACEHOLDER
+unix/SKILL.md:70	bash	unzip -p PLACEHOLDER PLACEHOLDER
+unix/SKILL.md:71	bash	tar -tf PLACEHOLDER
+unix/SKILL.md:72	bash	tar -xf PLACEHOLDER PLACEHOLDER -O
+unix/SKILL.md:75	bash	journalctl --disk-usage
+unix/SKILL.md:76	bash	journalctl -p err -b -n 100 --no-pager
+unix/SKILL.md:79	bash	systemctl show PLACEHOLDER -p MainPID,MemoryCurrent,CPUUsageNSec
+unix/SKILL.md:80	bash	systemctl list-units --failed
+unix/SKILL.md:83	bash	lsof -p PLACEHOLDER
+unix/SKILL.md:84	bash	lsof +D /path          # who's writing here
+windows/SKILL.md:60	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List Caption, Version, BuildNumber, InstallDate, LastBootUpTime, TotalVisibleMemorySize, FreePhysicalMemory
+windows/SKILL.md:61	powershell	Get-CimInstance -ClassName Win32_Processor | Format-List Name, NumberOfCores, NumberOfLogicalProcessors, LoadPercentage
+windows/SKILL.md:62	powershell	Get-Volume | Format-Table DriveLetter, FileSystemLabel, HealthStatus, SizeRemaining, Size -AutoSize
+windows/SKILL.md:65	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2,3} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
+windows/SKILL.md:66	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; Level=1,2,3} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
+windows/SKILL.md:69	powershell	Get-EventLog -LogName Security -Newest 50 -EntryType FailureAudit | Format-Table TimeGenerated, EventID, Message -AutoSize
+windows/SKILL.md:72	powershell	Get-NetTcpConnection -State Listen | Sort-Object -Property LocalPort | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
+windows/SKILL.md:73	powershell	Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 15 -Property Id, ProcessName, CPU, WorkingSet
+windows/SKILL.md:74	powershell	Get-Service | Where-Object -Property Status -eq Stopped | Where-Object -Property StartType -eq Automatic | Select-Object -First 30 -Property Name, DisplayName, Status, StartType
+windows/SKILL.md:77	powershell	Get-PhysicalDisk | Format-Table FriendlyName, MediaType, OperationalStatus, HealthStatus, Size -AutoSize
+windows/SKILL.md:78	powershell	Get-HotFix | Sort-Object -Property InstalledOn -Descending | Select-Object -First 10 -Property HotFixID, Description, InstalledOn
+windows/SKILL.md:81	powershell	Get-ChildItem -Path 'C:\Windows\System32\LogFiles' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 20 -Property Name, Length, LastWriteTime
