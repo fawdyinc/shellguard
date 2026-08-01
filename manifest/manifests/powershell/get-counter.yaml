@@ -1,0 +1,30 @@
+name: get-counter
+description: Read Windows performance counter samples (CPU, memory, disk, network)
+category: performance
+shell: powershell
+# Sampling takes SampleInterval * MaxSamples seconds on the wire, so the default
+# 30s timeout is too tight for anything but a single sample.
+timeout: 120
+flags:
+  - flag: "-Counter"
+    takes_value: true
+    description: "Counter path, e.g. '\\Processor(_Total)\\% Processor Time'."
+  - flag: "-SampleInterval"
+    takes_value: true
+    description: "Seconds between samples. Default 1."
+  - flag: "-MaxSamples"
+    takes_value: true
+    description: "Number of samples to take. Default 1."
+  - flag: "-ListSet"
+    takes_value: true
+    description: "List counter sets and their paths instead of sampling."
+  - flag: "-ComputerName"
+    takes_value: true
+    description: "Read counters from another host."
+  - flag: "-Continuous"
+    deny: true
+    reason:
+      "-Continuous samples until Ctrl+C and never returns. Bound the sample count with
+      -MaxSamples instead, e.g. -SampleInterval 2 -MaxSamples 5."
+stdin: true
+stdout: true

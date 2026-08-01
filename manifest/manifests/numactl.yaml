@@ -1,0 +1,47 @@
+name: numactl
+description: Show NUMA node inventory and the current process's NUMA policy
+category: system
+shell: bash
+timeout: 30
+# Source: numactl(8), numactl 2.0.x. Read the SYNOPSIS carefully before adding
+# anything here:
+#
+#     numactl [ --interleave nodes ] [ --membind nodes ] ... [--] command {arguments ...}
+#
+# numactl is fundamentally a command LAUNCHER. Every policy option exists to run
+# some other program under that policy, so allowing one of them turns numactl
+# into an arbitrary-execution wrapper -- the same hole as `env` or `nohup`,
+# both of which this registry already denies.
+#
+# Only three modes print and exit without running anything: --show/-s,
+# --hardware/-H and --version/-V. Verified on numactl 2.0.18: `numactl --show ls`,
+# `numactl --hardware id` and `numactl --version ls` each printed their report
+# and did NOT run the trailing command.
+#
+# --cpu-compress is the exception that requires requires_one_of. It is only a
+# formatting modifier for --hardware, and on its own it does NOT short-circuit:
+# `numactl --cpu-compress ls` really does execute ls. requires_one_of forces one
+# of the three exiting modes to be present in every invocation, so
+# --cpu-compress can never be the last word.
+#
+# Note that --help is not accepted by numactl 2.0.18 (it prints "unrecognized
+# option" plus usage), so it is not declared.
+requires_one_of: ["--show", "-s", "--hardware", "-H", "--version", "-V"]
+flags:
+  - flag: "--show"
+    description: "Show the NUMA policy settings of the current process, then exit"
+  - flag: "-s"
+    description: "Show the NUMA policy settings of the current process, then exit"
+  - flag: "--hardware"
+    description: "Show the inventory of NUMA nodes, their sizes, free memory and distances"
+  - flag: "-H"
+    description: "Show the inventory of NUMA nodes, their sizes, free memory and distances"
+  - flag: "--cpu-compress"
+    description: "With --hardware, print CPU ranges instead of every CPU number"
+  - flag: "--version"
+    description: "Print the numactl version and exit"
+  - flag: "-V"
+    description: "Print the numactl version and exit"
+allows_path_args: false
+stdin: false
+stdout: true

@@ -1,0 +1,129 @@
+name: traceroute
+description: Print the network path to a host, one hop per line
+category: network
+timeout: 120
+# Source: traceroute(8), Dmitry Butskoy's Linux traceroute
+# (https://man7.org/linux/man-pages/man8/traceroute.8.html).
+#
+# traceroute changes nothing on the host it runs on -- it opens a socket and
+# sends probes. What it does do is take time: the default is 30 hops x 3 probes
+# with a 5 second wait, so a path that black-holes can occupy the command for
+# most of the timeout. Always bound it: `traceroute -n -q 1 -m 15 -w 2 <host>`.
+#
+# Deliberately omitted rather than allowed:
+#   -M / --module, -O / --options   pass method-specific socket options through
+#                                   to the kernel; -I, -T and -U select the same
+#                                   methods with no free-form option string.
+#   -g / --gateway                  IP loose source routing -- steers probes
+#                                   along a path the routing table did not
+#                                   choose. Use -i to pick an egress interface.
+#   --fwmark                        sets a firewall mark on outgoing packets,
+#                                   which can divert them into a different
+#                                   routing policy table.
+#   -A / --as-path-lookups          issues extra whois queries to a third party
+#                                   for every hop.
+#   -r                              bypasses the routing table entirely.
+#
+# -I (ICMP) and -T (TCP) need raw-socket privilege on many kernels; the default
+# UDP method does not. If -I or -T returns a permission error, fall back to the
+# default method rather than reaching for sudo.
+#
+# No `shell:` field: traceroute exists on Linux and macOS. The BSD version on
+# macOS lacks the long forms and --mtu; those simply error there.
+flags:
+  - flag: "-4"
+    description: "Force IPv4"
+  - flag: "-6"
+    description: "Force IPv6"
+  - flag: "-n"
+    description: "Do not resolve hop addresses to names -- faster and avoids DNS confusing the result"
+  - flag: "-I"
+    description: "Use ICMP ECHO for probes (often needs privilege)"
+  - flag: "--icmp"
+    description: "Use ICMP ECHO for probes"
+  - flag: "-T"
+    description: "Use TCP SYN for probes -- the one that shows whether a firewall drops a port"
+  - flag: "--tcp"
+    description: "Use TCP SYN for probes"
+  - flag: "-U"
+    description: "Use UDP to a constant destination port (default 53)"
+  - flag: "--udp"
+    description: "Use UDP to a constant destination port"
+  - flag: "-f"
+    takes_value: true
+    description: "First TTL to probe; default 1"
+  - flag: "--first"
+    takes_value: true
+    description: "First TTL to probe"
+  - flag: "-m"
+    takes_value: true
+    description: "Maximum number of hops; default 30"
+  - flag: "--max-hops"
+    takes_value: true
+    description: "Maximum number of hops"
+  - flag: "-q"
+    takes_value: true
+    description: "Probe packets per hop; default 3"
+  - flag: "--queries"
+    takes_value: true
+    description: "Probe packets per hop"
+  - flag: "-N"
+    takes_value: true
+    description: "Number of probes sent simultaneously; default 16"
+  - flag: "--sim-queries"
+    takes_value: true
+    description: "Number of probes sent simultaneously"
+  - flag: "-w"
+    takes_value: true
+    description: "Seconds to wait for a response; default 5"
+  - flag: "--wait"
+    takes_value: true
+    description: "Seconds to wait for a response"
+  - flag: "-z"
+    takes_value: true
+    description: "Minimal interval between probes in seconds; default 0"
+  - flag: "--sendwait"
+    takes_value: true
+    description: "Minimal interval between probes"
+  - flag: "-p"
+    takes_value: true
+    description: "Destination port base"
+  - flag: "--port"
+    takes_value: true
+    description: "Destination port base"
+  - flag: "--sport"
+    takes_value: true
+    description: "Source port to use; implies -N 1 -w 5"
+  - flag: "-i"
+    takes_value: true
+    description: "Outgoing network interface to send probes from"
+  - flag: "--interface"
+    takes_value: true
+    description: "Outgoing network interface"
+  - flag: "-s"
+    takes_value: true
+    description: "Source address to use"
+  - flag: "--source"
+    takes_value: true
+    description: "Source address to use"
+  - flag: "-F"
+    description: "Set Don't Fragment on probe packets"
+  - flag: "--dont-fragment"
+    description: "Set Don't Fragment on probe packets"
+  - flag: "--mtu"
+    description: "Discover the path MTU along the way; implies -F -N 1"
+  - flag: "--back"
+    description: "Print the backward hop count when it differs from the forward one"
+  - flag: "-e"
+    description: "Show ICMP extensions (RFC 4884), including MPLS labels"
+  - flag: "--extensions"
+    description: "Show ICMP extensions"
+  - flag: "-V"
+    description: "Print version and exit"
+  - flag: "--version"
+    description: "Print version and exit"
+  - flag: "--help"
+    description: "Print usage and exit"
+allows_path_args: false
+stdin: false
+stdout: true

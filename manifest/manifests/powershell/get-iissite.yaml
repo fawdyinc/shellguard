@@ -1,0 +1,12 @@
+name: get-iissite
+description: Get IIS web site configuration, state, physical path, and bindings
+category: web
+shell: powershell
+# IISAdministration module. Ships with the Web-Server role management tools; the
+# cmdlet is absent on a host without IIS, which is itself a useful answer.
+flags:
+  - flag: "-Name"
+    takes_value: true
+    description: "Site name, or a comma-separated list. Omit for every site."
+stdin: true
+stdout: true

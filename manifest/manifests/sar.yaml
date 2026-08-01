@@ -1,0 +1,114 @@
+name: sar
+description: Report historical and live system activity from the sysstat collector
+category: system
+shell: bash
+timeout: 120
+# Source: sar(1), sysstat (man page shipped as sar.sysstat.1, sysstat 12.x).
+#
+# sar is the only tool in the registry that can answer "what did this host look
+# like an hour ago" -- it replays the binary archives written by sadc into
+# /var/log/sysstat (Debian: /var/log/sysstat, RHEL: /var/log/sa). Every reporting
+# option below only selects which counters are printed.
+#
+# The one option that writes is -o [filename], which saves collected data to a
+# file; it is denied. -D only modifies the -o filename format, so it is omitted
+# rather than declared.
+#
+# Optional-argument options (-r [ALL], -u [ALL], -I [SUM|ALL], -F [MOUNT],
+# -q [keyword], -f [file], -s/-e [hh:mm]) are declared takes_value: false on
+# purpose. Declaring them takes_value: true would make `sar -u 1 3` swallow the
+# interval as -u's value, and would break short-flag bundling such as -bBdH.
+# Their arguments land as positional args instead, which the validator allows.
+flags:
+  - flag: "-A"
+    description: "All activities: equivalent to -bBdFHISvwWy -m ALL -n ALL -q ALL -r ALL -u ALL"
+  - flag: "-B"
+    description: "Paging statistics: pgpgin/s, pgpgout/s, fault/s, majflt/s, %vmeff"
+  - flag: "-b"
+    description: "I/O and transfer rate statistics: tps, rtps, wtps, bread/s, bwrtn/s"
+  - flag: "-C"
+    description: "When reading a file, also display comments inserted by sadc"
+  - flag: "-d"
+    description: "Per block device activity: tps, rkB/s, wkB/s, areq-sz, aqu-sz, await, %util"
+  - flag: "-F"
+    description: "Mounted filesystem statistics; the MOUNT keyword reports mountpoints"
+  - flag: "-H"
+    description: "Hugepages utilisation"
+  - flag: "-h"
+    description: "Equivalent to --pretty --human (this is NOT a help flag in sar)"
+  - flag: "--help"
+    description: "Display a short help message then exit"
+  - flag: "--human"
+    description: "Print sizes in human readable format"
+  - flag: "--pretty"
+    description: "Pretty-print device names"
+  - flag: "-I"
+    description: "Interrupt statistics; SUM or ALL keyword"
+  - flag: "-i"
+    takes_value: true
+    description: "Select records as close as possible to this many seconds apart"
+  - flag: "-j"
+    takes_value: true
+    description: "Display persistent device names (SID, ID, LABEL, PATH, UUID); use with -d"
+  - flag: "-m"
+    takes_value: true
+    description: "Power management statistics: CPU, FAN, FREQ, IN, TEMP, USB, or ALL"
+  - flag: "-n"
+    takes_value: true
+    description: "Network statistics: DEV, EDEV, SOCK, TCP, ETCP, UDP, IP, EIP, ... or ALL"
+  - flag: "-P"
+    takes_value: true
+    description: "Report per processor; cpu_list or the ALL keyword"
+  - flag: "-p"
+    description: "Pretty-print device names"
+  - flag: "-q"
+    description: "System load and pressure-stall statistics; keyword CPU, IO, LOAD, MEM, PSI, or ALL"
+  - flag: "-r"
+    description: "Memory utilisation; the ALL keyword adds the full set of counters"
+  - flag: "-S"
+    description: "Swap space utilisation"
+  - flag: "-t"
+    description: "When reading a file, display timestamps in the locale of the data file"
+  - flag: "-u"
+    description: "CPU utilisation; the ALL keyword adds %steal, %guest, %gnice and more"
+  - flag: "-V"
+    description: "Print version number then exit"
+  - flag: "-v"
+    description: "Kernel table statistics: dentunusd, file-nr, inode-nr, pty-nr"
+  - flag: "-W"
+    description: "Swapping statistics: pswpin/s, pswpout/s"
+  - flag: "-w"
+    description: "Task creation and context switch activity: proc/s, cswch/s"
+  - flag: "-y"
+    description: "TTY device activity"
+  - flag: "-z"
+    description: "Omit output for devices with no activity"
+  - flag: "-f"
+    description: "Read records from this data file instead of today's default archive"
+  - flag: "-s"
+    description: "Start time of the report, hh:mm[:ss] in 24-hour format"
+  - flag: "-e"
+    description: "End time of the report, hh:mm[:ss] in 24-hour format; default 18:00:00"
+  - flag: "--dec"
+    takes_value: true
+    description: "Number of decimal places, 0 to 2"
+  - flag: "--dev"
+    takes_value: true
+    description: "Comma-separated block device names to restrict -d output to"
+  - flag: "--fs"
+    takes_value: true
+    description: "Comma-separated filesystem names or mountpoints to restrict -F output to"
+  - flag: "--iface"
+    takes_value: true
+    description: "Comma-separated network interface names to restrict -n DEV output to"
+  - flag: "--int"
+    takes_value: true
+    description: "Comma-separated interrupt names or ranges to restrict -I output to"
+  - flag: "--sadc"
+    description: "Print the path of the sadc data collector then exit"
+  - flag: "-o"
+    deny: true
+    reason: "-o saves collected data into a binary file, which writes to the host. Read existing archives with -f, or report live with an interval and a count."
+allows_path_args: true
+stdin: false
+stdout: true

@@ -1,0 +1,21 @@
+name: get-netudpendpoint
+description: List bound UDP endpoints and their owning process IDs
+category: network
+shell: powershell
+flags:
+  - flag: "-LocalAddress"
+    takes_value: true
+    description: "Filter by local IP address."
+  - flag: "-LocalPort"
+    takes_value: true
+    description: "Filter by local UDP port."
+  - flag: "-OwningProcess"
+    takes_value: true
+    description: "Filter by the PID that owns the socket."
+  - flag: "-AsJob"
+    deny: true
+    reason:
+      "-AsJob returns a job object instead of the endpoints and leaves work running after
+      the call. Run the cmdlet without it."
+stdin: false
+stdout: true

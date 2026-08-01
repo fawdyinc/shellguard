@@ -1,0 +1,19 @@
+name: get-netfirewallprofile
+description: Show per-profile Windows Firewall settings (Domain, Private, Public)
+category: network
+shell: powershell
+flags:
+  - flag: "-Name"
+    takes_value: true
+    description: "Profile to show: Domain, Private, or Public."
+  - flag: "-All"
+    description: "Show every profile in the policy store."
+  - flag: "-PolicyStore"
+    takes_value: true
+    description: "Store to read, e.g. ActiveStore for the effective policy."
+  - flag: "-AsJob"
+    deny: true
+    reason:
+      "-AsJob returns a job object instead of the profiles. Run the cmdlet without it."
+stdin: false
+stdout: true

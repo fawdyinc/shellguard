@@ -1,0 +1,68 @@
+name: host
+description: DNS lookup utility (BIND) for forward, reverse and record-type queries
+category: network
+timeout: 30
+# Source: host(1), BIND 9 (9.18). host only sends DNS queries; it writes nothing
+# to the host it runs on. Two options are denied:
+#
+#   -l  performs a full zone transfer (AXFR) and prints every NS, PTR and
+#       address record in the zone. Output is unbounded, and the answer to a
+#       real incident question is almost never "the whole zone".
+#   -w  sets "wait forever" -- the query timeout goes to the maximum possible,
+#       so a black-holed nameserver hangs the command until the transport
+#       timeout instead of returning an error.
+#
+# No `shell:` field: host ships on Linux and macOS alike, matching dig and
+# nslookup in this registry.
+flags:
+  - flag: "-4"
+    description: "Use IPv4 only for query transport"
+  - flag: "-6"
+    description: "Use IPv6 only for query transport"
+  - flag: "-a"
+    description: "All: equivalent to -v -t ANY"
+  - flag: "-A"
+    description: "Almost all: like -a but omits RRSIG, NSEC and NSEC3 records"
+  - flag: "-c"
+    takes_value: true
+    description: "Query class, e.g. IN (default), HS, CH"
+  - flag: "-C"
+    description: "Query the SOA record from every authoritative nameserver and compare them"
+  - flag: "-d"
+    description: "Print debugging traces; equivalent to -v"
+  - flag: "-N"
+    takes_value: true
+    description: "Number of dots in the name required for it to be treated as absolute"
+  - flag: "-p"
+    takes_value: true
+    description: "Port to query on the server; default 53"
+  - flag: "-r"
+    description: "Non-recursive query: clear the RD bit, so the server answers with referrals"
+  - flag: "-R"
+    takes_value: true
+    description: "Number of retries for UDP queries; default 1"
+  - flag: "-s"
+    description: "Do not try the next nameserver when a server answers SERVFAIL"
+  - flag: "-t"
+    takes_value: true
+    description: "Query type: A, AAAA, CNAME, NS, SOA, MX, TXT, PTR, SRV, DNSKEY, ..."
+  - flag: "-T"
+    description: "Use TCP for the query"
+  - flag: "-U"
+    description: "Use UDP for the query (forces UDP for ANY queries, which default to TCP)"
+  - flag: "-v"
+    description: "Verbose output, in the same format as a zone file"
+  - flag: "-V"
+    description: "Print the version number and exit"
+  - flag: "-W"
+    takes_value: true
+    description: "Wait this many seconds for a reply; default 5 for UDP, 10 for TCP"
+  - flag: "-l"
+    deny: true
+    reason: "-l transfers and prints the entire zone (AXFR), which is unbounded output and is refused by most servers anyway. Find the nameservers with 'host -t NS <zone>' and query the specific names you need."
+  - flag: "-w"
+    deny: true
+    reason: "-w waits forever for a reply, so an unreachable nameserver hangs the command until the transport timeout. Bound the wait with -W <seconds> instead."
+allows_path_args: false
+stdin: false
+stdout: true

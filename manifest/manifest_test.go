@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 349; got != want {
+	if got, want := len(registry), 363; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -52,7 +52,7 @@ func TestDenyManifestReasonsAndCount(t *testing.T) {
 		}
 	}
 
-	if got, want := denyCount, 145; got != want {
+	if got, want := denyCount, 146; got != want {
 		t.Fatalf("deny manifest count = %d, want %d", got, want)
 	}
 }

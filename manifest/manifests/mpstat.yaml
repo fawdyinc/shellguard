@@ -1,0 +1,44 @@
+name: mpstat
+description: Report per-processor CPU utilisation and interrupt statistics
+category: system
+shell: bash
+timeout: 60
+# Source: mpstat(1), sysstat. Every option only selects which counters are
+# printed; mpstat reads /proc and writes nothing.
+#
+# Unlike sar, mpstat's -o is not a file write -- it selects an output format and
+# its only documented value is JSON, pinned with allowed_values below.
+#
+# mpstat with an interval but no count reports continuously and will run until
+# the timeout. Always give both: `mpstat -P ALL 2 5`.
+flags:
+  - flag: "-A"
+    description: "Equivalent to -n -u -I ALL, and implies -N ALL -P ALL"
+  - flag: "--dec"
+    takes_value: true
+    description: "Number of decimal places, 0 to 2"
+  - flag: "-I"
+    takes_value: true
+    allowed_values: ["CPU", "SCPU", "SUM", "ALL"]
+    description: "Interrupt statistics: CPU (per interrupt), SCPU (softirqs), SUM (total), or ALL"
+  - flag: "-N"
+    takes_value: true
+    description: "NUMA nodes to report on; comma-separated list, ranges, or the ALL keyword"
+  - flag: "-n"
+    description: "Summary CPU statistics grouped by NUMA node placement"
+  - flag: "-o"
+    takes_value: true
+    allowed_values: ["JSON"]
+    description: "Display the statistics in JSON format (this does not write a file)"
+  - flag: "-P"
+    takes_value: true
+    description: "Processors to report on; comma-separated list, ranges, or the ALL keyword"
+  - flag: "-T"
+    description: "Add topology columns to the CPU report: CORE, SOCK, NODE"
+  - flag: "-u"
+    description: "CPU utilisation: %usr, %nice, %sys, %iowait, %irq, %soft, %steal, %guest, %idle"
+  - flag: "-V"
+    description: "Print version number then exit"
+allows_path_args: false
+stdin: false
+stdout: true

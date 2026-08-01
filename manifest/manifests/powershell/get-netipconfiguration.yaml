@@ -1,0 +1,22 @@
+name: get-netipconfiguration
+description: Get IP configuration -- interfaces, addresses, gateway, and DNS servers
+category: network
+shell: powershell
+flags:
+  - flag: "-InterfaceAlias"
+    takes_value: true
+    description: "Filter to one interface by alias."
+  - flag: "-InterfaceIndex"
+    takes_value: true
+    description: "Filter to one interface by index."
+  - flag: "-All"
+    description: "Include virtual, loopback, and disconnected interfaces."
+  - flag: "-AllCompartments"
+    description: "Include every network compartment."
+  - flag: "-CompartmentId"
+    takes_value: true
+    description: "Filter to one network compartment."
+  - flag: "-Detailed"
+    description: "Add link-layer address, network profile, MTU, and DHCP status."
+stdin: false
+stdout: true

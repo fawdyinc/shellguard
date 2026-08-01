@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /home/jchun/fawdy/shellguard && sed -n '60,127p' validator/skill_commands_test.go; echo ====; cat validator/corpus_test.go | head -50; echo ==== ; grep -n \\\"^func Parse\\\\|^func .*Parse\\...",
+  "error": "Exit code 1\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValueForKeyFakeAssocArray:27: command not found: _encode\nsetValue...",
+  "timestamp": "2026-08-01T17:50:44.759Z",
+  "retry_count": 1
+}

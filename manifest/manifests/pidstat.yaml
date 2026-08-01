@@ -1,0 +1,73 @@
+name: pidstat
+description: Report per-process and per-thread CPU, memory, I/O and context switch statistics
+category: process
+shell: bash
+timeout: 60
+# Source: pidstat(1), sysstat. Every option below only selects which counters
+# are reported for tasks already running.
+#
+# -e is denied: `pidstat -e program args` EXECUTES program and monitors it.
+# That is arbitrary command execution behind a statistics tool, the same hole
+# as find -exec.
+#
+# -U takes an OPTIONAL username, so it is declared takes_value: false; a
+# username after it lands as a positional argument. Declaring it takes_value
+# would make `pidstat -U 2 5` swallow the interval.
+#
+# pidstat with an interval but no count reports continuously and will run until
+# the timeout. Always give both: `pidstat -u -p 1234 2 5`.
+flags:
+  - flag: "-C"
+    takes_value: true
+    pattern_value: true
+    description: "Only tasks whose command name matches this string or regular expression"
+  - flag: "-d"
+    description: "I/O statistics: kB_rd/s, kB_wr/s, kB_ccwr/s, iodelay"
+  - flag: "--dec"
+    takes_value: true
+    description: "Number of decimal places, 0 to 2"
+  - flag: "-G"
+    takes_value: true
+    pattern_value: true
+    description: "Only processes whose command name matches this string or regular expression"
+  - flag: "-H"
+    description: "Display the timestamp in seconds since the epoch"
+  - flag: "-h"
+    description: "Print all activities on one line with no averages, for easier parsing"
+  - flag: "--human"
+    description: "Print sizes in human readable format"
+  - flag: "-I"
+    description: "Divide task CPU usage by the total number of processors"
+  - flag: "-l"
+    description: "Display the command name with all its arguments"
+  - flag: "-p"
+    takes_value: true
+    description: "Select tasks by pid (comma-separated), or the SELF or ALL keyword"
+  - flag: "-R"
+    description: "Report realtime priority and scheduling policy"
+  - flag: "-r"
+    description: "Page faults and memory: minflt/s, majflt/s, VSZ, RSS, %MEM"
+  - flag: "-s"
+    description: "Stack utilisation: StkSize, StkRef"
+  - flag: "-T"
+    takes_value: true
+    allowed_values: ["TASK", "CHILD", "ALL"]
+    description: "Monitor individual tasks (TASK), tasks plus children (CHILD), or both"
+  - flag: "-t"
+    description: "Also display statistics for the threads of the selected tasks"
+  - flag: "-U"
+    description: "Show the real user name instead of the UID; an optional username filters"
+  - flag: "-u"
+    description: "CPU utilisation: %usr, %system, %guest, %wait, %CPU, CPU"
+  - flag: "-V"
+    description: "Print version number then exit"
+  - flag: "-v"
+    description: "Kernel table values for the task: threads, fd-nr"
+  - flag: "-w"
+    description: "Task switching activity: cswch/s, nvcswch/s"
+  - flag: "-e"
+    deny: true
+    reason: "pidstat -e runs an arbitrary program and monitors it, which executes code on the host. Attach to an already running task instead: pidstat -u -p <pid> 2 5."
+allows_path_args: false
+stdin: false
+stdout: true

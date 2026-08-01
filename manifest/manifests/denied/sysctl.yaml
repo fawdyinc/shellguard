@@ -1,0 +1,34 @@
+name: sysctl
+description: Configure kernel parameters at runtime
+category: system
+deny: true
+# Source: sysctl(8), procps-ng. The man page's own first line is "sysctl is used
+# to modify kernel parameters at runtime", and the SYNOPSIS is
+#
+#     sysctl [options] [variable[=value]] [...]
+#
+# The write is the POSITIONAL argument, not a flag. `sysctl vm.swappiness=1`
+# carries no option at all, so a flag allowlist never sees it. positional_allowlist
+# constrains exactly one index, and sysctl accepts an unbounded list of
+# variables -- `sysctl kernel.pid_max vm.swappiness=1` puts the write at index 1,
+# where nothing is checking. There is no way to express "every positional must
+# be a bare key" with the fields this schema has, so the read-only subset cannot
+# be carved out safely and the whole command is denied.
+#
+# For completeness, the flags that write are -w/--write; -p/--load and its alias
+# -f, which apply settings from a file; --system, which applies settings from
+# every file under the sysctl.d search path; and -r/--pattern, which selects
+# which of those settings get applied.
+#
+# Nothing is lost: /proc/sys IS the sysctl namespace, one file per key, and the
+# dotted key name is the path with '.' replaced by '/'.
+reason:
+  "sysctl writes kernel parameters, and it does so through a positional argument
+  -- `sysctl vm.swappiness=1` uses no flag at all -- so the flag allowlist cannot
+  separate reads from writes. Read the same values straight out of /proc/sys,
+  which is the sysctl namespace on disk: a key like vm.swappiness is the file
+  /proc/sys/vm/swappiness. Use `cat /proc/sys/vm/swappiness` for one key,
+  `find /proc/sys/net/ipv4 -maxdepth 1 -type f -name 'tcp_*' | xargs grep .`
+  to sweep a subtree, and `cat /proc/sys/kernel/pid_max` and friends for the
+  usual suspects. If a parameter genuinely must be changed, that is an operator
+  action, not a diagnostic one."

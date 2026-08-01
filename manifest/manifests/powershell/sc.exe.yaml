@@ -1,0 +1,39 @@
+name: sc.exe
+description:
+  Service Control query operations -- configuration, recovery actions, and dependencies
+  that Get-Service and Win32_Service do not expose
+category: services
+shell: powershell
+# sc.exe is a write-capable tool: config, create, delete, start, stop, failure, and
+# sdset all change the service database. It is admissible here only because it
+# dispatches on a positional verb, so the read-only verbs can be separated from the
+# rest by an allowlist. Everything not listed below -- including every write verb --
+# is refused.
+#
+# The bare `sc` name stays denied (powershell/denied/sc.yaml); this manifest allows
+# only the fully-qualified `sc.exe` spelling with an allowlisted first verb.
+#
+# Note the parser cannot express sc.exe's `option= value` arguments (`type= service`,
+# `state= all`) because a bare `=` is not a token it accepts. Only the
+# `sc.exe <verb> <servicename>` form is reachable, which is the diagnostic form.
+positional_allowlist:
+  index: 0
+  values:
+    - query
+    - queryex
+    - qc
+    - qdescription
+    - qfailure
+    - qtriggerinfo
+    - qprotection
+    - querylock
+    - enumdepend
+    - getdisplayname
+    - getkeyname
+    - GetDisplayName
+    - GetKeyName
+    - sdshow
+    - showsid
+flags: []
+stdin: false
+stdout: true

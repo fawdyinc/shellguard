@@ -1,0 +1,12 @@
+name: get-iisapppool
+description: Get IIS application pool configuration, state, CLR version, and pipeline mode
+category: web
+shell: powershell
+# IISAdministration module. The read-only counterpart to Start/Stop/Restart-WebAppPool,
+# none of which are allowed.
+flags:
+  - flag: "-Name"
+    takes_value: true
+    description: "App pool name, or a comma-separated list. Omit for every pool."
+stdin: true
+stdout: true
