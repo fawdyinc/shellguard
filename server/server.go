@@ -400,7 +400,12 @@ func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResu
 		)
 		return output.CommandResult{}, err
 	}
-	if err := c.Validate(pipeline, c.Registry); err != nil {
+	// Scope the registry to the target host's shell. Without this a Windows
+	// host accepts `ls -la` (it resolves to the POSIX manifest, then fails at
+	// the OS) and a Unix host accepts `Get-Service` — wasted turns in both
+	// directions. Manifests with no shell stay reachable everywhere, so
+	// cross-platform tools like docker and curl are unaffected.
+	if err := c.Validate(pipeline, validator.ScopeRegistry(c.Registry, string(shell))); err != nil {
 		c.logger.InfoContext(ctx, "execute",
 			"command", in.Command,
 			"host", in.Host,

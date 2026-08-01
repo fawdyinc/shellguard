@@ -789,3 +789,57 @@ func TestFlagBundlingStaysOptIn(t *testing.T) {
 		}
 	}
 }
+
+// TestScopeRegistryByShell covers the three-way shell field. A Windows host
+// accepting `ls -la` (it resolves to the POSIX manifest, then fails at the OS)
+// wasted exactly the turns this guard rail exists to save.
+func TestScopeRegistryByShell(t *testing.T) {
+	full := testRegistry(t)
+	accepted := func(shell, cmd string, args ...string) bool {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: cmd, Args: args}}}
+		return ValidatePipeline(p, ScopeRegistry(full, shell)) == nil
+	}
+
+	cases := []struct {
+		cmd        []string
+		ps, bash   bool
+		note       string
+	}{
+		{[]string{"ls", "-la"}, false, true, "unix-only"},
+		{[]string{"cat", "-n", "/x"}, false, true, "unix-only"},
+		{[]string{"df", "-h"}, false, true, "unix-only"},
+		{[]string{"systemctl", "status"}, false, true, "unix-only via subcommand manifest"},
+		{[]string{"get-service"}, true, false, "windows-only"},
+		{[]string{"netstat", "-ano"}, true, false, "windows-only"},
+		{[]string{"dscheckls.exe", "-l"}, true, false, "windows-only"},
+		{[]string{"docker", "ps"}, true, true, "universal"},
+		{[]string{"curl", "-I", "https://x"}, true, true, "universal"},
+		{[]string{"psql", "-c", "SELECT 1"}, true, true, "universal"},
+		{[]string{"aws", "ec2", "describe-instances"}, true, true, "universal"},
+		{[]string{"kubectl", "get", "pods"}, true, true, "universal"},
+	}
+	for _, tc := range cases {
+		if got := accepted("powershell", tc.cmd[0], tc.cmd[1:]...); got != tc.ps {
+			t.Errorf("powershell %v (%s): accepted=%v want %v", tc.cmd, tc.note, got, tc.ps)
+		}
+		if got := accepted("bash", tc.cmd[0], tc.cmd[1:]...); got != tc.bash {
+			t.Errorf("bash %v (%s): accepted=%v want %v", tc.cmd, tc.note, got, tc.bash)
+		}
+	}
+}
+
+// An unknown shell must not filter anything: the standalone validate tool has
+// no connection and therefore no dialect to scope to.
+func TestScopeRegistryUnknownShellIsPermissive(t *testing.T) {
+	full := testRegistry(t)
+	scoped := ScopeRegistry(full, "")
+	if len(scoped) != len(full) {
+		t.Errorf("ScopeRegistry(_, \"\") returned %d entries, want all %d", len(scoped), len(full))
+	}
+	for _, cmd := range []string{"ls", "get-service"} {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: cmd}}}
+		if err := ValidatePipeline(p, scoped); err != nil {
+			t.Errorf("unknown shell should accept %q: %v", cmd, err)
+		}
+	}
+}

@@ -1,6 +1,7 @@
 name: head
 description: Output first part of files
 category: filesystem
+shell: bash
 flags:
   - flag: "-n"
     takes_value: true

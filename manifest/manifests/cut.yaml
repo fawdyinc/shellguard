@@ -1,6 +1,7 @@
 name: cut
 description: Remove sections from each line
 category: text_processing
+shell: bash
 flags:
   - flag: "-d"
     takes_value: true

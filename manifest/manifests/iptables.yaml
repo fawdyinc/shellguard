@@ -1,6 +1,7 @@
 name: iptables
 description: List firewall rules (read-only)
 category: network
+shell: bash
 flags:
   - flag: "-L"
     description: "List rules in a chain"

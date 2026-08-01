@@ -1,6 +1,7 @@
 name: readlink
 description: Print resolved symbolic links
 category: filesystem
+shell: bash
 flags:
   - flag: "-f"
 allows_path_args: true

@@ -1,6 +1,7 @@
 name: pgrep
 description: Look up process IDs by name
 category: process
+shell: bash
 flags:
   - flag: "-a"
   - flag: "-f"

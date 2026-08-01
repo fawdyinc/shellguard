@@ -1,6 +1,7 @@
 name: stat
 description: Display file or file system status
 category: filesystem
+shell: bash
 flags:
   - flag: "-c"
     takes_value: true

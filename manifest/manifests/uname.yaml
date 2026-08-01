@@ -1,6 +1,7 @@
 name: uname
 description: Print system information
 category: system
+shell: bash
 flags:
   - flag: "-a"
   - flag: "-r"

@@ -1,6 +1,7 @@
 name: uniq
 description: Report or omit repeated lines
 category: text_processing
+shell: bash
 flags:
   - flag: "-c"
   - flag: "-d"

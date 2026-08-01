@@ -1,6 +1,7 @@
 name: wc
 description: Print newline, word, and byte counts
 category: filesystem
+shell: bash
 flags:
   - flag: "-l"
   - flag: "-w"

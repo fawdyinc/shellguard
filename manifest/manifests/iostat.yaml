@@ -1,6 +1,7 @@
 name: iostat
 description: Report CPU and I/O statistics
 category: system
+shell: bash
 flags:
   - flag: "-x"
   - flag: "-m"

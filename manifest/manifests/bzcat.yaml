@@ -1,6 +1,7 @@
 name: bzcat
 description: Decompress bzip2 files to stdout
 category: filesystem
+shell: bash
 flags: []
 allows_path_args: true
 stdin: true

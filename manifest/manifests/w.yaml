@@ -1,6 +1,7 @@
 name: w
 description: Show who is logged on and what they are doing
 category: system
+shell: bash
 flags:
   - flag: "-h"
     description: "Suppress the header."

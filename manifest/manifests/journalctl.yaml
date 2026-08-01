@@ -1,6 +1,7 @@
 name: journalctl
 description: Query the systemd journal
 category: logs
+shell: bash
 timeout: 120
 flags:
   - flag: "-u"

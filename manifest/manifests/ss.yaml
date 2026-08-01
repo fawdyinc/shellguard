@@ -1,6 +1,7 @@
 name: ss
 description: Investigate sockets
 category: network
+shell: bash
 flags:
   - flag: "-t"
   - flag: "-u"

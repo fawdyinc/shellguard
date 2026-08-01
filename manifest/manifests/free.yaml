@@ -1,6 +1,7 @@
 name: free
 description: Display amount of free and used memory
 category: system
+shell: bash
 flags:
   - flag: "-h"
   - flag: "-m"

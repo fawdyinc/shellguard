@@ -1,6 +1,7 @@
 name: ps
 description: Report process status
 category: process
+shell: bash
 flags:
   - flag: "-e"
   - flag: "-f"

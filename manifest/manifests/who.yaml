@@ -1,6 +1,7 @@
 name: who
 description: Show who is logged on
 category: system
+shell: bash
 flags:
   - flag: "-a"
     description: "All information."

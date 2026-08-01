@@ -1,6 +1,7 @@
 name: ls
 description: List directory contents
 category: filesystem
+shell: bash
 flags:
   - flag: "-l"
   - flag: "-a"

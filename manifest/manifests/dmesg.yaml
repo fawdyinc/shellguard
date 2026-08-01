@@ -1,6 +1,7 @@
 name: dmesg
 description: Print or control the kernel ring buffer
 category: system
+shell: bash
 flags:
   - flag: "-T"
 stdin: false

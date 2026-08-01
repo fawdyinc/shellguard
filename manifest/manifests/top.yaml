@@ -1,6 +1,7 @@
 name: top
 description: Display Linux processes in batch mode
 category: process
+shell: bash
 flags:
   - flag: "-b"
   - flag: "-n"

@@ -56,6 +56,35 @@ func (e *ValidationError) Error() string {
 	return e.Message
 }
 
+// ScopeRegistry returns the subset of registry usable on a host running shell.
+//
+// A manifest's `shell` field is three-way:
+//
+//	shell: bash        Unix only — ls, df, uname, systemctl
+//	shell: powershell  Windows only — Get-Service, netstat, DSCheckLS.exe
+//	absent             universal — docker, curl, python, aws, psql
+//
+// Absent means universal rather than POSIX, which is what keeps `docker ps`
+// working on a Windows host. Only a manifest that explicitly names a *different*
+// shell is filtered out, so marking is additive: an unmarked Unix-only manifest
+// stays reachable everywhere until someone marks it, and nothing breaks in the
+// meantime.
+//
+// An empty shell means the host's dialect is unknown — the standalone validate
+// tool has no connection — and returns the registry unchanged.
+func ScopeRegistry(registry map[string]*manifest.Manifest, shell string) map[string]*manifest.Manifest {
+	if shell == "" {
+		return registry
+	}
+	scoped := make(map[string]*manifest.Manifest, len(registry))
+	for name, m := range registry {
+		if m == nil || m.Shell == "" || m.Shell == shell {
+			scoped[name] = m
+		}
+	}
+	return scoped
+}
+
 func ValidatePipeline(pipeline *parser.Pipeline, registry map[string]*manifest.Manifest) error {
 	for i, seg := range pipeline.Segments {
 		if err := validateSegment(seg, registry, i == 0); err != nil {

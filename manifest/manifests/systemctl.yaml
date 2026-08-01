@@ -1,6 +1,7 @@
 name: systemctl
 description: systemd parent manifest
 category: services
+shell: bash
 flags: []
 stdin: false
 stdout: true

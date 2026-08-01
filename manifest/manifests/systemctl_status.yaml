@@ -1,6 +1,7 @@
 name: systemctl_status
 description: Show runtime status of one or more units
 category: services
+shell: bash
 flags:
   - flag: "--no-pager"
 stdin: false

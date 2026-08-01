@@ -1,6 +1,7 @@
 name: file
 description: Determine file type
 category: filesystem
+shell: bash
 flags:
   - flag: "-i"
 allows_path_args: true
