@@ -1,0 +1,50 @@
+# Licensing commands from the 3DX investigation session, validated end to end
+# (parse + validate). `expect: accepts` means ValidatePipeline returns nil.
+entries:
+  - command: "abaqus licensing dslsstat"
+    expect: accepts
+    reason: dslsstat-bare-is-read-only
+
+  - command: "abaqus licensing dslsstat -usage"
+    expect: accepts
+    reason: dslsstat-usage
+
+  - command: "abaqus licensing dslsstat -server jupiter:4085"
+    expect: accepts
+    reason: dslsstat-explicit-server
+
+  - command: "DSCheckLS.exe -l"
+    expect: accepts
+    reason: dscheckls-config-dump
+
+  - command: "DSCheckLS.exe -r IFW"
+    expect: accepts
+    reason: dscheckls-grant-check
+
+  # Bare invocation requests and releases a license; a pulled license locks
+  # for 30 days.
+  - command: "DSCheckLS.exe"
+    expect: rejects
+    reason: dscheckls-bare-pulls-license
+
+  - command: "DSCheckLS.exe -t IFW"
+    expect: rejects
+    reason: dscheckls-token-consumes-license
+
+  - command: "SomeVendorTool.exe -status"
+    expect: rejects
+    reason: unmanifested-executable
+
+  # Reaches the validator and resolves to the deny manifest, so this entry
+  # actually exercises the denial. Do not replace it with "cmd.exe /c dir":
+  # that is rejected earlier, by the parser, on the "/" token.
+  - command: "cmd.exe"
+    expect: rejects
+    reason: shell-launch-denied
+
+  # Rejected by the parser on the "=" token, before validation. Kept because
+  # the outcome is what matters for a session, but it does not prove anything
+  # about subcommand dispatch.
+  - command: "abaqus job=beam"
+    expect: rejects
+    reason: abaqus-solve-rejected-at-parse
