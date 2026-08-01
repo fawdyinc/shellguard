@@ -1,6 +1,7 @@
 name: systemctl_show
 description: Show properties of one or more units
 category: services
+shell: bash
 flags:
   - flag: "-p"
     takes_value: true

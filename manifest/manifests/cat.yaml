@@ -1,6 +1,7 @@
 name: cat
 description: Concatenate and print files
 category: filesystem
+shell: bash
 flags:
   - flag: "-n"
     description: "Number all output lines."

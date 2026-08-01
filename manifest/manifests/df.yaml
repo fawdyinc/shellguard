@@ -1,6 +1,7 @@
 name: df
 description: Report file system disk space usage
 category: filesystem
+shell: bash
 flags:
   - flag: "-h"
   - flag: "-i"

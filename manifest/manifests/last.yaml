@@ -1,6 +1,7 @@
 name: last
 description: Show listing of last logged in users
 category: logs
+shell: bash
 flags:
   - flag: "-n"
     takes_value: true

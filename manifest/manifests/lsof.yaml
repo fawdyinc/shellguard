@@ -1,6 +1,7 @@
 name: lsof
 description: List open files
 category: process
+shell: bash
 flags:
   - flag: "-i"
   - flag: "-p"

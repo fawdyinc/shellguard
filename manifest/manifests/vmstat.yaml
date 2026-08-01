@@ -1,6 +1,7 @@
 name: vmstat
 description: Report virtual memory statistics
 category: system
+shell: bash
 flags:
   - flag: "-s"
 stdin: false

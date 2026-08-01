@@ -1,6 +1,7 @@
 name: grep
 description: Print lines matching patterns
 category: text_processing
+shell: bash
 regex_arg_position: 0
 flags:
   - flag: "-C"

@@ -1,6 +1,7 @@
 name: lscpu
 description: Display CPU architecture information
 category: system
+shell: bash
 flags:
   - flag: "-a"
     description: "Include both online and offline CPUs."

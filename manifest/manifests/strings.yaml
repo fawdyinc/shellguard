@@ -1,6 +1,7 @@
 name: strings
 description: Print printable strings in files
 category: filesystem
+shell: bash
 flags:
   - flag: "-n"
     takes_value: true

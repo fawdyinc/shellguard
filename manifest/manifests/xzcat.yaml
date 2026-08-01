@@ -1,6 +1,7 @@
 name: xzcat
 description: Decompress xz files to stdout
 category: filesystem
+shell: bash
 flags: []
 allows_path_args: true
 stdin: true

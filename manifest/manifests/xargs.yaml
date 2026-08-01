@@ -1,6 +1,7 @@
 name: xargs
 description: Build and execute commands from stdin
 category: text_processing
+shell: bash
 flags:
   - flag: "-I"
     takes_value: true

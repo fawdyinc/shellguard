@@ -1,6 +1,7 @@
 name: tail
 description: Output last part of files
 category: filesystem
+shell: bash
 flags:
   - flag: "-n"
     takes_value: true

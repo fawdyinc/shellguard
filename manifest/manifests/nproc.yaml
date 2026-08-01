@@ -1,6 +1,7 @@
 name: nproc
 description: Print the number of processing units available
 category: system
+shell: bash
 flags:
   - flag: "--all"
   - flag: "--ignore"

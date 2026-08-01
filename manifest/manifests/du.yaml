@@ -1,6 +1,7 @@
 name: du
 description: Estimate file space usage
 category: filesystem
+shell: bash
 flags:
   - flag: "-h"
   - flag: "-s"

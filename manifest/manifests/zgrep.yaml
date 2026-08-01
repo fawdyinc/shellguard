@@ -1,6 +1,7 @@
 name: zgrep
 description: Search inside gzip-compressed files
 category: text_processing
+shell: bash
 regex_arg_position: 0
 flags:
   - flag: "-i"

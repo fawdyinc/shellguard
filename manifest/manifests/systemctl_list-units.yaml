@@ -1,6 +1,7 @@
 name: systemctl_list-units
 description: List units currently in memory
 category: services
+shell: bash
 flags:
   - flag: "--type"
     takes_value: true
