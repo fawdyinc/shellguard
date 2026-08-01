@@ -321,6 +321,14 @@ func validateSubcommand(command string, args []string, registry map[string]*mani
 // requires_one_of entry, but their value tokens are skipped. POSIX bundling
 // (-la) is not supported as a match for RequiresOneOf entries; that's a minor
 // limitation of scanning tokens rather than parsed flags.
+//
+// A recognized-but-denied flag short-circuits with its own deny reason rather
+// than the generic requires_one_of message: e.g. DSCheckLS.exe -t IFW should
+// explain that -t pulls a license, not report "requires one of: -l, -r, -h" -
+// -t not being a requires_one_of member doesn't make its deny reason less
+// relevant. An unrecognized flag (nil from GetFlag) is not eligible for this
+// and falls through to the generic message, preserving POSIX case-sensitivity
+// (e.g. -L against a manifest that only declares -l).
 func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) error {
 	if len(m.RequiresOneOf) == 0 {
 		return nil
@@ -350,10 +358,15 @@ func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) 
 				return nil
 			}
 		}
+		flagObj := m.GetFlag(name)
+		// A recognized-but-denied flag short-circuits here; see the doc comment above.
+		if flagObj != nil && flagObj.Deny {
+			return &ValidationError{Message: fmt.Sprintf("Flag '%s' is not available for '%s': %s", name, command, flagObj.Reason) + allowedFlagHint(m)}
+		}
 		// Skip a value consumed by this flag so it is never mistaken for a
 		// flag itself: `tool -x -l` passes -l as -x's value, and must not
 		// satisfy a requires_one_of entry for -l.
-		if f := m.GetFlag(name); f != nil && f.TakesValue && !hasInline {
+		if flagObj != nil && flagObj.TakesValue && !hasInline {
 			idx++
 		}
 		idx++

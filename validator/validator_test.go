@@ -501,13 +501,16 @@ func TestRequiresOneOfPosixIgnoresCommonParams(t *testing.T) {
 }
 
 func TestBlockedExecutableMessageIsTerminal(t *testing.T) {
-	err := validateOne(t, "DSCheckLS.exe", "-l")
+	// NotARealTool.exe stands in for an unmanifested executable. DSCheckLS.exe
+	// filled this role until Task 6 gave it a real manifest (requires_one_of:
+	// -l is now allowed), so this test needed a name that stays unmanifested.
+	err := validateOne(t, "NotARealTool.exe", "-l")
 	if err == nil {
 		t.Fatal("expected rejection for an unmanifested executable")
 	}
 	msg := err.Error()
 	// Names the whole binary, not a fragment.
-	if !strings.Contains(msg, "DSCheckLS.exe") {
+	if !strings.Contains(msg, "NotARealTool.exe") {
 		t.Errorf("error should name the binary, got: %v", msg)
 	}
 	// Forecloses the alternatives so the agent stops enumerating them.
@@ -602,5 +605,42 @@ func TestDslsstatValidatesEndToEnd(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "subcommand") {
 		t.Errorf("expected a subcommand rejection, got: %v", err)
+	}
+}
+
+func TestDSCheckLSRequiresASafeMode(t *testing.T) {
+	// Bare invocation requests and releases a license - refused.
+	err := validateOne(t, "DSCheckLS.exe")
+	if err == nil {
+		t.Fatal("bare DSCheckLS.exe must be refused - it pulls a license")
+	}
+	if !strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("expected the requires_one_of message, got: %v", err)
+	}
+
+	for _, args := range [][]string{{"-l"}, {"-h"}, {"-r", "IFW"}} {
+		if err := validateOne(t, "DSCheckLS.exe", args...); err != nil {
+			t.Errorf("DSCheckLS.exe %v: unexpected error %v", args, err)
+		}
+	}
+
+	// Lowercase and mixed case both resolve (parser lowercases; PowerShell
+	// flag matching is case-insensitive).
+	if err := validateOne(t, "dscheckls.exe", "-L"); err != nil {
+		t.Errorf("dscheckls.exe -L: unexpected error %v", err)
+	}
+}
+
+func TestDSCheckLSTokenFlagDenied(t *testing.T) {
+	err := validateOne(t, "DSCheckLS.exe", "-t", "IFW")
+	if err == nil {
+		t.Fatal("-t consumes a license and must be denied")
+	}
+	msg := err.Error()
+	if !strings.Contains(msg, "30 days") {
+		t.Errorf("denial should explain the 30-day lock, got: %v", msg)
+	}
+	if !strings.Contains(msg, "-r") {
+		t.Errorf("denial should point at -r as the safe alternative, got: %v", msg)
 	}
 }

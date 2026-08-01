@@ -1,0 +1,23 @@
+name: dscheckls.exe
+shell: powershell
+description: "DS license server diagnostic check."
+category: 3dexperience
+timeout: 60
+# Bare invocation connects to every server in DSLicSrv.txt and requests and
+# releases a license. A pulled DSLS license locks for 30 days, so the unsafe
+# invocation here is the one with no flags at all.
+requires_one_of: ["-l", "-r", "-h"]
+flags:
+  - flag: "-h"
+    description: "Print command syntax."
+  - flag: "-l"
+    description: "Dump DSLicSrv.txt: configured servers, ports, and status."
+  - flag: "-r"
+    takes_value: true
+    description: "Check whether a license can be granted, without pulling it."
+  - flag: "-t"
+    takes_value: true
+    deny: true
+    reason:
+      "Token request consumes a license, and a pulled license locks for 30 days. Use -r to
+      check availability instead."
