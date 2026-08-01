@@ -1,0 +1,42 @@
+name: HWAccDiagnostics_AMD64
+shell: bash
+description: "CST GPU/accelerator diagnostic (Linux): confirms the driver and GPUs are recognised."
+category: cst
+timeout: 300
+# Source: GPU Computing Guide 2026 sections 9.1.1, 9.2, 11.5 and 13. Located in
+# LinuxAMD64 on Linux and AMD64 on Windows. Section 9.2: "Log in to the machine
+# and execute the HWAccDiagnostics_AMD64 program ... The macro 'Check GPU
+# Computing Setup' in the Solver macros performs exactly this check."
+#
+# Bare invocation is the verification step and is read-only: it reports whether
+# the GPU hardware and driver are correctly recognised, and section 11.5 says
+# the recommended driver can be read off it.
+#
+# The guide renders the help switch with an en-dash ("HWAccDiagnostics_AMD64 -h
+# to see all possible options"); -h is declared here as the ASCII reading of it.
+#
+# The stress-test modes are denied below. They are not state-changing in the
+# filesystem sense, but section 13 describes them as running a memory test or a
+# simulation on every GPU in the box for a caller-chosen duration at a
+# caller-chosen load percentage. On a shared solver node that displaces whatever
+# is running. It is a deliberate maintenance action, not a diagnostic read.
+flags:
+  - flag: "-h"
+    description: "Print all available options."
+  - flag: "--runstresstest"
+    deny: true
+    reason:
+      "Runs a memory test on every GPU in turn for the duration given by -duration, at the
+      load given by -percentage. It occupies each device and will perturb or displace any
+      solver already running on the node. Bare HWAccDiagnostics_AMD64 already answers whether
+      the hardware and driver are recognised, and nvidia-smi -q -d ECC reports memory errors
+      without loading the card. Run a stress test only as a scheduled maintenance action."
+  - flag: "--runstresstest2"
+    deny: true
+    reason:
+      "Runs a simulation on all GPUs concurrently and then on each one separately, for the
+      duration given by -duration. It occupies every device on the node. Use bare
+      HWAccDiagnostics_AMD64 for recognition and nvidia-smi -q -d TEMPERATURE for the thermal
+      picture; schedule the stress test as a maintenance action instead."
+stdin: false
+stdout: true

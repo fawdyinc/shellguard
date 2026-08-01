@@ -1,0 +1,38 @@
+name: hwaccdiagnostics_amd64.exe
+shell: powershell
+allows_flag_bundling: true
+description: "CST GPU/accelerator diagnostic (Windows): confirms the driver and GPUs are recognised."
+category: cst
+timeout: 300
+# Source: GPU Computing Guide 2026 sections 9.1.1, 9.2, 11.5 and 13. Section
+# 9.1.1: "It is recommended that you run the HWAccDiagnostics tool after the
+# installation to confirm that the driver has been successfully installed.
+# Please use HWAccDiagnostics_AMD64.exe which can be found in the AMD64
+# directory of the installation folder."
+#
+# Native Windows executable rather than a PowerShell cmdlet -- it takes
+# POSIX-style -h and --runstresstest, not PowerShell parameters -- so
+# allows_flag_bundling is set deliberately.
+#
+# The guide renders the help switch with an en-dash; -h is the ASCII reading.
+#
+# Stress-test modes denied for the same reason as on Linux: they occupy every
+# GPU on the node for a caller-chosen duration.
+flags:
+  - flag: "-h"
+    description: "Print all available options."
+  - flag: "--runstresstest"
+    deny: true
+    reason:
+      "Runs a memory test on every GPU in turn for the duration given by -duration. It
+      occupies each device and will perturb any solver running on the node. Bare
+      HWAccDiagnostics_AMD64.exe already answers whether the hardware and driver are
+      recognised, and nvidia-smi -q -d ECC reports memory errors without loading the card."
+  - flag: "--runstresstest2"
+    deny: true
+    reason:
+      "Runs a simulation on all GPUs concurrently and then on each separately, occupying every
+      device on the node. Use bare HWAccDiagnostics_AMD64.exe for recognition and
+      nvidia-smi -q -d TEMPERATURE for the thermal picture."
+stdin: false
+stdout: true

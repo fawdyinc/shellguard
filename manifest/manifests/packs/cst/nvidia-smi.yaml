@@ -1,0 +1,382 @@
+name: nvidia-smi
+description: "NVIDIA System Management Interface: GPU inventory, utilisation, clocks, ECC state."
+category: cst
+timeout: 60
+# Flags are sourced from NVIDIA's own reference (docs.nvidia.com/deploy/nvidia-smi/
+# and the nvidia-smi(1) man page), not from the CST GPU Computing Guide. The CST
+# guide only shows the handful of invocations it needs, and it shows several that
+# write: -pm 1, -e 0/1, -dm 0/1, -ac, -rac, -acp.
+#
+# Bare `nvidia-smi` prints the status table and changes nothing, so there is no
+# requires_one_of here.
+#
+# NOTE: the CST GPU Computing Guide 2026 section 12 prints `nvidia-smi -a -d
+# PERFORMANCE`. `-a` is NOT documented in NVIDIA's reference or man page and is
+# not declared here. The equivalent documented form is `-q -d PERFORMANCE`.
+#
+# Bundling matters: without an exact entry, `-pm` would be split into -p -m by
+# the POSIX bundling fallback. Every multi-character write flag below is
+# therefore declared explicitly so the deny reason, not a split, is what fires.
+positional_allowlist:
+  # nvidia-smi's only non-flag arguments are subcommands. Listed here are the
+  # display-only ones. `clocks`, `drain`, `mig`, `daemon`, `conf-compute`,
+  # `power-smoothing`, `power-profiles` and `cper` all carry modifying modes and
+  # are deliberately absent.
+  index: 0
+  values:
+    - topo
+    - nvlink
+    - dmon
+    - pmon
+    - vgpu
+    - event-log
+    - encodersessions
+flags:
+  - flag: "-h"
+    description: "Print usage information and exit."
+  - flag: "--help"
+    description: "Print usage information and exit."
+  - flag: "-v"
+    description: "Print version information and exit."
+  - flag: "--version"
+    description: "Print version information and exit."
+  - flag: "-L"
+    description: "List each NVIDIA GPU in the system with its UUID. Gives the GPU IDs used by -i and CUDA_VISIBLE_DEVICES."
+  - flag: "--list-gpus"
+    description: "Long form of -L."
+  - flag: "-B"
+    description: "List each excluded NVIDIA GPU with its UUID."
+  - flag: "--list-excluded-gpus"
+    description: "Long form of -B."
+  - flag: "-q"
+    description: "Display full GPU or Unit info."
+  - flag: "--query"
+    description: "Long form of -q."
+  - flag: "-i"
+    takes_value: true
+    description: "Restrict output to one GPU/Unit by 0-based index, board serial, UUID, or PCI bus ID."
+  - flag: "--id"
+    takes_value: true
+    description: "Long form of -i."
+  - flag: "-d"
+    takes_value: true
+    description:
+      "Display only the selected section. Documented values include MEMORY, UTILIZATION, ECC,
+      TEMPERATURE, POWER, CLOCK, COMPUTE, PIDS, PERFORMANCE; the CST GPU guide also uses
+      SUPPORTED_CLOCKS."
+  - flag: "--display"
+    takes_value: true
+    description: "Long form of -d."
+  - flag: "-u"
+    description: "Display Unit data instead of GPU data (S-class Tesla enclosures only)."
+  - flag: "--unit"
+    description: "Long form of -u."
+  - flag: "-x"
+    description: "Produce XML output instead of the human-readable format."
+  - flag: "--xml-format"
+    description: "Long form of -x."
+  - flag: "--dtd"
+    description: "Embed the DTD in the XML output."
+  - flag: "-l"
+    takes_value: true
+    description:
+      "Report query data every SEC seconds instead of once. A value is required here even
+      though the tool itself defaults it -- a bare loop blocks until the guard-rail timeout."
+  - flag: "--loop"
+    takes_value: true
+    description: "Long form of -l."
+  - flag: "-lms"
+    takes_value: true
+    description: "Loop interval in milliseconds."
+  - flag: "--loop-ms"
+    takes_value: true
+    description: "Long form of -lms."
+  - flag: "--query-gpu"
+    takes_value: true
+    description: "Comma-separated list of GPU properties to report. Pair with --format=csv."
+  - flag: "--query-compute-apps"
+    takes_value: true
+    description: "Report the currently active compute processes."
+  - flag: "--query-accounted-apps"
+    takes_value: true
+    description: "Report accounted compute processes."
+  - flag: "--query-supported-clocks"
+    takes_value: true
+    description: "Report the clock rates the board supports."
+  - flag: "--query-retired-pages"
+    takes_value: true
+    description: "Report retired memory pages."
+  - flag: "--query-remapped-rows"
+    takes_value: true
+    description: "Report remapped row information."
+  - flag: "--format"
+    takes_value: true
+    description: "Output format for the --query-* forms: csv (mandatory), noheader, nounits."
+
+  # ---- state-changing: denied ----
+  - flag: "-f"
+    takes_value: true
+    deny: true
+    reason:
+      "-f/--filename overwrites the named file with the query output. Let the output come
+      back on stdout and pipe it instead."
+  - flag: "--filename"
+    takes_value: true
+    deny: true
+    reason:
+      "-f/--filename overwrites the named file with the query output. Let the output come
+      back on stdout and pipe it instead."
+  - flag: "-pm"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets driver persistence mode on the target GPUs and requires root. Read the current
+      mode with `nvidia-smi -q` (Persistence Mode field) and have an administrator change it."
+  - flag: "--persistence-mode"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets driver persistence mode on the target GPUs and requires root. Read the current
+      mode with `nvidia-smi -q` instead."
+  - flag: "-e"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets ECC mode and requires root and a reboot to take effect. Read the current ECC
+      state with `nvidia-smi -q -d ECC`."
+  - flag: "--ecc-config"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets ECC mode and requires root and a reboot. Read the current state with
+      `nvidia-smi -q -d ECC`."
+  - flag: "-p"
+    takes_value: true
+    deny: true
+    reason:
+      "Resets the ECC error counters, destroying the evidence that a GPU has faulty memory.
+      Read the counters with `nvidia-smi -q -d ECC`."
+  - flag: "--reset-ecc-errors"
+    takes_value: true
+    deny: true
+    reason:
+      "Resets the ECC error counters, destroying the evidence of faulty GPU memory. Read them
+      with `nvidia-smi -q -d ECC`."
+  - flag: "-c"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets the compute mode. Putting a GPU into Exclusive Process stops CST Studio Suite from
+      running on it at all. Read the current mode with `nvidia-smi -q -d COMPUTE`."
+  - flag: "--compute-mode"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets the compute mode; Exclusive Process stops CST Studio Suite from running on the
+      device. Read it with `nvidia-smi -q -d COMPUTE`."
+  - flag: "-dm"
+    takes_value: true
+    deny: true
+    reason:
+      "Switches the Windows driver model between WDDM and TCC and needs a reboot. Read the
+      current model with `nvidia-smi -q`; a change is an administrator action."
+  - flag: "--driver-model"
+    takes_value: true
+    deny: true
+    reason:
+      "Switches the Windows driver model (WDDM/TCC) and needs a reboot. Read it with
+      `nvidia-smi -q`."
+  - flag: "-fdm"
+    takes_value: true
+    deny: true
+    reason:
+      "Forces a Windows driver model change. Read the current model with `nvidia-smi -q`."
+  - flag: "--force-driver-model"
+    takes_value: true
+    deny: true
+    reason: "Forces a Windows driver model change. Read the current model with `nvidia-smi -q`."
+  - flag: "-r"
+    deny: true
+    reason:
+      "Resets the GPU. Any solver holding the device loses its run. Nothing is diagnosed by a
+      reset that `nvidia-smi -q` does not already report."
+  - flag: "--gpu-reset"
+    deny: true
+    reason:
+      "Resets the GPU and kills whatever is running on it. Read state with `nvidia-smi -q`."
+  - flag: "-ac"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets application memory and graphics clocks and requires root. Read the clocks in use
+      with `nvidia-smi -q -d CLOCK` and the supported set with `nvidia-smi -q -d SUPPORTED_CLOCKS`."
+  - flag: "--applications-clocks"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets application clocks and requires root. Read them with `nvidia-smi -q -d CLOCK`."
+  - flag: "-rac"
+    deny: true
+    reason:
+      "Resets application clocks to default and requires root. Read the current setting with
+      `nvidia-smi -q -d CLOCK`."
+  - flag: "--reset-applications-clocks"
+    deny: true
+    reason:
+      "Resets application clocks and requires root. Read them with `nvidia-smi -q -d CLOCK`."
+  - flag: "-acp"
+    takes_value: true
+    deny: true
+    reason:
+      "Changes who is allowed to set application clocks -- UNRESTRICTED hands clock control to
+      every unprivileged user on the machine. This is a policy change, not a diagnostic."
+  - flag: "--applications-clocks-permission"
+    takes_value: true
+    deny: true
+    reason:
+      "Changes who may set application clocks. This is a policy change, not a diagnostic."
+  - flag: "-lgc"
+    takes_value: true
+    deny: true
+    reason:
+      "Locks the GPU clock range and requires root; it silently changes the performance of
+      every subsequent solver run. Read the clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "--lock-gpu-clocks"
+    takes_value: true
+    deny: true
+    reason:
+      "Locks the GPU clock range and requires root. Read the clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "-rgc"
+    deny: true
+    reason: "Resets locked GPU clocks and requires root. Read them with `nvidia-smi -q -d CLOCK`."
+  - flag: "--reset-gpu-clocks"
+    deny: true
+    reason: "Resets locked GPU clocks and requires root. Read them with `nvidia-smi -q -d CLOCK`."
+  - flag: "-lmc"
+    takes_value: true
+    deny: true
+    reason: "Locks the memory clock range and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "--lock-memory-clocks"
+    takes_value: true
+    deny: true
+    reason: "Locks the memory clock range and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "-rmc"
+    deny: true
+    reason: "Resets locked memory clocks and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "--reset-memory-clocks"
+    deny: true
+    reason: "Resets locked memory clocks and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "-lmcd"
+    takes_value: true
+    deny: true
+    reason: "Locks the deferred memory clock and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "-rmcd"
+    deny: true
+    reason: "Resets the deferred memory clock and requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "-pl"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets the board power limit and requires root; it changes sustained solver throughput.
+      Read the current limit with `nvidia-smi -q -d POWER`."
+  - flag: "--power-limit"
+    takes_value: true
+    deny: true
+    reason: "Sets the board power limit and requires root. Read it with `nvidia-smi -q -d POWER`."
+  - flag: "-cc"
+    takes_value: true
+    deny: true
+    reason: "Overrides or restores default CUDA clocks and requires root. Read with `nvidia-smi -q -d CLOCK`."
+  - flag: "--cuda-clocks"
+    takes_value: true
+    deny: true
+    reason: "Overrides or restores default CUDA clocks and requires root. Read with `nvidia-smi -q -d CLOCK`."
+  - flag: "-am"
+    takes_value: true
+    deny: true
+    reason:
+      "Enables or disables GPU accounting and requires administrator rights. Read accounted
+      processes with `nvidia-smi --query-accounted-apps=...`."
+  - flag: "--accounting-mode"
+    takes_value: true
+    deny: true
+    reason:
+      "Enables or disables GPU accounting and requires administrator rights. Read accounted
+      processes with `nvidia-smi --query-accounted-apps=...`."
+  - flag: "-caa"
+    deny: true
+    reason:
+      "Clears the accounted-process list, destroying the record of what ran on the GPU. Read
+      it first with `nvidia-smi --query-accounted-apps=...`."
+  - flag: "--clear-accounted-apps"
+    deny: true
+    reason:
+      "Clears the accounted-process list. Read it with `nvidia-smi --query-accounted-apps=...`."
+  - flag: "-mig"
+    takes_value: true
+    deny: true
+    reason:
+      "Enables or disables Multi Instance GPU mode and requires root; it re-partitions the
+      device out from under anything running on it. Read the current mode with `nvidia-smi -q`."
+  - flag: "--multi-instance-gpu"
+    takes_value: true
+    deny: true
+    reason: "Enables or disables MIG mode and requires root. Read the current mode with `nvidia-smi -q`."
+  - flag: "-gtt"
+    takes_value: true
+    deny: true
+    reason:
+      "Sets the GPU target temperature and requires root. Read temperatures with
+      `nvidia-smi -q -d TEMPERATURE`."
+  - flag: "--gpu-target-temp"
+    takes_value: true
+    deny: true
+    reason: "Sets the GPU target temperature and requires root. Read with `nvidia-smi -q -d TEMPERATURE`."
+  - flag: "-vm"
+    takes_value: true
+    deny: true
+    reason: "Switches the GPU virtualization mode. Read the current mode with `nvidia-smi -q`."
+  - flag: "--virt-mode"
+    takes_value: true
+    deny: true
+    reason: "Switches the GPU virtualization mode. Read the current mode with `nvidia-smi -q`."
+  - flag: "--gom"
+    takes_value: true
+    deny: true
+    reason: "Sets the GPU Operation Mode and requires administrator rights. Read it with `nvidia-smi -q`."
+  - flag: "-sc"
+    takes_value: true
+    deny: true
+    reason: "Only meaningful alongside the denied -pl power-limit change."
+  - flag: "--scope"
+    takes_value: true
+    deny: true
+    reason: "Only meaningful alongside the denied -pl power-limit change."
+  - flag: "-t"
+    takes_value: true
+    deny: true
+    reason: "Sets the enclosure LED indicator state and requires root. Not a diagnostic."
+  - flag: "--toggle-led"
+    takes_value: true
+    deny: true
+    reason: "Sets the enclosure LED indicator state and requires root. Not a diagnostic."
+  - flag: "--set-hostname"
+    takes_value: true
+    deny: true
+    reason: "Sets the device hostname and requires root."
+  - flag: "--auto-boost-default"
+    takes_value: true
+    deny: true
+    reason: "Deprecated auto-boost policy change, requires root. Read clocks with `nvidia-smi -q -d CLOCK`."
+  - flag: "--auto-boost-permission"
+    takes_value: true
+    deny: true
+    reason: "Deprecated auto-boost permission change, requires root."
+  - flag: "--debug"
+    takes_value: true
+    deny: true
+    reason:
+      "Writes an encrypted debug log to the named file for submission to NVIDIA. It writes to
+      disk and its contents cannot be read back or reviewed here."
+stdin: false
+stdout: true

@@ -1,0 +1,13 @@
+name: cst_design_environment_gui
+shell: bash
+deny: true
+category: cst
+description: "CST Studio Suite graphical front-end launcher (Linux)."
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version section 4.1;
+# CST 2026 IdEM Installation Prerequisite (the -idem form).
+reason:
+  "This launches the CST Studio Suite graphical user interface and checks out a licence to do
+  it -- there is no output for a terminal to read. To check that the Linux prerequisites for
+  starting it are met, run cst_system_check. To see what a running batch simulation is doing,
+  read <PROJECT_FOLDER>/Result/progress.log and <PROJECT_FOLDER>/Result/output.txt (Cluster
+  Integration Guide section 8.1)."

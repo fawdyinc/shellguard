@@ -1,0 +1,41 @@
+name: lmpath
+description: "Read the FlexNet license search path settings."
+category: licensing
+timeout: 30
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmpath"
+# (p128-129, Table -9), plus "Common Arguments for lmutil" (p117, Table -2).
+#
+# lmpath is READ-ONLY IN ONE MODE ONLY. The guide's usage is
+#   lmpath {-add | -override | -status} {vendor | all} license_file_list
+# and two of those three modes write persistent state -- they edit the license
+# search path in the Windows registry under
+#   HKEY_CURRENT_USER\Software\FLEXlm License Manager
+# or in $HOME/.flexlmrc on UNIX. -override with the null string "" DELETES the
+# value of LM_LICENSE_FILE or VENDOR_LICENSE_FILE outright, which silently
+# breaks every checkout for that user until someone notices.
+#
+# So the tool is allowed but pinned to -status, and requires_one_of enforces
+# that: per-flag denial alone cannot stop an invocation that carries no flags.
+requires_one_of: ["-status", "-help"]
+allows_path_args: true
+flags:
+  - flag: "-status"
+    description: "Display the current license search path settings. The read-only mode."
+  - flag: "-add"
+    deny: true
+    reason:
+      "Prepends to the persistent license search path in the registry (Windows) or
+      $HOME/.flexlmrc (UNIX). Use 'lmpath -status' to read the current path instead."
+  - flag: "-override"
+    deny: true
+    reason:
+      "Overwrites the persistent license search path, and with a null string deletes
+      LM_LICENSE_FILE or VENDOR_LICENSE_FILE entirely, breaking checkouts for the user.
+      Use 'lmpath -status' to read the current path instead."
+  - flag: "-v"
+    description: "Display the version of the utility and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."

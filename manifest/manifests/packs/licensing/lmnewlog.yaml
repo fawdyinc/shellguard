@@ -1,0 +1,23 @@
+name: lmnewlog
+description: "Rotate the FlexNet report log, keeping the original file name."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmnewlog"
+# (p127-128, Table -8).
+#
+# lmnewlog is log rotation: it MOVES the existing report log content to a new
+# file name, then starts a fresh report log under the original name. It is the
+# inverse of lmswitchr (which leaves the old file and redirects new output), and
+# the guide recommends it over lmswitchr precisely because the options-file
+# REPORTLOG line then needs no edit.
+#
+# For an agent that is a destructive operation on the evidence: the path being
+# investigated is renamed out from under any concurrent reader, and the
+# canonical file becomes empty. The -secondary flag does the same on the
+# secondary server of a three-server setup.
+reason:
+  "lmnewlog rotates the report log -- it renames the existing usage history to another
+  file and empties the canonical one, destroying continuity for anything reading it.
+  To READ licensing history, read the existing report and debug log files directly; for
+  current usage use 'lmstat -a'. Log rotation is a license-administrator action."

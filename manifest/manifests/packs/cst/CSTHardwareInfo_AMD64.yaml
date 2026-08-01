@@ -1,0 +1,21 @@
+name: CSTHardwareInfo_AMD64
+shell: bash
+description: "Reports the hardware CST Studio Suite can see on this node (Linux)."
+category: cst
+timeout: 120
+# Source: MPI Computing Guide 2026 appendix D.2 "Check Program File Access",
+# where it is the payload used to prove a node can reach and execute the CST
+# installation:
+#   mpiexec.cst.sh -host comp2 -n 1 "<CST-INSTALL>/LinuxAMD64/CSTHardwareInfo_AMD64"
+# Located in LinuxAMD64 inside the installation.
+#
+# flags: [] is the sourced answer, not an omission. The guide shows the binary
+# invoked with no arguments of its own -- every switch in that line belongs to
+# mpiexec, not to CSTHardwareInfo -- and no primary source documents any option
+# for it. It reports hardware and returns; nothing is changed.
+#
+# mpiexec is denied here, so the useful invocation of this tool is the direct
+# local one: run it on the node whose hardware is in question.
+flags: []
+stdin: false
+stdout: true

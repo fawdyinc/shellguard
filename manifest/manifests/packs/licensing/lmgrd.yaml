@@ -1,0 +1,31 @@
+name: lmgrd
+description: "FlexNet license server manager; restricted to its print-and-exit flags."
+category: licensing
+timeout: 30
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "License Server Manager 'lmgrd' -> lmgrd Command-Line Syntax" (p97-99, Table -1).
+#
+# lmgrd IS THE DAEMON. Bare `lmgrd` reads a license file and STARTS A LICENSE
+# SERVER, backgrounding itself by default ("-z: Runs in foreground. The default
+# behavior is to run in the background"). An agent that runs bare lmgrd to "see
+# if it works" leaves a live server process behind, and if one was already
+# running it produces the documented failure "MULTIPLE vendor servers running.
+# Kill and restart license daemon."
+#
+# Per-flag validation cannot catch that, because the unsafe invocation carries
+# no flags at all. requires_one_of forces one of the two flags the guide
+# documents as printing and exiting:
+#   -v     "Displays the lmgrd version number and copyright and exits."
+#   -help  "Displays usage information and exits."
+# Every other documented flag (-c, -l, -2, -p, -local, -x, -z, -d, -reuseaddr)
+# is a server-startup or server-policy option and is deliberately NOT declared,
+# so it is refused as an unknown flag.
+#
+# -v is the version check for the compatibility rule in "Identifying FlexNet
+# Publisher Versions": lmutil/lmtools >= lmadmin/lmgrd >= vendor daemon.
+requires_one_of: ["-v", "-help"]
+flags:
+  - flag: "-v"
+    description: "Display the lmgrd version number and copyright, and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."

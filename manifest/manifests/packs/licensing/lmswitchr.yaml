@@ -1,0 +1,28 @@
+name: lmswitchr
+description: "Switch the FlexNet vendor daemon report log to a new file."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmswitchr"
+# (p138-139, Table -16).
+#
+# lmswitchr closes the vendor daemon's existing report log and starts a new one
+# at a path the caller chooses, creating it if absent. Two problems for an agent:
+#
+# 1. It MOVES THE EVIDENCE. The report log is the usage record; redirecting it
+#    mid-investigation splits the history across files, and anything reading the
+#    old path afterwards sees a log that has silently stopped.
+# 2. It writes to an arbitrary caller-supplied path, as the vendor daemon's
+#    user. The guide recommends a ProgramData sub-folder specifically because
+#    the server may run as a service with LocalService permission.
+#
+# The effect is also not durable -- it "continues only until the vendor daemon is
+# shut down or its options file is reread via lmreread" -- so it produces a
+# temporary, surprising state rather than a configuration change.
+reason:
+  "lmswitchr redirects the vendor daemon's report log to a new file, splitting the usage
+  record and writing to a caller-chosen path as the daemon's user. To READ licensing
+  activity, read the existing report and debug logs directly (grep for the '(@lmgrd-SLOG@)'
+  and '(@<vendor>-SLOG@)' diagnostic prefixes), and use 'lmstat -a' for current usage.
+  Persistent report-log location belongs in the REPORTLOG line of the vendor daemon's
+  options file, which is an administrator edit."

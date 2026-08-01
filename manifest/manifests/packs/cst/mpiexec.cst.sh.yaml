@@ -1,0 +1,15 @@
+name: mpiexec.cst.sh
+shell: bash
+deny: true
+category: cst
+description: "CST wrapper around mpiexec on Linux: sets the MPI environment, then launches."
+# Source: MPI Computing Guide 2026 appendix D.2: "CST created wrapper scripts on
+# Linux and Windows which will automatically configure the environment and call
+# mpiexec."
+reason:
+  "This is a thin wrapper that configures the MPI environment and then calls mpiexec, so it
+  inherits mpiexec's problem exactly: the program it runs on the remote hosts is a positional
+  argument that cannot be validated. Run the CST diagnostics directly on the node instead --
+  SystemCheck_AMD64 -m <machinefile> for the whole cluster, CSTHardwareInfo_AMD64 for one
+  node -- and hand an operator the appendix D.3 line if a two-node MPI bandwidth measurement
+  is genuinely required."

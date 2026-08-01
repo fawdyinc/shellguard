@@ -1,0 +1,21 @@
+name: cst_system_check
+shell: bash
+description: "CST Studio Suite Linux prerequisite checker: reports missing libraries and tools."
+category: cst
+timeout: 300
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version, sections 2.1
+# (prerequisite 5), 3.2, 4.1 and 5.6; also MPI Computing Guide 2026 section 6.1.2,
+# which recommends running it once on every node that uses a shared installation.
+#
+# Lives at "<CST_INSTALL_PATH>/cst_system_check". The guide shows it invoked with
+# no arguments in all four places and documents no options, so flags: [] here is
+# the sourced answer, not an omission -- there is no primary source for any flag
+# on this script.
+#
+# Caveat worth knowing before running it: section 5.6 says the tool can "detect
+# and optionally install missing dependencies from your installation medium or
+# the predefined software repository". The install path is interactive and needs
+# root. Run it as an unprivileged user and it can only report.
+flags: []
+stdin: false
+stdout: true

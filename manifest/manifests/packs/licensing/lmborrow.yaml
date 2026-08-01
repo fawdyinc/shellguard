@@ -1,0 +1,39 @@
+name: lmborrow
+description: "Initiate, clear, purge, or return a borrowed FlexNet license."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmborrow"
+# (p117-121, Tables -3 and -4), and "License Models -> License Borrowing with
+# BORROW" (p57-60).
+#
+# lmborrow looks read-only because of -status, but every mode writes state:
+#
+#   lmborrow {vendor|all} enddate [time]  sets LM_BORROW, in the Windows
+#                                          registry or $HOME/.flexlmborrow. The
+#                                          next application launch that day then
+#                                          BORROWS licenses out of the pool --
+#                                          removing them from the shared pool for
+#                                          the whole borrow period, which can be
+#                                          days.
+#   lmborrow -clear                        clears the LM_BORROW setting.
+#   lmborrow -purge                        removes expired borrowed licenses.
+#   lmborrow -return <feature>             returns a borrowed license early.
+#
+# -status alone is the one read-only mode, but it cannot be isolated safely
+# enough to be worth allowing: the borrow-initiating form takes NO FLAG AT ALL
+# (`lmborrow sampled 20-aug-2017`), so it is a bare positional invocation, and
+# requires_one_of "-status" is the only thing that would stop it. That is a
+# workable design, but the borrowed-license state it reads is also fully visible
+# from lmstat, which is already permitted -- the guide lists "BORROW licenses
+# borrowed" among the things lmstat monitors. There is no reason to take the risk.
+#
+# lmborrowl is the same tool for feature names containing hyphens and carries
+# exactly the same hazard; it is not separately manifested, so it is refused as
+# an unknown command.
+reason:
+  "lmborrow writes borrow state -- setting LM_BORROW takes licenses out of the shared
+  pool for days, and -clear, -purge, and -return all mutate it further. Its borrow-
+  initiating form carries no flags at all, so it cannot be safely narrowed to its one
+  read-only mode. To see what is currently borrowed, use 'lmstat -a', which reports
+  borrowed licenses along with the rest of the server state."

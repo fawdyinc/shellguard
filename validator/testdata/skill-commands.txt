@@ -2,22 +2,14 @@
 # bash/powershell blocks. Regenerate with:
 #   scripts/extract-skill-commands.py <fawdy-legacy>/src/lib/skills \
 #     > validator/testdata/skill-commands.txt
-# 232 unique commands; 7 lines dropped as shell constructs.
+# 324 unique commands; 7 lines dropped as shell constructs.
 # Format: <source>\t<shell>\t<command>
-3dexperience/SKILL.md:37	powershell	Get-Content -Path "PLACEHOLDER\SMA\site\EstablishedProductsConfig.ini"
-3dexperience/SKILL.md:64	powershell	abaqus licensing dslsstat
-3dexperience/SKILL.md:67	powershell	abaqus licensing dslsstat -usage
-3dexperience/SKILL.md:70	powershell	abaqus licensing dslsstat -server jupiter:4085
-3dexperience/SKILL.md:74	powershell	DSCheckLS.exe -l
-3dexperience/SKILL.md:78	powershell	DSCheckLS.exe -r IFW
-3dexperience/SKILL.md:123	powershell	Get-Content -Path "PLACEHOLDER\PLACEHOLDER\SMA\site\custom_v6.env"
-3dexperience/SKILL.md:143	powershell	DSYListInstalls.exe
-3dexperience/SKILL.md:144	powershell	DSYListInstalls.exe -h
-3dexperience/SKILL.md:181	powershell	Get-Service dsls
-3dexperience/SKILL.md:182	powershell	Get-Process -Name dsls
-3dexperience/SKILL.md:193	powershell	Get-Content -Path "C:\DassaultSystemes\R2026x\3DSpace\logs\mxtrace.log" -Tail 50
-3dexperience/SKILL.md:215	powershell	jps
-3dexperience/SKILL.md:218	powershell	jstack PLACEHOLDER
+3dexperience/SKILL.md:26	powershell	DSYListInstalls.exe
+3dexperience/SKILL.md:27	powershell	DSYListInstalls.exe -h
+3dexperience/SKILL.md:68	powershell	Get-Content -Path "C:\DassaultSystemes\R2026x\3DSpace\logs\mxtrace.log" -Tail 50
+3dexperience/SKILL.md:90	powershell	jps
+3dexperience/SKILL.md:93	powershell	jstack PLACEHOLDER
+3dexperience/references/performance-analysis.md:145	bash	pstack PID
 apache/SKILL.md:20	bash	systemctl status httpd
 apache/SKILL.md:21	bash	systemctl status apache2
 apache/SKILL.md:24	bash	apachectl configtest
@@ -81,6 +73,70 @@ apache/references/proxy-ssl.md:110	bash	openssl rsa -noout -modulus -in /etc/htt
 apache/references/proxy-ssl.md:117	bash	rg "SSLCertificate|SSLProtocol|SSLCipherSuite" /etc/httpd/ /etc/apache2/
 apache/references/proxy-ssl.md:120	bash	httpd -M | grep ssl
 apache/references/proxy-ssl.md:123	bash	rg "SSL|AH0089|AH02003|AH02561" /var/log/httpd/error_log | tail -20
+cst-studio/SKILL.md:25	bash	cst_system_check
+cst-studio/references/gpu.md:31	bash	nvidia-smi
+cst-studio/references/gpu.md:32	bash	nvidia-smi --query-gpu=index,name,driver_version --format=csv
+cst-studio/references/gpu.md:40	bash	HWAccDiagnostics_AMD64
+cst-studio/references/gpu.md:46	powershell	HWAccDiagnostics_AMD64.exe
+cst-studio/references/gpu.md:57	bash	HWAccDiagnostics_AMD64 -h
+cst-studio/references/gpu.md:93	bash	nvidia-smi -L
+cst-studio/references/gpu.md:94	bash	nvidia-smi -q
+cst-studio/references/gpu.md:95	bash	nvidia-smi -q -d MEMORY
+cst-studio/references/gpu.md:96	bash	nvidia-smi -q -d TEMPERATURE
+cst-studio/references/gpu.md:97	bash	nvidia-smi -q -d CLOCK
+cst-studio/references/gpu.md:98	bash	nvidia-smi -q -d SUPPORTED_CLOCKS
+cst-studio/references/gpu.md:99	bash	nvidia-smi -q -d PERFORMANCE
+cst-studio/references/gpu.md:100	bash	nvidia-smi -q -d ECC
+cst-studio/references/gpu.md:101	bash	nvidia-smi -q -d COMPUTE
+cst-studio/references/gpu.md:102	bash	nvidia-smi -q -i PLACEHOLDER
+cst-studio/references/gpu.md:103	bash	nvidia-smi --query-gpu=index,name,driver_version,memory.total,memory.used,ecc.mode.current --format=csv
+cst-studio/references/gpu.md:104	bash	nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv
+cst-studio/references/gpu.md:105	bash	nvidia-smi topo
+cst-studio/references/gpu.md:117	bash	nvidia-smi -l 5
+cst-studio/references/gpu.md:261	bash	printenv CUDA_VISIBLE_DEVICES
+cst-studio/references/installation-linux.md:40	bash	ls /opt/cst
+cst-studio/references/installation-linux.md:41	bash	ls /etc/systemd/system | grep cst-
+cst-studio/references/installation-linux.md:42	bash	systemctl status cst-solverserver2026
+cst-studio/references/installation-linux.md:43	bash	systemctl is-active cst-maincontroller2026
+cst-studio/references/installation-linux.md:44	bash	ls -l /tmp/CSTSolverServerWork2026
+cst-studio/references/installation-linux.md:56	bash	cat /opt/cst/CST_Studio_Suite_2026/cst_custom.conf
+cst-studio/references/installation-linux.md:57	bash	stat /var/.com.zerog.registry.xml
+cst-studio/references/installation-linux.md:111	bash	cat /etc/hosts
+cst-studio/references/installation-linux.md:112	bash	grep -n 127.0.0.1 /etc/hosts
+cst-studio/references/installation-linux.md:113	bash	printenv MCR_4_idem
+cst-studio/references/installation-linux.md:168	bash	ls /opt/cst/CST_Studio_Suite_2026/ClusterUtilities
+cst-studio/references/installation-linux.md:194	bash	df -h /tmp
+cst-studio/references/installation-linux.md:195	bash	printenv IATEMPDIR
+cst-studio/references/installation-linux.md:196	bash	stat /lib64/ld-lsb-x86-64.so.3
+cst-studio/references/installation-linux.md:266	bash	cst_design_environment --help
+cst-studio/references/mpi-cluster.md:52	bash	printenv CST_MPI_VERSION
+cst-studio/references/mpi-cluster.md:72	bash	printenv I_MPI_HYDRA_BOOTSTRAP
+cst-studio/references/mpi-cluster.md:104	bash	grep -n StrictHostKeyChecking /etc/ssh/ssh_config
+cst-studio/references/mpi-cluster.md:105	bash	grep -n PubkeyAuthentication /etc/ssh/sshd_config
+cst-studio/references/mpi-cluster.md:152	bash	ping -c 3 comp1
+cst-studio/references/mpi-cluster.md:153	bash	nslookup comp1
+cst-studio/references/mpi-cluster.md:176	bash	CSTHardwareInfo_AMD64
+cst-studio/references/mpi-cluster.md:207	bash	CSTMPIPerformanceTest_AMD64
+cst-studio/references/mpi-cluster.md:228	bash	SystemCheck_AMD64 --help
+cst-studio/references/mpi-cluster.md:229	bash	SystemCheck_AMD64 -m /home/user/mpi_machines.txt
+cst-studio/references/mpi-cluster.md:235	powershell	SystemCheck_AMD64.exe -m C:\cluster\mpi_machines.txt
+cst-studio/references/mpi-cluster.md:326	bash	cat /etc/environment
+cst-studio/references/mpi-cluster.md:327	bash	ls /etc/profile.d
+cst-studio/references/mpi-cluster.md:385	bash	cat /etc/security/limits.conf
+cst-studio/references/mpi-cluster.md:407	bash	lscpu
+cst-studio/references/mpi-cluster.md:408	bash	nproc
+cst-studio/references/observing-a-run.md:54	bash	cat PLACEHOLDER/Result/progress.log
+cst-studio/references/observing-a-run.md:55	bash	tail -n 3 PLACEHOLDER/Result/progress.log
+cst-studio/references/observing-a-run.md:56	bash	stat PLACEHOLDER/Result/progress.log
+cst-studio/references/observing-a-run.md:66	bash	tail -n 50 PLACEHOLDER/Result/output.txt
+cst-studio/references/observing-a-run.md:67	bash	grep -n Error PLACEHOLDER/Result/output.txt
+cst-studio/references/observing-a-run.md:68	bash	grep -n Warning PLACEHOLDER/Result/output.txt
+cst-studio/references/observing-a-run.md:74	powershell	Get-Content -Path "PLACEHOLDER\Result\progress.log"
+cst-studio/references/observing-a-run.md:75	powershell	Get-Content -Path "PLACEHOLDER\Result\output.txt" -Tail 50
+cst-studio/references/observing-a-run.md:81	bash	find PLACEHOLDER -name progress.log
+cst-studio/references/observing-a-run.md:226	bash	grep -n flock /etc/fstab
+cst-studio/references/observing-a-run.md:227	bash	cat /etc/fstab
+cst-studio/references/observing-a-run.md:259	bash	printenv CST_WAIT_FOR_LICENSE
 docker/SKILL.md:82	bash	docker ps --format '{{.Names}}' --filter 'name=prod-'
 docker/SKILL.md:85	bash	docker inspect prod-api-1 prod-worker-60 prod-worker-bg-60 | jq -r '.[] | "\(.Name) restarts=\(.RestartCount) oom=\(.State.OOMKilled) status=\(.State.Status)"'
 docker/SKILL.md:93	bash	docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.PIDs}}'
@@ -88,6 +144,42 @@ docker/SKILL.md:102	bash	docker logs prod-api-1 --tail 200 --since 30m
 docker/SKILL.md:103	bash	docker logs prod-worker-60 --since 2026-04-26T19:00:00
 docker/SKILL.md:111	bash	docker inspect prod-api-1 | jq '.[].State | {Status, StartedAt, FinishedAt, OOMKilled, ExitCode, RestartCount}'
 docker/SKILL.md:120	bash	docker inspect prod-api-1 | jq '.[].Config | {Cmd, Entrypoint, Env, WorkingDir, User}'
+ds-licensing/SKILL.md:37	powershell	Get-Content -Path "PLACEHOLDER\SMA\site\EstablishedProductsConfig.ini"
+ds-licensing/SKILL.md:64	powershell	abaqus licensing dslsstat
+ds-licensing/SKILL.md:67	powershell	abaqus licensing dslsstat -usage
+ds-licensing/SKILL.md:70	powershell	abaqus licensing dslsstat -server jupiter:4085
+ds-licensing/SKILL.md:74	powershell	DSCheckLS.exe -l
+ds-licensing/SKILL.md:78	powershell	DSCheckLS.exe -r IFW
+ds-licensing/SKILL.md:138	powershell	Get-Content -Path "PLACEHOLDER\PLACEHOLDER\SMA\site\custom_v6.env"
+ds-licensing/SKILL.md:157	powershell	Get-Service dsls
+ds-licensing/SKILL.md:158	powershell	Get-Process -Name dsls
+ds-licensing/references/flexnet.md:44	bash	lmutil lmver /opt/cst/LicenseServer/lmgrd
+ds-licensing/references/flexnet.md:45	bash	lmgrd -v
+ds-licensing/references/flexnet.md:194	bash	lmstat -a
+ds-licensing/references/flexnet.md:195	bash	lmstat -f ABAQUS
+ds-licensing/references/flexnet.md:196	bash	lmstat -A
+ds-licensing/references/flexnet.md:234	bash	lmstat -i ABAQUS
+ds-licensing/references/flexnet.md:248	bash	lmstat -a | grep "Users of"
+ds-licensing/references/flexnet.md:249	bash	lmstat -a | grep -A 3 ABAQUSLM
+ds-licensing/references/flexnet.md:255	bash	lmstat -c 27000@licserver -a
+ds-licensing/references/flexnet.md:256	bash	lmstat -S ABAQUSLM
+ds-licensing/references/flexnet.md:257	bash	lmstat -vd
+ds-licensing/references/flexnet.md:258	bash	lmstat -lm
+ds-licensing/references/flexnet.md:259	bash	lmstat -t 5 -a
+ds-licensing/references/flexnet.md:275	bash	lmdiag -n
+ds-licensing/references/flexnet.md:276	bash	lmdiag -n ABAQUS
+ds-licensing/references/flexnet.md:277	bash	lmdiag -n -c /usr/local/flexlm/licenses/license.lic
+ds-licensing/references/flexnet.md:294	bash	lmdiag -n f1:HOSTID=12345678
+ds-licensing/references/flexnet.md:482	bash	lmhostid -ether
+ds-licensing/references/flexnet.md:491	bash	lmhostid
+ds-licensing/references/flexnet.md:492	bash	lmhostid -n
+ds-licensing/references/flexnet.md:494	bash	lmhostid -hostname
+ds-licensing/references/flexnet.md:495	bash	lmhostid -internet -v4
+ds-licensing/references/flexnet.md:496	bash	lmhostid -ptype VM -uuid
+ds-licensing/references/flexnet.md:520	bash	lmpath -status
+ds-licensing/references/flexnet.md:606	bash	lmver /usr/local/flexlm/bin/lmgrd
+ds-licensing/references/flexnet.md:608	bash	lmutil lmstat -a
+ds-licensing/references/flexnet.md:609	bash	lmutil lmhostid -ether
 java-jvm/SKILL.md:27	bash	pgrep -fa java
 java-jvm/SKILL.md:28	bash	jps -lvm
 java-jvm/SKILL.md:29	bash	jcmd -l

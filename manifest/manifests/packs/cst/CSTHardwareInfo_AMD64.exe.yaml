@@ -1,0 +1,20 @@
+name: csthardwareinfo_amd64.exe
+shell: powershell
+allows_flag_bundling: true
+description: "Reports the hardware CST Studio Suite can see on this node (Windows)."
+category: cst
+timeout: 120
+# Source: MPI Computing Guide 2026 appendix D.2:
+#   mpiexec.cst.bat -host comp2 -n 1 "<CST-INSTALL>\AMD64\CSTHardwareInfo_AMD64.exe"
+# Located in the AMD64 folder of the installation.
+#
+# flags: [] is the sourced answer: the guide shows the binary invoked with no
+# arguments of its own (every switch in that line is mpiexec's), and no primary
+# source documents an option for it.
+#
+# Native Windows executable rather than a cmdlet, hence allows_flag_bundling --
+# the flag list is empty, so this only affects how an unexpected switch is
+# reported.
+flags: []
+stdin: false
+stdout: true

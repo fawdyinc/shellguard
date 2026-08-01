@@ -1,0 +1,29 @@
+name: lmver
+description: "Report the FlexNet Publisher version of a library, daemon, or binary."
+category: licensing
+timeout: 30
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmver" (p140),
+# plus "Common Arguments for lmutil" (p117, Table -2).
+#
+# Usage is simply `lmver filename`, where filename is a FlexEnabled executable,
+# the license server manager, a license administration tool, or a vendor daemon.
+# It reads the binary and prints a version. No server contact, no state change.
+#
+# This is the tool for the version-compatibility rule in "Identifying FlexNet
+# Publisher Versions": lmutil/lmtools version must be >= lmadmin/lmgrd version,
+# which must be >= vendor daemon version. A too-old lmutil against a newer server
+# is a real and easily-missed cause of confusing failures.
+#
+# The guide documents no flags for lmver beyond the filename. The -v/-help/
+# -verbose entries come from Table -2, "valid arguments for MOST lmutil
+# utilities" -- the guide does not enumerate them per tool, so their acceptance
+# by lmver specifically is inferred from that table, not separately confirmed.
+allows_path_args: true
+flags:
+  - flag: "-v"
+    description: "Display the version of the utility and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."

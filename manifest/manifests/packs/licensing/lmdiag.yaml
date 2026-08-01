@@ -1,0 +1,36 @@
+name: lmdiag
+description: "Diagnose why a FlexNet license checkout fails."
+category: licensing
+timeout: 60
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmdiag"
+# (p121-122, Table -5), plus "Common Arguments for lmutil" (p117, Table -2).
+#
+# lmdiag prints license information and then ATTEMPTS A CHECKOUT of each feature.
+# That checkout is transient -- it is the diagnostic itself, and lmdiag reports
+# the reason for failure -- so this is treated as read-only. It is not the same
+# hazard as dscheckls.exe bare invocation, where a pulled DSLS license locks for
+# 30 days; a FlexNet checkout by lmdiag is released immediately.
+#
+# -n matters for agent use: without it, lmdiag may prompt for input when it
+# cannot connect, and offer interactive extended connection diagnostics. Run
+# `lmdiag -n` in any non-interactive context.
+#
+# The positional argument is feature[:keyword=value], where keyword is one of
+# VERSION, HOSTID, EXPDATE, KEY, VENDOR_STRING, ISSUER -- used to select one
+# FEATURE line when the license file has several for the same feature.
+allows_path_args: true
+flags:
+  - flag: "-c"
+    takes_value: true
+    description: "Diagnose the specified license files."
+  - flag: "-n"
+    description:
+      "Non-interactive mode; lmdiag does not prompt. Extended connection diagnostics are
+      unavailable in this mode."
+  - flag: "-v"
+    description: "Display the version of the utility and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."

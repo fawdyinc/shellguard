@@ -1,0 +1,21 @@
+name: install.sh
+shell: bash
+deny: true
+category: cst
+description: "CST Studio Suite Linux installer, in the root directory of the installation DVD."
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version sections 2.2,
+# 2.3 and 2.4. Documented forms: bare (graphical installer), --nogui (console
+# installer), --installerjava, --record <file>, --replay <file>. Every one of
+# them installs software; --replay does it unattended with no prompts at all.
+# Section A of the same guide lists what a run writes outside the install
+# directory: systemd units in /etc/systemd/system (cst-solverserver2026,
+# cst-maincontroller2026, cst-flexlm2026), XDG desktop and MIME entries, config
+# under "/etc/xdg/CST AG/", and working directories under /tmp.
+reason:
+  "install.sh installs CST Studio Suite: it writes systemd units into
+  /etc/systemd/system, config into \"/etc/xdg/CST AG/\", XDG menu and MIME entries, and starts
+  services. --replay does all of that unattended. Installation is an operator action. To find
+  out what is already installed and whether it can run, read the install root recorded in the
+  site notes and run cst_system_check; to check which release a node has, look for
+  /opt/cst/CST_Studio_Suite_<year> and the cst-solverserver<year> / cst-maincontroller<year>
+  unit names, which carry the release year."

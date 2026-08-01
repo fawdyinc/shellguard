@@ -1,0 +1,25 @@
+name: CSTMPIPerformanceTest_AMD64
+shell: bash
+description: "Measures MPI bandwidth and latency between CST compute nodes (Linux)."
+category: cst
+timeout: 300
+# Source: MPI Computing Guide 2026 appendix D.3 "Test MPI Communication":
+#   mpiexec.cst.sh -rr -hosts comp1,comp2 -n 2 \
+#     "<CST-INSTALL>/LinuxAMD64/CSTMPIPerformanceTest_AMD64"
+# Located in LinuxAMD64 inside the installation. Footnote 10 of that section
+# gives the pass criterion: "an HPC interconnect should show a latency of a few
+# microseconds at maximum and at least a bandwidth of 10Gb/s."
+#
+# It measures and reports; it starts no solver and takes no licence.
+#
+# flags: [] is the sourced answer. Every switch on the documented line (-rr,
+# -hosts, -n) belongs to mpiexec, not to this binary, and no primary source
+# documents an option for it.
+#
+# The documented two-node invocation goes through mpiexec, which is denied,
+# because mpiexec can launch anything at all on a remote host. Running this
+# binary directly is permitted and is what a single-node sanity check looks
+# like; the cross-node measurement is an operator-supervised line.
+flags: []
+stdin: false
+stdout: true

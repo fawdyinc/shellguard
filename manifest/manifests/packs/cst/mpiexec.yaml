@@ -1,0 +1,25 @@
+name: mpiexec
+deny: true
+category: cst
+description: "Intel MPI process launcher used by CST Studio Suite MPI computing."
+# Source: MPI Computing Guide 2026, appendix D.2 and D.3 (the -host/-hosts/-n
+# diagnostic invocations) and appendix E.1.3 (mpiexec -register).
+#
+# Ships inside the CST installation at
+#   <CST-INSTALLPATH>\MPI\Windows\IMPI2021U10\bin   (Windows)
+#   <CST-INSTALLPATH>/MPI/Linux/IMPI2021U10/bin     (Linux)
+# and is reached through the wrapper scripts mpiexec.cst.bat / mpiexec.cst.sh,
+# which are denied for the same reason.
+#
+# Unscoped by shell on purpose: both hosts ship it.
+reason:
+  "mpiexec starts an arbitrary executable on an arbitrary list of remote hosts -- `mpiexec
+  -hosts comp1,comp2 -n 2 <anything>`. The payload is a positional argument, so nothing about
+  it can be validated here; allowing mpiexec allows remote execution of everything. Its
+  -register mode additionally writes user credentials into the encrypted part of the Windows
+  registry. For the cluster checks the MPI Computing Guide uses mpiexec for, run the CST tools
+  directly on the node instead: SystemCheck_AMD64 -m <machinefile> covers the whole cluster
+  from one host, CSTHardwareInfo_AMD64 reports what a node can see, and ping / nslookup cover
+  name resolution (appendix D.1). If a genuine two-node MPI bandwidth measurement is needed,
+  hand the operator the line from appendix D.3: mpiexec.cst.sh -rr -hosts comp1,comp2 -n 2
+  \"<CST-INSTALL>/LinuxAMD64/CSTMPIPerformanceTest_AMD64\"."

@@ -1,0 +1,39 @@
+name: cst_design_environment
+shell: bash
+description: "CST Studio Suite front-end / batch solver launcher (Linux). Help output only."
+category: cst
+timeout: 60
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version section 3.2;
+# MPI Computing Guide 2026 sections 8, 10.3 and 10.4; GPU Computing Guide 2026
+# section 5.2; Cluster Integration Guide section 7.
+#
+# Every documented invocation of this program other than --help starts a solver:
+#   -m -r <file>          transient solver run
+#   -withmpi -machinefile MPI run across the listed compute nodes
+#   -withgpu=<n>          hardware-accelerated run
+#   -autompi              splits into local MPI domains automatically
+#   -shared-dir           changes how result data is exchanged
+#   -dump <n>             periodic intermediate result writes
+#   --defaultacc          resets the stored GUI acceleration settings
+# A solver run checks out a CST licence, and per Cluster Integration Guide
+# section 6.1 an MPI run additionally checks out acceleration tokens scaled to
+# the number of CPU devices involved. On Linux the front-end also starts on a
+# virtual frame buffer (Xvfb) whether or not anyone is watching. None of that is
+# something an agent should trigger on its own.
+#
+# --help is the one read-only form the guide names: "All options are displayed
+# using the --help option of the cst_design_environment program" (Linux
+# Installation Guide 2026, section 3.2). requires_one_of makes it the only
+# invocation that can reach the program at all -- a bare `cst_design_environment`
+# is not permitted, and no solver switch is declared, so any run attempt is
+# refused by name.
+#
+# To watch a run that is already going, read <PROJECT_FOLDER>/Result/progress.log
+# and <PROJECT_FOLDER>/Result/output.txt instead (Cluster Integration Guide
+# section 8.1).
+requires_one_of: ["--help"]
+flags:
+  - flag: "--help"
+    description: "Print the full command line option list. The only non-solver invocation."
+stdin: false
+stdout: true

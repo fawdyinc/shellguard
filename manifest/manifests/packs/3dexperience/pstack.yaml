@@ -1,0 +1,36 @@
+name: pstack
+shell: bash
+description:
+  "Print a native (C/C++) stack trace of a running process: attaches gdb to the PID, prints the
+  backtrace, and detaches. On Linux pstack(1) is an alias of gstack(1), shipped in the gdb
+  package."
+category: 3dexperience
+timeout: 60
+# Source for the use case: DS Best Practices "3DEXPERIENCE Platform Performance Analysis"
+# v3.0 (R2020x), section 6.1.4 -- "If the java stack output is not relevant, pstack could help
+# to verify if the process is frozen in kernel side." The whitepaper documents no flags at all
+# ("pstack can be found in linux packages"), so the flag surface below is sourced from
+# gstack(1) instead, of which pstack is an alias.
+#
+# Bare `pstack` with no PID prints usage and exits, so no requires_one_of. The PID is a bare
+# positional, as with jstack.
+#
+# Not a heavier capability than the jstack already in the registry: it stops the target only
+# for the duration of one backtrace, and writes nothing. It is emphatically NOT gcore, which
+# writes a full memory image and is deliberately absent from the registry.
+#
+# Expect addresses rather than symbol names against 3DEXPERIENCE binaries: DS strips symbols
+# from its binaries from R2017x onward (see references/crash-hang-dumps.md). That is the
+# documented design, not a malfunction, and the "is it stuck below Java?" question pstack is
+# used for is still answerable without symbols.
+flags:
+  - flag: "-h"
+    description: "List all options, with brief explanations."
+  - flag: "--help"
+    description: "List all options, with brief explanations."
+  - flag: "-v"
+    description: "Print version information and then exit."
+  - flag: "--version"
+    description: "Print version information and then exit."
+stdin: false
+stdout: true

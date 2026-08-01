@@ -1,0 +1,66 @@
+name: lmstat
+description: "FlexNet license server status: who holds a feature, and how many remain."
+category: licensing
+timeout: 60
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmstat"
+# (p135-136, Table -13), plus "Common Arguments for lmutil" (p117, Table -2).
+#
+# lmstat only reads. It prints what the license server reports, so it cannot
+# report unserved (uncounted) licenses at all -- the guide is explicit that
+# queued users and duplicate-grouped shares are also absent from its output.
+#
+# NOTE ON FLAG SOURCING: the guide's own Usage synopsis for lmstat lists only
+#   lmstat [-a] [-asec] [-c ...] [-f [feature]] [-i [feature]] [-s[server]]
+#          [-S [vendor]] [-t timeout_value]
+# but the argument table immediately below it documents five more that the
+# synopsis omits: -A, -lm, -v, -vd, and -old. That is a contradiction inside a
+# single section of the vendor's own document. Both are declared here, per the
+# rule that a documented flag is declared rather than silently dropped.
+#
+# -f/-i/-s/-S take an OPTIONAL value ("if feature is not specified, ... all
+# features"), so they are declared takes_value: false. Declaring them true would
+# make the bare, documented `lmstat -f` fail for want of a value; the feature or
+# server name is accepted as a positional instead.
+allows_path_args: true
+flags:
+  - flag: "-a"
+    description:
+      "Display all information. Expensive: with many active users this generates a lot
+      of network activity."
+  - flag: "-A"
+    description: "List all licenses that are currently checked out."
+  - flag: "-asec"
+    description: "Display information in hh:mm:ss format."
+  - flag: "-c"
+    takes_value: true
+    description:
+      "Use the specified license files. Colon-separated on UNIX, semicolon-separated on
+      Windows. Also settable via LM_LICENSE_FILE."
+  - flag: "-f"
+    description: "Display users of a feature. Omit the feature name for all features."
+  - flag: "-i"
+    description:
+      "Display information from the feature definition line. Omit the name for all
+      features."
+  - flag: "-lm"
+    description: "Display the status of the license manager."
+  - flag: "-s"
+    description:
+      "Status of all license files listed in $VENDOR_LICENSE_FILE or $LM_LICENSE_FILE on
+      a server. Server/host name is case sensitive -- match the license file."
+  - flag: "-S"
+    description: "List all users of a vendor daemon's features (e.g. ABAQUSLM)."
+  - flag: "-t"
+    takes_value: true
+    description: "Set the connection timeout, bounding how long lmstat waits for a server."
+  - flag: "-vd"
+    description: "Display the status of the vendor daemon."
+  - flag: "-old"
+    description: "Communicate with an old server using communications version 1.2 or earlier."
+  - flag: "-v"
+    description: "Display the lmstat version, revision, and patch."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."

@@ -1,0 +1,13 @@
+name: cst_boardcheck
+shell: bash
+deny: true
+category: cst
+description: "CST BOARDCHECK PCB analysis launcher (Linux)."
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version section 4.1:
+# "This command opens a graphical user interface where either CST Studio Suite or
+# CST BOARDCHECK can be started and used like the Microsoft Windows version."
+reason:
+  "cst_boardcheck opens a graphical user interface and starts a PCB analysis from it, checking
+  out a licence; it produces nothing a terminal can read. Run cst_system_check to verify the
+  Linux prerequisites the launcher needs, and read the project's
+  <PROJECT_FOLDER>/Result/output.txt for the messages an analysis has already produced."

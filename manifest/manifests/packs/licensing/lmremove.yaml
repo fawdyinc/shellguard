@@ -1,0 +1,30 @@
+name: lmremove
+description: "Forcible reclaim of a checked-out FlexNet license."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmremove
+# (in License File-Based Licensing)" (p129-131, Table -10) and "lmremove (in
+# Trusted Storage-Based Licensing)" (p131-134).
+#
+# lmremove takes a license away from a named user on a named host:
+#   lmremove [-c license_file_list] feature user user_host display
+# The user is not asked and not told. Their application loses the license
+# mid-session. The guide notes that if the application is still active it simply
+# "rechecks out the license shortly after it is freed by lmremove", so the
+# common case is that the disruption buys nothing at all.
+#
+# lmadmin disables lmremove BY DEFAULT -- it only works if the server was
+# deliberately started with -allowLicenseReclaim, and lmgrd can disable it
+# outright with `-x lmremove`. The vendor ships this switched off; the guard
+# rail matches that default.
+#
+# The user / user_host / display / handle values lmremove needs come from
+# lmstat -a output, which is the read-only half of the same workflow.
+reason:
+  "lmremove forcibly reclaims a license from the user currently holding it, with no
+  warning to that user, and an active application will usually just re-acquire it
+  seconds later. lmadmin disables it by default. To find out WHO holds a feature and
+  on which host and display, use 'lmstat -a' or 'lmstat -f <feature>' -- that is the
+  read-only answer to the question lmremove is usually reached for. Genuine reclaims
+  are a license-administrator action, not an agent action."

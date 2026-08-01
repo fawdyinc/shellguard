@@ -1,0 +1,22 @@
+name: AutoUpdate
+deny: true
+category: cst
+description: "CST Update Manager command line interface: applies .sup service packs."
+# Source: CST Studio Suite 2026 Installation Guide - Linux Version section 3.1
+#   $ "<CST_INSTALL_DIR>/AutoUpdate" -i "<FULL_PATH_TO_SUPFILE>"
+# and MPI Computing Guide 2026 section 7
+#   AutoUpdate --install "<service-pack>.sup"
+# Both forms install a service pack. Section 3.1 also names AutoUpdate -h for
+# the option list, which is the only read-only form and is not worth reaching
+# past an installer for.
+#
+# Unscoped by shell: the installation ships it on both hosts.
+reason:
+  "AutoUpdate installs CST Studio Suite service packs -- -i and --install both write into the
+  installation directory, and only the 'Main User' chosen at install time or root can run it
+  at all. Patching is an operator action, and MPI Computing Guide section 7 makes it a
+  fleet-wide one: every installation taking part in an MPI simulation must be at the same
+  service pack level, so patching one node in isolation breaks the cluster. To find out what
+  level a node is at, read the installation directory name (/opt/cst/CST_Studio_Suite_<year>)
+  and the cst-solverserver<year> / cst-maincontroller<year> systemd unit names, and check the
+  cluster as a whole with SystemCheck_AMD64 -m <machinefile>."

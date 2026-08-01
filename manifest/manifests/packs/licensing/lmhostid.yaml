@@ -1,0 +1,77 @@
+name: lmhostid
+description: "Report the FlexNet hostid of this machine, in any supported binding format."
+category: licensing
+timeout: 30
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmhostid"
+# (p123-126, Table -7), plus "Common Arguments for lmutil" (p117, Table -2).
+#
+# Pure read. Bare invocation prints the platform's DEFAULT hostid type, so no
+# requires_one_of is needed -- unlike lmgrd, doing nothing but printing.
+#
+# The hostid_type values are documented as leading-hyphen tokens in the guide's
+# own usage line (`lmhostid [-n] [-utf8] [-ptype argument] [hostid_type]`), so
+# they are declared as flags rather than positionals.
+#
+# Obtaining any TPM, virtualization, or cloud-licensing hostid requires the
+# FlexNet Licensing Service to be installed; -tpm_id1 is Windows-only and needs
+# that service RUNNING. -vsn is Windows-only. -flexid applies only to platforms
+# supporting FlexNet ID dongles.
+flags:
+  - flag: "-n"
+    description:
+      "Print only the hostid string, suppressing header text. This is the form to paste
+      into HOSTID= in a license file."
+  - flag: "-utf8"
+    description:
+      "Emit the hostid as a UTF-8 encoded string rather than ASCII. Use when the hostid
+      contains characters outside A-Z a-z 0-9."
+  - flag: "-ptype"
+    takes_value: true
+    allowed_values: ["VM", "AMZN", "PHY"]
+    description:
+      "License-server binding in virtual environments. Prefixes the generated hostid.
+      Must be combined with a hostid type; -ptype VM -uuid is the only supported VM form."
+  # --- platform-dependent hostid types (guide p124) ---
+  - flag: "-ether"
+    description:
+      "Ethernet address. On Windows/Linux/OS X this returns ALL available addresses,
+      active and inactive -- pick exactly one for the license file."
+  - flag: "-string"
+    description: "String id."
+  - flag: "-vsn"
+    description: "Volume serial number (Windows platforms only)."
+  - flag: "-flexid"
+    description: "USB FLEXID identification, on platforms supporting FlexNet ID dongles."
+  - flag: "-long"
+    description: "32-bit hostid."
+  - flag: "-uuid"
+    description: "UUID binding value. Only permitted with ptype VM or AMZN."
+  - flag: "-tpm_id1"
+    description:
+      "TPM (Trusted Platform Module) ID. Windows only, TPM 2.0, FlexNet Licensing Service
+      must be running, and only supported on the SERVER line."
+  # --- platform-independent hostid types (guide p125) ---
+  - flag: "-user"
+    description: "Current user name."
+  - flag: "-display"
+    description: "Current display name."
+  - flag: "-hostname"
+    description: "Current host name."
+  - flag: "-hostdomain"
+    description: "Current host domain."
+  - flag: "-internet"
+    description:
+      "IP address in the machine's protocol format. On Windows over a VPN this returns the
+      virtual adapter address, which is a known source of wrong hostids."
+  - flag: "-v4"
+    description: "Use with -internet to obtain the IPv4 address."
+  - flag: "-v6"
+    description: "Use with -internet to obtain the IPv6 address."
+  # --- common lmutil arguments ---
+  - flag: "-v"
+    description: "Display the version of the utility and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."

@@ -1,0 +1,27 @@
+name: SystemCheck_AMD64
+shell: bash
+description: "CST SystemCheck (Linux): runs the MPI cluster setup tests and writes an HTML result."
+category: cst
+timeout: 600
+# Source: MPI Computing Guide 2026 appendix D.4, in particular D.4.3 "Manual
+# Start on the Command Line", which shows exactly two invocations:
+#   $ ./SystemCheck_AMD64 -m /home/user/mpi_machines.txt
+#   $ ./SystemCheck_AMD64 --help
+# Located in the LinuxAMD64 subfolder of the installation (AMD64 on Windows).
+#
+# Read-only in the sense that matters here: it checks the cluster (name
+# resolution, program file access, MPI communication, that user-defined temp
+# directories exist and are writable) and reports. It starts no solver and
+# consumes no licence. D.4.1 notes it is run automatically before every MPI
+# solver run anyway.
+#
+# The machine file is passed as the value of -m, never as a bare positional,
+# so allows_path_args stays off.
+flags:
+  - flag: "-m"
+    takes_value: true
+    description: "Path to the machine file listing the compute nodes to check."
+  - flag: "--help"
+    description: "Display all available options."
+stdin: false
+stdout: true

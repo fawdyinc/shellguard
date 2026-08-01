@@ -1,0 +1,120 @@
+name: lmutil
+description: "FlexNet license utility wrapper; restricted to its read-only subcommands."
+category: licensing
+timeout: 60
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities" (p115-116,
+# Table -1) and "Common Arguments for lmutil" (p117, Table -2), plus the
+# per-utility argument tables cited in the sibling manifests in this pack.
+#
+# THIS IS THE DANGEROUS ONE. The guide opens the chapter with:
+#   "All license server utilities are packaged as a single executable called
+#    lmutil. ... or as a wrapper that runs the individual command as
+#    lmutil command. For example, lmutil lmstat or lmutil lmdown."
+#
+# So `lmutil` is an alias for EVERY tool in this pack, including the ones denied
+# here. Allowing lmutil with only flag validation would hand back lmdown,
+# lmremove, and lmreread through the back door -- the deny manifests for those
+# names would never be consulted, because the command word is "lmutil".
+#
+# positional_allowlist closes that: the first non-flag argument must be one of
+# the read-only utilities. `lmutil lmdown` is refused on the subcommand word
+# before any flag is looked at.
+#
+# The flag list is therefore the UNION of the flags of the permitted
+# subcommands, because flag validation here cannot know which subcommand was
+# named. Each flag is cited to the tool it belongs to. That union is wider than
+# any single tool accepts -- lmutil lmver -asec is nonsense that this manifest
+# will pass and lmver itself will reject -- which is the accepted cost of a
+# dispatching wrapper. It does not widen the STATE-CHANGING surface, which is
+# what positional_allowlist governs.
+positional_allowlist:
+  index: 0
+  values: ["lmstat", "lmdiag", "lmhostid", "lmpath", "lmver", "lmtpminfo", "lmvminfo"]
+allows_path_args: true
+flags:
+  # --- common to most lmutil utilities (Table -2, p117) ---
+  - flag: "-c"
+    takes_value: true
+    description: "Use the specified license files."
+  - flag: "-v"
+    description: "Display the version of the utility and exit."
+  - flag: "-help"
+    description: "Display usage information and exit."
+  - flag: "-verbose"
+    description: "Display a longer description for all errors found."
+  # --- lmstat (Table -13, p135-136) ---
+  - flag: "-a"
+    description: "lmstat: display all information."
+  - flag: "-A"
+    description: "lmstat: list all licenses currently checked out."
+  - flag: "-asec"
+    description: "lmstat: display information in hh:mm:ss format."
+  - flag: "-f"
+    description: "lmstat: display users of a feature."
+  - flag: "-i"
+    description: "lmstat: display the feature definition line information."
+  - flag: "-lm"
+    description: "lmstat: display the status of the license manager."
+  - flag: "-s"
+    description: "lmstat: display the status of all license files on a server."
+  - flag: "-S"
+    description: "lmstat: list all users of a vendor daemon's features."
+  - flag: "-t"
+    takes_value: true
+    description: "lmstat: set the connection timeout."
+  - flag: "-vd"
+    description: "lmstat: display the status of the vendor daemon."
+  - flag: "-old"
+    description: "lmstat: communicate with a server using comms version 1.2 or earlier."
+  # --- lmdiag (Table -5, p121) ---
+  - flag: "-n"
+    description: "lmdiag: non-interactive mode, no prompting. Also lmhostid: bare hostid."
+  # --- lmpath (Table -9, p128) ---
+  - flag: "-status"
+    description: "lmpath: display the current license search path settings."
+  - flag: "-add"
+    deny: true
+    reason:
+      "lmpath -add writes the persistent license search path in the registry or
+      $HOME/.flexlmrc. Use 'lmutil lmpath -status' to read it instead."
+  - flag: "-override"
+    deny: true
+    reason:
+      "lmpath -override overwrites the persistent license search path, and with a null
+      string deletes LM_LICENSE_FILE entirely. Use 'lmutil lmpath -status' instead."
+  # --- lmhostid (Table -7, p123-126) ---
+  - flag: "-utf8"
+    description: "lmhostid: emit the hostid as a UTF-8 string."
+  - flag: "-ptype"
+    takes_value: true
+    allowed_values: ["VM", "AMZN", "PHY"]
+    description: "lmhostid: platform type prefix for virtual-environment binding."
+  - flag: "-ether"
+    description: "lmhostid: Ethernet address."
+  - flag: "-string"
+    description: "lmhostid: string id."
+  - flag: "-vsn"
+    description: "lmhostid: volume serial number (Windows only)."
+  - flag: "-flexid"
+    description: "lmhostid: USB FLEXID dongle identification."
+  - flag: "-long"
+    description: "lmhostid: 32-bit hostid. Also lmtpminfo/lmvminfo: detailed output."
+  - flag: "-uuid"
+    description: "lmhostid: UUID binding value, with -ptype VM or AMZN."
+  - flag: "-tpm_id1"
+    description: "lmhostid: TPM 2.0 ID (Windows only)."
+  - flag: "-user"
+    description: "lmhostid: current user name."
+  - flag: "-display"
+    description: "lmhostid: current display name."
+  - flag: "-hostname"
+    description: "lmhostid: current host name."
+  - flag: "-hostdomain"
+    description: "lmhostid: current host domain."
+  - flag: "-internet"
+    description: "lmhostid: IP address of the machine."
+  - flag: "-v4"
+    description: "lmhostid: use with -internet for the IPv4 address."
+  - flag: "-v6"
+    description: "lmhostid: use with -internet for the IPv6 address."

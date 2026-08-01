@@ -1,0 +1,42 @@
+name: dsdbutils
+description: "Dassault Systemes database troubleshooting and schema analysis utility package."
+category: 3dexperience
+deny: true
+# Sources: DS Best Practices "3DEXPERIENCE Platform Performance Analysis" v3.0 (R2020x),
+# section 6.2; and the R2024x single-server install runbook (2/25/2025), section 23.2.4,
+# which is the only place an actual invocation is recorded.
+#
+# Four independent reasons, any one of which would be enough:
+#
+# 1. There is no dsDBUtils executable to gate. The whitepaper calls it "a Java package of
+#    utilities"; the only observed invocation is `java -cp dsDBUtils.jar Checkup`. Allowing it
+#    would mean allowing `java -cp <anything> <anyclass>`, which is arbitrary code execution
+#    wearing a diagnostic name. This manifest exists so the name resolves to a reason rather
+#    than to a lookup miss.
+#
+# 2. It is interactive, not argument-driven. The recorded run prompts on stdin for job
+#    selection, DB type (ORACLE|MSSQL|NUODB), connection URL, schema username and password.
+#    A validated one-shot command line cannot supply those, and the flag validator cannot see
+#    what is typed at a prompt -- the same blind spot that denies DSLicSrv -admin -run "...".
+#
+# 3. Two of its five jobs write. Maintenance "fix[es] index fragmentation and accurate object
+#    statistics, ... rebuild[s] entire schema indexes and compute[s] accurate statistics";
+#    Workaround "provides some quick workarounds to fix known issues" in the application
+#    schema. Job choice is a prompt answer, so a Checkup-only invocation is unenforceable.
+#
+# 4. It is not a stable part of any install. It is obtained per-incident by Service Request
+#    through DSx.Client, and the whitepaper itself calls it "an temporary troubleshooting
+#    tool"; the R2024x runbook's captured banner reads
+#    "version=20200401, expiration_date=20200630" -- copies expire.
+reason:
+  "dsDBUtils is not an installed command but a Service-Request-only Java package, run as
+  `java -cp dsDBUtils.jar <Job>`, that prompts interactively for the database type, URL,
+  schema user and password. Its job selection is a stdin answer rather than a validatable
+  argument, and two of its five jobs -- Maintenance and Workaround -- rebuild schema indexes,
+  recompute statistics and apply schema fixes. For read-only database and index state, use MQL
+  instead: `print config;` for the DB server, version and driver, `monitor memory;` and
+  `monitor server;` for kernel heap and active ENOVIA threads, and `status searchindex;` /
+  `validate searchindex;` for index health. For app-versus-schema drift, read the
+  DSYCheckAppServerCASVsDB.log and DSYCheckAppServerNoCASVsDB.log the installer already
+  produces. If dsDBUtils itself is genuinely required, it is an operator-supervised run: open
+  the Service Request, and select only job 1 (Checkup) at the prompt."

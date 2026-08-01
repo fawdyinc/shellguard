@@ -1,0 +1,20 @@
+name: lmdown
+description: "FlexNet license server shutdown."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmdown"
+# (p122, Table -6).
+#
+# Every mode of lmdown stops something. -vendor stops one vendor daemon, -all
+# stops all servers, -q suppresses the confirmation prompt that would otherwise
+# be the last line of defence, and -force overrides the protection that exists
+# specifically because licenses are borrowed. There is no read-only mode to
+# carve out. On a three-server redundant configuration the guide notes a
+# one-minute delay, so the damage is not even immediately visible.
+reason:
+  "lmdown shuts down the license server, cutting off every user currently holding a
+  license. There is no read-only invocation. To see whether the server is up and what
+  it is serving, use 'lmstat -a' or 'lmstat -c <license_file> -a'; to diagnose a failing
+  checkout use 'lmdiag -n'. Restarting a downed server needs lmgrd on the server host,
+  which this registry does not permit either."

@@ -1,0 +1,20 @@
+name: cstmpiperformancetest_amd64.exe
+shell: powershell
+allows_flag_bundling: true
+description: "Measures MPI bandwidth and latency between CST compute nodes (Windows)."
+category: cst
+timeout: 300
+# Source: MPI Computing Guide 2026 appendix D.3:
+#   mpiexec.cst.bat -rr -hosts comp1,comp2 -n 2 \
+#     "<CST-INSTALL>\AMD64\CSTMPIPerformanceTest_AMD64.exe"
+# Pass criterion from footnote 10: a few microseconds latency at most, and at
+# least 10Gb/s bandwidth, on an HPC interconnect.
+#
+# flags: [] is the sourced answer -- -rr, -hosts and -n on the documented line
+# are mpiexec's switches, not this binary's, and no primary source documents an
+# option for it.
+#
+# Native Windows executable rather than a cmdlet, hence allows_flag_bundling.
+flags: []
+stdin: false
+stdout: true

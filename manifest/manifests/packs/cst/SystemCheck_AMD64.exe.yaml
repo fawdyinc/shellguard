@@ -1,0 +1,29 @@
+name: systemcheck_amd64.exe
+shell: powershell
+allows_flag_bundling: true
+description: "CST SystemCheck (Windows): runs the MPI cluster setup tests and writes an HTML result."
+category: cst
+timeout: 600
+# Source: MPI Computing Guide 2026 appendix D.4. "As part of the CST Studio Suite
+# installation, SystemCheck is located in the directory AMD64 on Windows or
+# LinuxAMD64 on Linux." D.4.3 documents -m <machinefile> and --help; D.4.4 notes
+# "In principle the behavior of SystemCheck on Linux and Windows is identical.
+# But the specific test set that will check the cluster is dependent on the
+# operating system."
+#
+# shell: powershell because this binary exists only under Windows. It is a native
+# executable, not a cmdlet -- it takes POSIX-style -m, not a PowerShell parameter
+# -- so allows_flag_bundling is set deliberately, which is also what makes an
+# unrecognised bundle report the individual switch rather than the whole token.
+#
+# The name is lower-cased to match the pack convention (dscheckls.exe,
+# dsylistinstalls.exe); PowerShell manifest lookup is case-insensitive, so
+# SystemCheck_AMD64.exe as written in the guide resolves here.
+flags:
+  - flag: "-m"
+    takes_value: true
+    description: "Path to the machine file listing the compute nodes to check."
+  - flag: "--help"
+    description: "Display all available options."
+stdin: false
+stdout: true

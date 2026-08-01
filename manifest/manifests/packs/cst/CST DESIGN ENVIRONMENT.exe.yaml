@@ -1,0 +1,28 @@
+name: cst design environment.exe
+shell: powershell
+deny: true
+category: cst
+description: "CST Studio Suite front-end / batch solver launcher (Windows)."
+# Source: MPI Computing Guide 2026 section 8 ("CST DESIGN ENVIRONMENT.exe on
+# Windows and cst_design_environment on Linux") and section 10.3
+#   "CST DESIGN ENVIRONMENT.exe" -withmpi -machinefile="<MACHINEFILE>" -m -r modelfile.cst
+# GPU Computing Guide 2026 section 5.2 spells the same binary
+#   "<CST_INSTALL_DIR>/CST Design Environment.exe" -m -r -withgpu=<n> "<file>"
+# -- different capitalisation, same program. PowerShell manifest lookup is
+# case-insensitive, so both spellings resolve here.
+#
+# The name contains spaces because the executable does. A caller has to quote it
+# to invoke it at all, which is what makes it a single command token.
+#
+# Note for anyone matching this against an extracted tool list: "ENVIRONMENT.exe"
+# is not a separate program. It is the tail of "CST DESIGN ENVIRONMENT.exe" after
+# a line break or a whitespace split.
+reason:
+  "This is the Windows CST Studio Suite front-end. Every documented invocation starts a solver
+  run: -m -r on a .cst file, -withmpi -machinefile for an MPI run, -withgpu=<n> for hardware
+  acceleration. A run checks out a CST licence, and an MPI run additionally checks out
+  acceleration tokens scaled to the number of CPU devices involved (Cluster Integration Guide
+  section 6.1). To watch a run that is already going, read
+  <PROJECT_FOLDER>\\Result\\progress.log and <PROJECT_FOLDER>\\Result\\output.txt (Cluster
+  Integration Guide section 8.1). To check that a node could run one, use
+  SystemCheck_AMD64.exe -m <machinefile> and HWAccDiagnostics_AMD64.exe."

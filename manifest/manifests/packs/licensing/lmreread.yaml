@@ -1,0 +1,32 @@
+name: lmreread
+description: "Force the FlexNet license server to reread its license and options files."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lmreread"
+# (p134-135, Table -12).
+#
+# lmreread is not a query. It makes the license server manager reread the
+# license file and START ANY NEW VENDOR DAEMONS that have been added, and with
+# -vendor it "restarts vendor if necessary". Every running vendor daemon is
+# signalled to reread its license and options files, so a half-edited options
+# file becomes live at the moment lmreread runs rather than at the next planned
+# restart.
+#
+# It also has a documented silent side effect on logging: "If report logging is
+# enabled, any report log data still in the vendor daemon's internal data buffer
+# is flushed." And it cancels the effect of lmswitch/lmswitchr, which persist
+# "only until the vendor daemon is shut down or its options file is reread via
+# lmreread" -- so running it can quietly redirect debug output back to wherever
+# the options file says.
+#
+# There is a trap in the -c flag worth stating: "If you use the -c
+# license_file_list option, the license files specified are read by lmreread,
+# not by lmgrd; lmgrd rereads the file it read originally." So -c does not do
+# what it looks like it does.
+reason:
+  "lmreread restarts vendor daemons, activates whatever is currently in the license and
+  options files, flushes buffered report-log data, and cancels any lmswitch redirection.
+  It is a server state change, not a query. To confirm what the server is currently
+  serving use 'lmstat -a', and to see the feature definition lines it loaded use
+  'lmstat -i'. Applying a license file change is a license-administrator action."

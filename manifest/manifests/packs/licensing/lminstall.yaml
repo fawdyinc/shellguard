@@ -1,0 +1,31 @@
+name: lminstall
+description: "Convert FlexNet license files between formats."
+category: licensing
+deny: true
+# Source: FlexNet Publisher 2018 R4 (11.16.2) License Administration Guide,
+# "Using License Administration Tools -> Command-Line Utilities -> lminstall"
+# (p126-127).
+#
+# lminstall WRITES LICENSE FILES:
+#   lminstall [-i in_lic_file] [-maxlen n] [-e err_file] [-o out_lic_file]
+#             [-overfmt {2|3|4|5|5.1|6|7|7.1|8}] [-odecimal]
+# -o writes a license file, -e writes an error file, and -overfmt rewrites a
+# license into an older format version. With no arguments at all it goes
+# INTERACTIVE -- reading a decimal-format license from stdin and prompting for
+# an output file name, defaulting to today's date as yyyymmdd.lic. A bare
+# invocation therefore hangs an agent waiting on stdin and then writes a file.
+#
+# Producing an altered license file is also the documented cause of error -8,
+# "Invalid (inconsistent) license key or signature ... This usually happens when
+# a license file has been altered."
+#
+# The guide additionally states that the decimal format lminstall exists to
+# handle "is deprecated and is not supported", so the tool's primary purpose no
+# longer applies.
+reason:
+  "lminstall writes license files (-o), error files (-e), and rewrites licenses into
+  other format versions; bare invocation blocks on stdin and then writes a .lic file.
+  Altering a license file is the documented cause of checkout error -8, invalid
+  license key or signature. To READ a license file, read it directly -- it is plain
+  text (SERVER / VENDOR / FEATURE lines) -- and use 'lmstat -i' to see the feature
+  definitions the server actually loaded."
