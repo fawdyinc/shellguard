@@ -2,6 +2,15 @@ name: get-psdrive
 description: Get PowerShell drive information
 category: storage
 shell: powershell
-flags: []
+flags:
+  - flag: "-PSProvider"
+    takes_value: true
+    description: "Filter by provider, e.g. FileSystem or Registry."
+  - flag: "-Name"
+    takes_value: true
+    description: "Filter by drive name."
+  - flag: "-Scope"
+    takes_value: true
+    description: "Scope to query drives in."
 stdin: false
 stdout: true

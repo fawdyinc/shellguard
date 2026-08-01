@@ -3,7 +3,7 @@
 # As each workstream lands, flip `expect` on the affected entries and re-run
 # to see the delta. The grouping by `reason` tag drives prioritization.
 entries:
-  # ---- Already works ----
+  # ---- Already works (at the PARSER layer — see note on get-psdrive) ----
   - command: "Get-Service"
     source: ses_252a83796ffedk7cXAmutOY5tq
     expect: parses
@@ -14,6 +14,9 @@ entries:
     expect: parses
     reason: get-process-by-name
 
+  # This parsed all along, but the validator rejected -PSProvider until the
+  # get-psdrive manifest gained flags (it declared `flags: []`). A reminder that
+  # "parses" in this file never meant "runs".
   - command: "Get-PSDrive -PSProvider FileSystem"
     source: ses_252a83796ffedk7cXAmutOY5tq
     expect: parses
@@ -41,10 +44,13 @@ entries:
     expect: parses
     reason: double-quoted-literal-path
 
-  # ---- Fails today: manifest miss (Workstream D — grammar accepts, validator rejects) ----
-  # Note: these parse fine; the grammar doesn't gate on cmdlet identity. They're
-  # manifest-layer rejections, not parser rejections. Included here to widen the
-  # harness over time; for parser-only testing they all `parses`.
+  # ---- Formerly manifest misses (Workstream D) — now RESOLVED ----
+  # These parse fine; the grammar doesn't gate on cmdlet identity. They used to
+  # be rejected at the validator layer, which this parser-only corpus could not
+  # see. Case-insensitive cmdlet lookup fixed them: all now pass parse AND
+  # validate. Do not read the group heading as "still broken" — that staleness
+  # misled a later reader. Validator-level coverage now lives in
+  # validator/testdata/corpus/.
   - command: "Get-CimInstance Win32_Service"
     source: ses_252a83796ffedk7cXAmutOY5tq
     expect: parses
@@ -65,11 +71,11 @@ entries:
     expect: parses
     reason: test-netconnection-manifest-miss
 
-  # IP literals fail the lexer today (Number is [0-9]+, no dots).
-  # Real surprise from corpus run — flagged for a future workstream.
+  # Fixed: IPLiteral token added ahead of Number, so all four octets lex as
+  # one token instead of Number(127) plus an unlexable `.0.0.1`.
   - command: "Test-NetConnection -ComputerName 127.0.0.1 -Port 443"
     source: synthetic
-    expect: rejects
+    expect: parses
     reason: ip-address-literal
 
   - command: "Get-Process | ForEach-Object ProcessName"

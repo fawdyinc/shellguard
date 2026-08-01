@@ -45,6 +45,13 @@ var psLexer = lexer.MustSimple([]lexer.SimpleRule{
 	{Name: "DQString", Pattern: `"[^"]*"`},
 	// SizeLiteral must precede Number so `1GB` is one token, not `1` + `GB`.
 	{Name: "SizeLiteral", Pattern: `[0-9]+(?:KB|MB|GB|TB)`},
+	// IPLiteral must precede Number so `127.0.0.1` is one token. Otherwise
+	// Number matches `127` and the remaining `.0.0.1` is unlexable, because
+	// Ident must start with a letter — which is exactly how
+	// `Test-NetConnection -ComputerName 127.0.0.1` failed. Requiring all four
+	// octets keeps it from swallowing a decimal like `2.5`, which stays
+	// unsupported as before.
+	{Name: "IPLiteral", Pattern: `[0-9]{1,3}(?:\.[0-9]{1,3}){3}`},
 	{Name: "Number", Pattern: `[0-9]+`},
 	// Flag must precede Minus so `-Name` lexes as a flag token, not minus + ident.
 	{Name: "Flag", Pattern: `-[a-zA-Z_][a-zA-Z0-9_]*`},
@@ -104,6 +111,7 @@ type PSLiteral struct {
 	DQString  *string      `parser:"| @DQString"`
 	EnvRef    *string      `parser:"| @EnvRef"`
 	Size      *string      `parser:"| @SizeLiteral"`
+	IP        *string      `parser:"| @IPLiteral"`
 	Number    *string      `parser:"| @Number"`
 	Ident     *PSIdentish  `parser:"| @@"`
 }
@@ -731,6 +739,8 @@ func renderLiteral(l *PSLiteral) string {
 		return *l.EnvRef
 	case l.Size != nil:
 		return *l.Size
+	case l.IP != nil:
+		return *l.IP
 	case l.Number != nil:
 		return *l.Number
 	case l.Ident != nil:
