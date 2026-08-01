@@ -1,0 +1,6 @@
+name: net.exe
+shell: powershell
+deny: true
+reason:
+  "net.exe performs network and account write operations. Use Get-SmbShare,
+  Get-SmbSession, or Get-LocalUser to read the same state."

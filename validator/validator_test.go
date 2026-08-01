@@ -644,3 +644,27 @@ func TestDSCheckLSTokenFlagDenied(t *testing.T) {
 		t.Errorf("denial should point at -r as the safe alternative, got: %v", msg)
 	}
 }
+
+func TestDangerousWindowsBinariesDeniedWithReason(t *testing.T) {
+	cases := map[string]string{
+		"cmd.exe":        "shell",    // already manifested
+		"powershell.exe": "shell",    // already manifested
+		"reg.exe":        "registry", // added by this task
+		"net.exe":        "network",  // added by this task
+	}
+	for name, wantWord := range cases {
+		err := validateOne(t, name)
+		if err == nil {
+			t.Errorf("%s must be denied", name)
+			continue
+		}
+		msg := strings.ToLower(err.Error())
+		if !strings.Contains(msg, wantWord) {
+			t.Errorf("%s: denial should mention %q, got: %v", name, wantWord, err)
+		}
+		// A specific reason, not the generic blocked-executable message.
+		if strings.Contains(err.Error(), "is not in the allowed tool list") {
+			t.Errorf("%s: should have a specific reason, got the generic message: %v", name, err)
+		}
+	}
+}

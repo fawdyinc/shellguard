@@ -1,0 +1,5 @@
+name: reg.exe
+shell: powershell
+deny: true
+reason:
+  "Direct registry access is not allowed. Use Get-ItemProperty to read registry values."
