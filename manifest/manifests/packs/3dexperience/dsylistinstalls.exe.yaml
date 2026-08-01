@@ -1,0 +1,10 @@
+name: dsylistinstalls.exe
+shell: powershell
+description: "List installed Dassault Systemes products as XML (build level, hot fix level, install path, type)."
+category: 3dexperience
+timeout: 60
+flags:
+  - flag: "-h"
+    description: "Print available command-line options."
+stdin: false
+stdout: true
