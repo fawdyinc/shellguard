@@ -3,6 +3,7 @@ package manifest
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -244,5 +245,73 @@ func TestMerge_DoesNotMutateInputs(t *testing.T) {
 	// overlay should be unchanged
 	if got, want := len(overlay), 2; got != want {
 		t.Fatalf("len(overlay) = %d, want %d after Merge", got, want)
+	}
+}
+
+func TestRequiresOneOfParsed(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: mytool
+flags:
+  - flag: "-l"
+  - flag: "-r"
+    takes_value: true
+requires_one_of: ["-l", "-r"]
+`
+	if err := os.WriteFile(filepath.Join(dir, "mytool.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	registry, err := LoadDir(dir)
+	if err != nil {
+		t.Fatalf("LoadDir() error = %v", err)
+	}
+	m := registry["mytool"]
+	if m == nil {
+		t.Fatal("registry missing key \"mytool\"")
+	}
+	if got, want := len(m.RequiresOneOf), 2; got != want {
+		t.Fatalf("len(RequiresOneOf) = %d, want %d", got, want)
+	}
+	if got, want := m.RequiresOneOf[0], "-l"; got != want {
+		t.Errorf("RequiresOneOf[0] = %q, want %q", got, want)
+	}
+}
+
+func TestRequiresOneOfAbsentIsNil(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: plain
+flags:
+  - flag: "-l"
+`
+	if err := os.WriteFile(filepath.Join(dir, "plain.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+	registry, err := LoadDir(dir)
+	if err != nil {
+		t.Fatalf("LoadDir() error = %v", err)
+	}
+	if got := registry["plain"].RequiresOneOf; got != nil {
+		t.Errorf("RequiresOneOf = %v, want nil", got)
+	}
+}
+
+// A typo in requires_one_of would make the tool permanently unusable in a way
+// indistinguishable from a validator bug. Fail the build instead.
+func TestRequiresOneOfRejectsUndeclaredFlag(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: typo
+flags:
+  - flag: "-l"
+requires_one_of: ["-1"]
+`
+	if err := os.WriteFile(filepath.Join(dir, "typo.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+	_, err := LoadDir(dir)
+	if err == nil {
+		t.Fatal("LoadDir() error = nil, want error for undeclared requires_one_of entry")
+	}
+	if !strings.Contains(err.Error(), "requires_one_of") {
+		t.Errorf("error should name requires_one_of, got: %v", err)
 	}
 }

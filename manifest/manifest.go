@@ -61,6 +61,7 @@ type Manifest struct {
 	Stdout           bool     `yaml:"stdout"`
 	RegexArgPosition *int     `yaml:"regex_arg_position"`
 	Shell            string   `yaml:"shell"` // "powershell" or "" (bash)
+	RequiresOneOf    []string `yaml:"requires_one_of"`
 
 	source string
 }
@@ -205,6 +206,29 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		return nil, err
 	}
 
+	requiresOneOf, err := stringSliceValue(data, "requires_one_of", filePath)
+	if err != nil {
+		return nil, err
+	}
+	// Every requires_one_of entry must be a flag this manifest actually declares.
+	// A typo such as ["-1"] would otherwise make the command permanently
+	// unusable, and the failure would look like a validator bug rather than a
+	// manifest bug. Fail at load time instead.
+	for _, req := range requiresOneOf {
+		declared := false
+		for i := range flags {
+			if flags[i].Flag == req {
+				declared = true
+				break
+			}
+		}
+		if !declared {
+			return nil, &ManifestError{
+				Message: fmt.Sprintf("manifest %s: requires_one_of entry %q is not declared in flags", filePath, req),
+			}
+		}
+	}
+
 	return &Manifest{
 		Name:             name,
 		Description:      defaultString(data, "description"),
@@ -219,6 +243,7 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		Stdout:           stdout,
 		RegexArgPosition: regexPos,
 		Shell:            defaultString(data, "shell"),
+		RequiresOneOf:    requiresOneOf,
 	}, nil
 }
 
