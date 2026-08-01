@@ -20,7 +20,7 @@ func mustLoadEmbedded(t *testing.T) map[string]*Manifest {
 func TestLoadEmbeddedCountAndNameMatch(t *testing.T) {
 	registry := mustLoadEmbedded(t)
 
-	if got, want := len(registry), 280; got != want {
+	if got, want := len(registry), 281; got != want {
 		t.Fatalf("len(registry) = %d, want %d", got, want)
 	}
 
@@ -280,6 +280,52 @@ func TestGetFlagCaseInsensitiveForPowerShell(t *testing.T) {
 	for _, name := range []string{"-Name", "-name", "-NAME"} {
 		if f := svc.GetFlag(name); f == nil {
 			t.Errorf("get-service.GetFlag(%q) = nil, want flag", name)
+		}
+	}
+}
+
+func TestPackManifestsAreEmbedded(t *testing.T) {
+	registry, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded() error = %v", err)
+	}
+	m := registry["abaqus_licensing_dslsstat"]
+	if m == nil {
+		t.Fatal("pack manifest abaqus_licensing_dslsstat missing from embedded registry")
+	}
+	if got, want := m.Shell, "powershell"; got != want {
+		t.Errorf("Shell = %q, want %q", got, want)
+	}
+	if m.GetFlag("-server") == nil {
+		t.Error("GetFlag(\"-server\") = nil, want flag")
+	}
+	if m.GetFlag("-usage") == nil {
+		t.Error("GetFlag(\"-usage\") = nil, want flag")
+	}
+	// dslsstat is read-only in every mode; a bare invocation is the normal usage.
+	if len(m.RequiresOneOf) != 0 {
+		t.Errorf("RequiresOneOf = %v, want empty - bare dslsstat is safe", m.RequiresOneOf)
+	}
+}
+
+// Pack manifests are reviewed as security changes; these fields are what make
+// a review possible.
+func TestPackManifestHygiene(t *testing.T) {
+	registry, err := LoadEmbedded()
+	if err != nil {
+		t.Fatalf("LoadEmbedded() error = %v", err)
+	}
+	for name, m := range registry {
+		if m == nil || m.Category != "3dexperience" {
+			continue
+		}
+		if m.Description == "" {
+			t.Errorf("pack manifest %q has no description", name)
+		}
+		for _, f := range m.Flags {
+			if f.Deny && f.Reason == "" {
+				t.Errorf("pack manifest %q: denied flag %q has no reason", name, f.Flag)
+			}
 		}
 	}
 }

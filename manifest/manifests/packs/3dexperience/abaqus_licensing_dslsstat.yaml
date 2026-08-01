@@ -1,0 +1,11 @@
+name: abaqus_licensing_dslsstat
+shell: powershell
+description: "DSLS status: server state, feature inventory, expirations."
+category: 3dexperience
+timeout: 60
+flags:
+  - flag: "-server"
+    takes_value: true
+    description: "machine:port. Semicolon-separate multiple servers (quote the value)."
+  - flag: "-usage"
+    description: "Per-user license usage detail."

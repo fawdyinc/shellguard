@@ -27,7 +27,7 @@ var SubcommandCommands = map[string]bool{
 	"abaqus":    true,
 }
 
-//go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml
+//go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml manifests/packs/*/*.yaml
 var manifestsFS embed.FS
 
 type ManifestError struct {

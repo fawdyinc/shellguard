@@ -581,3 +581,26 @@ func TestAwsTwoLevelStillWorks(t *testing.T) {
 		t.Errorf("aws ec2 describe-instances: unexpected error %v", err)
 	}
 }
+
+func TestDslsstatValidatesEndToEnd(t *testing.T) {
+	if err := validateOne(t, "abaqus", "licensing", "dslsstat"); err != nil {
+		t.Fatalf("abaqus licensing dslsstat: unexpected error %v", err)
+	}
+	if err := validateOne(t, "abaqus", "licensing", "dslsstat", "-usage"); err != nil {
+		t.Fatalf("with -usage: unexpected error %v", err)
+	}
+	if err := validateOne(t, "abaqus", "licensing", "dslsstat", "-server", "jupiter:4085"); err != nil {
+		t.Fatalf("with -server: unexpected error %v", err)
+	}
+	// A solve invocation must stay refused. validateOne builds the pipeline
+	// directly, bypassing the parser, so this genuinely exercises subcommand
+	// dispatch - unlike the corpus entry for the same command, which the parser
+	// rejects earlier on the "=" token.
+	err := validateOne(t, "abaqus", "job=beam")
+	if err == nil {
+		t.Fatal("abaqus job=beam must be refused")
+	}
+	if !strings.Contains(err.Error(), "subcommand") {
+		t.Errorf("expected a subcommand rejection, got: %v", err)
+	}
+}
