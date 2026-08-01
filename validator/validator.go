@@ -277,7 +277,10 @@ func validateXargs(segment parser.PipelineSegment, registry map[string]*manifest
 }
 
 func validateSubcommand(command string, args []string, registry map[string]*manifest.Manifest) error {
-	if command == "aws" && len(args) >= 2 {
+	// Two-level subcommands (aws ec2 describe-instances, abaqus licensing
+	// dslsstat). Falls through to the one-level key when the two-level key is
+	// absent, so single-level commands such as "docker ps" are unaffected.
+	if len(args) >= 2 {
 		k := fmt.Sprintf("%s_%s_%s", command, args[0], args[1])
 		if m := registry[k]; m != nil {
 			if m.Deny {

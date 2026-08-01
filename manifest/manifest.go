@@ -24,6 +24,7 @@ var SubcommandCommands = map[string]bool{
 	"svn":       true,
 	"systemctl": true,
 	"aws":       true,
+	"abaqus":    true,
 }
 
 //go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml

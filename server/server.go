@@ -647,8 +647,10 @@ func (c *Core) getPipelineTimeout(p *parser.Pipeline) time.Duration {
 		}
 		if manifest.SubcommandCommands[seg.Command] && len(seg.Args) > 0 {
 			key := seg.Command + "_" + seg.Args[0]
-			if seg.Command == "aws" && len(seg.Args) >= 2 {
-				key = seg.Command + "_" + seg.Args[0] + "_" + seg.Args[1]
+			if len(seg.Args) >= 2 {
+				if twoLevel := seg.Command + "_" + seg.Args[0] + "_" + seg.Args[1]; c.Registry[twoLevel] != nil {
+					key = twoLevel
+				}
 			}
 			if sm := c.Registry[key]; sm != nil && sm.Timeout > maxSec {
 				maxSec = sm.Timeout

@@ -547,3 +547,37 @@ func TestUnknownNonExecutableKeepsSuggestion(t *testing.T) {
 		t.Errorf("non-executable typo should still get a suggestion, got: %v", err)
 	}
 }
+
+func TestTwoLevelSubcommandGeneralized(t *testing.T) {
+	sub := &manifest.Manifest{Name: "abaqus_licensing_dslsstat", Shell: "powershell"}
+	registry := map[string]*manifest.Manifest{"abaqus_licensing_dslsstat": sub}
+	p := &parser.Pipeline{Segments: []parser.PipelineSegment{
+		{Command: "abaqus", Args: []string{"licensing", "dslsstat"}},
+	}}
+	if err := ValidatePipeline(p, registry); err != nil {
+		t.Fatalf("abaqus licensing dslsstat should resolve: %v", err)
+	}
+}
+
+// Dropping the aws special-case must not change one-level dispatch.
+func TestOneLevelSubcommandsUnchanged(t *testing.T) {
+	cases := []struct {
+		command string
+		args    []string
+	}{
+		{"docker", []string{"ps"}},
+		{"systemctl", []string{"status"}},
+		{"kubectl", []string{"get", "pods"}},
+	}
+	for _, tc := range cases {
+		if err := validateOne(t, tc.command, tc.args...); err != nil {
+			t.Errorf("%s %v: unexpected error %v", tc.command, tc.args, err)
+		}
+	}
+}
+
+func TestAwsTwoLevelStillWorks(t *testing.T) {
+	if err := validateOne(t, "aws", "ec2", "describe-instances"); err != nil {
+		t.Errorf("aws ec2 describe-instances: unexpected error %v", err)
+	}
+}
