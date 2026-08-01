@@ -1,8 +1,8 @@
 # Commands Fawdy's skills recommend, extracted from their fenced
-# bash/powershell blocks. Regenerate with:
+# bash/powershell blocks and from inline code spans. Regenerate with:
 #   scripts/extract-skill-commands.py <fawdy-legacy>/src/lib/skills \
 #     > validator/testdata/skill-commands.txt
-# 667 unique commands; 8 lines dropped as shell constructs.
+# 696 unique commands (819 from fences, 30 from inline spans); 8 dropped as shell constructs, 2 skipped for a Unicode dash before a flag, 367 skipped as counter-examples.
 # Format: <source>\t<shell>\t<command>
 3dexperience/SKILL.md:26	powershell	DSYListInstalls.exe
 3dexperience/SKILL.md:27	powershell	DSYListInstalls.exe -h
@@ -10,6 +10,7 @@
 3dexperience/SKILL.md:90	powershell	jps
 3dexperience/SKILL.md:93	powershell	jstack PLACEHOLDER
 3dexperience/references/performance-analysis.md:150	bash	pstack PID
+3dexperience/references/platform-operations.md:135	powershell	Get-NetTCPConnection -State Listen | Sort-Object -Property LocalPort | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
 3dexperience/references/simulia-installation.md:41	powershell	Get-Content -Path "C:\SIMULIA\EstProducts\2025\win_b64\SMA\site\custom_v6.env"
 3dexperience/references/simulia-installation.md:42	powershell	Get-Content -Path "C:\SIMULIA\EstProducts\2025\win_b64\SMA\site\EstablishedProductsConfig.ini"
 3dexperience/references/simulia-installation.md:312	powershell	Get-Content -Path "C:\download\AM_SIM_Abaqus_Extend.AllOS\1\table_of_contents.txt"
@@ -45,8 +46,9 @@ apache/references/access-rewrite.md:56	bash	rg "DirectoryIndex" /etc/httpd/ /etc
 apache/references/access-rewrite.md:69	bash	httpd -M | grep rewrite
 apache/references/access-rewrite.md:72	bash	rg "Rewrite" /etc/httpd/ /etc/apache2/
 apache/references/access-rewrite.md:73	bash	rg -l "Rewrite" /var/www --glob ".htaccess"
-apache/references/access-rewrite.md:102	bash	httpd -M | grep status
-apache/references/access-rewrite.md:105	bash	curl -s http://localhost/server-status?auto
+apache/references/access-rewrite.md:91	bash	curl -vL http://example.com/path
+apache/references/access-rewrite.md:104	bash	httpd -M | grep status
+apache/references/access-rewrite.md:107	bash	curl -s http://localhost/server-status?auto
 apache/references/config-mpm.md:14	bash	httpd -V | grep "SERVER_CONFIG_FILE\|HTTPD_ROOT"
 apache/references/config-mpm.md:20	bash	find /etc/httpd/ -name "*.conf" -type f
 apache/references/config-mpm.md:21	bash	find /etc/apache2/ -name "*.conf" -type f
@@ -85,6 +87,7 @@ cst-studio/references/gpu.md:32	bash	nvidia-smi --query-gpu=index,name,driver_ve
 cst-studio/references/gpu.md:40	bash	HWAccDiagnostics_AMD64
 cst-studio/references/gpu.md:46	powershell	HWAccDiagnostics_AMD64.exe
 cst-studio/references/gpu.md:57	bash	HWAccDiagnostics_AMD64 -h
+cst-studio/references/gpu.md:76	bash	nvidia-smi -q -d ECC
 cst-studio/references/gpu.md:93	bash	nvidia-smi -L
 cst-studio/references/gpu.md:94	bash	nvidia-smi -q
 cst-studio/references/gpu.md:95	bash	nvidia-smi -q -d MEMORY
@@ -92,7 +95,6 @@ cst-studio/references/gpu.md:96	bash	nvidia-smi -q -d TEMPERATURE
 cst-studio/references/gpu.md:97	bash	nvidia-smi -q -d CLOCK
 cst-studio/references/gpu.md:98	bash	nvidia-smi -q -d SUPPORTED_CLOCKS
 cst-studio/references/gpu.md:99	bash	nvidia-smi -q -d PERFORMANCE
-cst-studio/references/gpu.md:100	bash	nvidia-smi -q -d ECC
 cst-studio/references/gpu.md:101	bash	nvidia-smi -q -d COMPUTE
 cst-studio/references/gpu.md:102	bash	nvidia-smi -q -i PLACEHOLDER
 cst-studio/references/gpu.md:103	bash	nvidia-smi --query-gpu=index,name,driver_version,memory.total,memory.used,ecc.mode.current --format=csv
@@ -140,6 +142,7 @@ cst-studio/references/observing-a-run.md:68	bash	grep -n Warning PLACEHOLDER/Res
 cst-studio/references/observing-a-run.md:74	powershell	Get-Content -Path "PLACEHOLDER\Result\progress.log"
 cst-studio/references/observing-a-run.md:75	powershell	Get-Content -Path "PLACEHOLDER\Result\output.txt" -Tail 50
 cst-studio/references/observing-a-run.md:81	bash	find PLACEHOLDER -name progress.log
+cst-studio/references/observing-a-run.md:150	bash	SystemCheck_AMD64 -m PLACEHOLDER
 cst-studio/references/observing-a-run.md:226	bash	grep -n flock /etc/fstab
 cst-studio/references/observing-a-run.md:227	bash	cat /etc/fstab
 cst-studio/references/observing-a-run.md:259	bash	printenv CST_WAIT_FOR_LICENSE
@@ -307,6 +310,8 @@ postgres/references/replication-storage.md:80	bash	psql -c "SELECT datname, temp
 postgres/references/replication-storage.md:90	bash	systemctl status postgresql
 postgres/references/replication-storage.md:91	bash	journalctl -u postgresql --since "5 min ago"
 postgres/references/replication-storage.md:103	bash	journalctl -u postgresql -n 50 --no-pager
+unix/SKILL.md:43	bash	tail -n 100
+unix/SKILL.md:59	bash	find -name PLACEHOLDER
 unix/SKILL.md:69	bash	find /var/log -name '*.log' -mmin -30 -type f
 unix/SKILL.md:72	bash	rg 'error|exception|fatal' /var/log/ -l
 unix/SKILL.md:73	bash	rg 'error|exception|fatal' /var/log/ -C3
@@ -325,128 +330,140 @@ unix/SKILL.md:93	bash	lsof +D /path          # who's writing here
 unix/references/cpu.md:19	bash	uptime
 unix/references/cpu.md:20	bash	cat /proc/loadavg
 unix/references/cpu.md:41	bash	grep -c processor /proc/cpuinfo
-unix/references/cpu.md:53	bash	mpstat -P ALL 2 5
-unix/references/cpu.md:54	bash	mpstat 2 5
-unix/references/cpu.md:81	bash	mpstat -P ALL -I SUM 2 5
-unix/references/cpu.md:89	bash	vmstat 1 5
-unix/references/cpu.md:100	bash	cat /proc/pressure/cpu
-unix/references/cpu.md:114	bash	sar -u ALL 1 5
-unix/references/cpu.md:115	bash	sar -u -P ALL -s 08:00
-unix/references/cpu.md:116	bash	sar -q -s 09:00 -e 10:00
-unix/references/cpu.md:117	bash	sar -q 1 5
-unix/references/cpu.md:118	bash	sar -w 1 5
-unix/references/cpu.md:135	bash	ps -eo pid,ppid,stat,pcpu,pmem,etime,comm --sort=-pcpu | head -n 20
-unix/references/cpu.md:136	bash	top -b -n 1 -o %CPU | head -n 25
-unix/references/cpu.md:148	bash	pidstat -u 2 5
-unix/references/cpu.md:149	bash	pidstat -u -p 1234 2 5
-unix/references/cpu.md:150	bash	pidstat -u -I 2 5
-unix/references/cpu.md:168	bash	top -b -n 1 -H -o %CPU | head -n 25
-unix/references/cpu.md:169	bash	pidstat -u -t -p 1234 2 5
-unix/references/cpu.md:179	bash	pidstat -w -p 1234 2 5
-unix/references/cpu.md:196	bash	numactl --hardware
-unix/references/cpu.md:197	bash	numactl --hardware --cpu-compress
-unix/references/cpu.md:198	bash	numactl --show
+unix/references/cpu.md:52	bash	mpstat -P ALL 2 5
+unix/references/cpu.md:53	bash	mpstat 2 5
+unix/references/cpu.md:78	bash	mpstat -P ALL -I SUM 2 5
+unix/references/cpu.md:86	bash	vmstat 1 5
+unix/references/cpu.md:97	bash	cat /proc/pressure/cpu
+unix/references/cpu.md:111	bash	sar -u ALL 1 5
+unix/references/cpu.md:112	bash	sar -u -P ALL -s 08:00
+unix/references/cpu.md:113	bash	sar -q -s 09:00 -e 10:00
+unix/references/cpu.md:114	bash	sar -q 1 5
+unix/references/cpu.md:115	bash	sar -w 1 5
+unix/references/cpu.md:130	bash	ps -eo pid,ppid,stat,pcpu,pmem,etime,comm --sort=-pcpu | head -n 20
+unix/references/cpu.md:131	bash	top -b -n 1 -o %CPU | head -n 25
+unix/references/cpu.md:135	bash	top -b -n 1
+unix/references/cpu.md:142	bash	pidstat -u 2 5
+unix/references/cpu.md:143	bash	pidstat -u -p 1234 2 5
+unix/references/cpu.md:144	bash	pidstat -u -I 2 5
+unix/references/cpu.md:161	bash	top -b -n 1 -H -o %CPU | head -n 25
+unix/references/cpu.md:162	bash	pidstat -u -t -p 1234 2 5
+unix/references/cpu.md:172	bash	pidstat -w -p 1234 2 5
+unix/references/cpu.md:189	bash	numactl --hardware
+unix/references/cpu.md:190	bash	numactl --hardware --cpu-compress
+unix/references/cpu.md:191	bash	numactl --show
+unix/references/cpu.md:196	bash	mpstat -P ALL -T
 unix/references/disk-io.md:13	bash	df -h
 unix/references/disk-io.md:14	bash	df -h -T
 unix/references/disk-io.md:24	bash	du -d 1 /var | sort -n -r | head -n 20
 unix/references/disk-io.md:25	bash	du -s -h /var/log
-unix/references/disk-io.md:36	bash	find /var/log -type f -size +100M | head -n 20
-unix/references/disk-io.md:37	bash	find /var/log -type f -mtime -1 -size +10M
-unix/references/disk-io.md:54	bash	lsof | grep deleted | head -n 40
-unix/references/disk-io.md:55	bash	lsof -p 1234 | grep deleted
-unix/references/disk-io.md:73	bash	df -i
-unix/references/disk-io.md:82	bash	find /var -maxdepth 2 -type d | head -n 40
-unix/references/disk-io.md:88	bash	find /var/lib/php/sessions -maxdepth 1 -type f | wc -l
-unix/references/disk-io.md:95	bash	sar -v 1 5
-unix/references/disk-io.md:101	bash	iostat -x -m 2 3
-unix/references/disk-io.md:132	bash	sar -d -p 1 5
-unix/references/disk-io.md:133	bash	sar -d -p -s 08:00
-unix/references/disk-io.md:134	bash	sar -b 1 5
-unix/references/disk-io.md:143	bash	sar -F -s 08:00
-unix/references/disk-io.md:149	bash	pidstat -d 2 5
-unix/references/disk-io.md:150	bash	pidstat -d -p 1234 2 5
-unix/references/disk-io.md:162	bash	cat /proc/pressure/io
-unix/references/disk-io.md:168	bash	lsblk -f
-unix/references/disk-io.md:169	bash	cat /proc/mounts | head -n 30
-unix/references/disk-io.md:180	bash	namei -l /var/lib/pgsql/data
-unix/references/logs.md:31	bash	grep -v '^#' /etc/systemd/journald.conf | grep -v '^$'
-unix/references/logs.md:43	bash	find /etc/rsyslog.d -type f | xargs cat
-unix/references/logs.md:49	bash	journalctl -u nginx.service --since "1 hour ago" --no-pager
-unix/references/logs.md:50	bash	journalctl --since "2026-08-01 09:00" --until "2026-08-01 10:00" --no-pager | head -n 200
-unix/references/logs.md:52	bash	journalctl -b -p err --no-pager -n 100
-unix/references/logs.md:53	bash	journalctl -k --since "1 hour ago" --no-pager
-unix/references/logs.md:54	bash	journalctl -t sshd --since today --no-pager | head -n 100
-unix/references/logs.md:55	bash	journalctl --no-pager -n 200 -o short-iso
-unix/references/logs.md:75	bash	journalctl --list-boots --no-pager | tail -n 10
-unix/references/logs.md:90	bash	find /var/log -maxdepth 2 -type f -name '*.log' -mmin -30
-unix/references/logs.md:91	bash	find /var/log -maxdepth 2 -type f -size +50M | head -n 20
-unix/references/logs.md:92	bash	ls -l -t -h /var/log | head -n 30
-unix/references/logs.md:101	bash	rg -i 'error|exception|fatal' /var/log -l
-unix/references/logs.md:102	bash	rg -i 'error|exception|fatal' /var/log -C 3 -m 5
-unix/references/logs.md:103	bash	rg -i 'out of memory|oom' /var/log -g '*.log' -m 5
-unix/references/logs.md:114	bash	find /var/log -type f -name '*.log' | xargs grep -l -i error | head -n 20
-unix/references/logs.md:120	bash	tail -n 200 /var/log/syslog
-unix/references/logs.md:121	bash	tail -n 200 /var/log/messages
-unix/references/logs.md:133	bash	zgrep -i error /var/log/syslog.2.gz | tail -n 100
-unix/references/logs.md:134	bash	find /var/log -name '*.gz' -mtime -3 | xargs zgrep -i -l error | head -n 10
-unix/references/logs.md:146	bash	cat /etc/logrotate.conf
-unix/references/logs.md:147	bash	find /etc/logrotate.d -type f | head -n 40
-unix/references/logs.md:156	bash	stat -c '%y %s %n' /var/log/syslog
-unix/references/memory.md:16	bash	free -m
-unix/references/memory.md:34	bash	grep -E 'MemTotal|MemFree|MemAvailable|Buffers|^Cached|SwapTotal|SwapFree|Dirty|Writeback' /proc/meminfo
-unix/references/memory.md:58	bash	sar -W 1 5
-unix/references/memory.md:59	bash	sar -B 1 5
-unix/references/memory.md:73	bash	sar -r 1 5
-unix/references/memory.md:74	bash	sar -r ALL -s 08:00
-unix/references/memory.md:84	bash	cat /proc/pressure/memory
-unix/references/memory.md:93	bash	ps -eo pid,ppid,rss,vsz,pmem,comm --sort=-rss | head -n 20
-unix/references/memory.md:94	bash	pidstat -r 2 5
-unix/references/memory.md:95	bash	pidstat -r -p 1234 2 5
-unix/references/memory.md:115	bash	dmesg -T | grep -i -E 'out of memory|killed process|oom-kill'
-unix/references/memory.md:116	bash	journalctl -k --since "24 hours ago" --no-pager | grep -i -E 'out of memory|killed process|oom-kill'
-unix/references/memory.md:117	bash	journalctl -k -b --no-pager | grep -i oom | head -n 40
-unix/references/memory.md:140	bash	cat /proc/1234/limits
-unix/references/memory.md:151	bash	cat /proc/sys/vm/swappiness
-unix/references/memory.md:152	bash	cat /proc/sys/vm/overcommit_memory
-unix/references/memory.md:153	bash	find /proc/sys/vm -maxdepth 1 -type f -name 'overcommit*' | xargs grep .
-unix/references/memory.md:175	bash	cat /sys/fs/cgroup/memory.max
-unix/references/memory.md:176	bash	cat /sys/fs/cgroup/memory.current
-unix/references/memory.md:177	bash	cat /sys/fs/cgroup/memory.events
-unix/references/memory.md:178	bash	find /sys/fs/cgroup -maxdepth 2 -name 'memory.max' | head -n 20
-unix/references/memory.md:190	bash	cat /sys/fs/cgroup/memory/memory.limit_in_bytes
-unix/references/memory.md:197	bash	systemctl show nginx.service -p MemoryCurrent,MemoryMax,MemoryAccounting
-unix/references/memory.md:210	bash	sar -H 1 5
-unix/references/network.md:18	bash	ss -tlnp
-unix/references/network.md:34	bash	ss -tanp | head -n 40
-unix/references/network.md:35	bash	ss -s
-unix/references/network.md:44	bash	ss -tan | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
-unix/references/network.md:45	bash	ss -tan | grep -c TIME-WAIT
-unix/references/network.md:63	bash	ss -tanp | grep SYN-RECV | head -n 20
-unix/references/network.md:76	bash	cat /proc/sys/net/ipv4/ip_local_port_range
-unix/references/network.md:77	bash	cat /proc/net/sockstat
-unix/references/network.md:87	bash	find /proc/sys/net/ipv4 -maxdepth 1 -type f -name 'tcp_*' | xargs grep .
-unix/references/network.md:93	bash	ss -x | head -n 20
-unix/references/network.md:115	bash	iptables -L -n -v --line-numbers
-unix/references/network.md:116	bash	iptables -t nat -L -n
-unix/references/network.md:127	bash	cat /proc/net/dev
-unix/references/network.md:128	bash	sar -n DEV 1 5
-unix/references/network.md:129	bash	sar -n EDEV 1 5
-unix/references/network.md:141	bash	sar -n SOCK 1 5
-unix/references/network.md:142	bash	sar -n TCP,ETCP 1 5
-unix/references/network.md:156	bash	find /sys/class/net -maxdepth 1 -type l
-unix/references/network.md:157	bash	cat /sys/class/net/eth0/mtu
-unix/references/network.md:163	bash	traceroute -n --mtu -m 15 -w 2 www.example.com
-unix/references/network.md:172	bash	ping -c 3 -W 2 8.8.8.8
-unix/references/network.md:173	bash	traceroute -n -q 1 -m 15 -w 2 www.example.com
-unix/references/network.md:174	bash	traceroute -n -T -p 443 -q 1 -m 15 -w 2 www.example.com
-unix/references/network.md:201	bash	grep hosts /etc/nsswitch.conf
-unix/references/network.md:202	bash	cat /etc/resolv.conf
-unix/references/network.md:220	bash	host www.example.com
-unix/references/network.md:221	bash	host -t A www.example.com
-unix/references/network.md:222	bash	host -t NS example.com
-unix/references/network.md:223	bash	host -W 2 -t A www.example.com 8.8.8.8
-unix/references/network.md:224	bash	dig +short www.example.com
-unix/references/network.md:225	bash	nslookup www.example.com
+unix/references/disk-io.md:28	bash	du -d 1
+unix/references/disk-io.md:35	bash	find /var/log -type f -size +100M | head -n 20
+unix/references/disk-io.md:36	bash	find /var/log -type f -mtime -1 -size +10M
+unix/references/disk-io.md:52	bash	lsof | grep deleted | head -n 40
+unix/references/disk-io.md:53	bash	lsof -p 1234 | grep deleted
+unix/references/disk-io.md:70	bash	df -i
+unix/references/disk-io.md:78	bash	find /var -maxdepth 2 -type d | head -n 40
+unix/references/disk-io.md:84	bash	find /var/lib/php/sessions -maxdepth 1 -type f | wc -l
+unix/references/disk-io.md:91	bash	sar -v 1 5
+unix/references/disk-io.md:97	bash	iostat -x -m 2 3
+unix/references/disk-io.md:127	bash	sar -d -p 1 5
+unix/references/disk-io.md:128	bash	sar -d -p -s 08:00
+unix/references/disk-io.md:129	bash	sar -b 1 5
+unix/references/disk-io.md:138	bash	sar -F -s 08:00
+unix/references/disk-io.md:144	bash	pidstat -d 2 5
+unix/references/disk-io.md:145	bash	pidstat -d -p 1234 2 5
+unix/references/disk-io.md:157	bash	cat /proc/pressure/io
+unix/references/disk-io.md:163	bash	lsblk -f
+unix/references/disk-io.md:164	bash	cat /proc/mounts | head -n 30
+unix/references/disk-io.md:175	bash	namei -l /var/lib/pgsql/data
+unix/references/logs.md:30	bash	grep -v '^#' /etc/systemd/journald.conf | grep -v '^$'
+unix/references/logs.md:41	bash	find /etc/rsyslog.d -type f | xargs cat
+unix/references/logs.md:47	bash	journalctl -u nginx.service --since "1 hour ago" --no-pager
+unix/references/logs.md:48	bash	journalctl --since "2026-08-01 09:00" --until "2026-08-01 10:00" --no-pager | head -n 200
+unix/references/logs.md:50	bash	journalctl -b -p err --no-pager -n 100
+unix/references/logs.md:51	bash	journalctl -k --since "1 hour ago" --no-pager
+unix/references/logs.md:52	bash	journalctl -t sshd --since today --no-pager | head -n 100
+unix/references/logs.md:53	bash	journalctl --no-pager -n 200 -o short-iso
+unix/references/logs.md:72	bash	journalctl --list-boots --no-pager | tail -n 10
+unix/references/logs.md:87	bash	find /var/log -maxdepth 2 -type f -name '*.log' -mmin -30
+unix/references/logs.md:88	bash	find /var/log -maxdepth 2 -type f -size +50M | head -n 20
+unix/references/logs.md:89	bash	ls -l -t -h /var/log | head -n 30
+unix/references/logs.md:92	bash	ls -l -t
+unix/references/logs.md:98	bash	rg -i 'error|exception|fatal' /var/log -l
+unix/references/logs.md:99	bash	rg -i 'error|exception|fatal' /var/log -C 3 -m 5
+unix/references/logs.md:100	bash	rg -i 'out of memory|oom' /var/log -g '*.log' -m 5
+unix/references/logs.md:111	bash	find /var/log -type f -name '*.log' | xargs grep -l -i error | head -n 20
+unix/references/logs.md:117	bash	tail -n 200 /var/log/syslog
+unix/references/logs.md:118	bash	tail -n 200 /var/log/messages
+unix/references/logs.md:129	bash	zgrep -i error /var/log/syslog.2.gz | tail -n 100
+unix/references/logs.md:130	bash	find /var/log -name '*.gz' -mtime -3 | xargs zgrep -i -l error | head -n 10
+unix/references/logs.md:141	bash	cat /etc/logrotate.conf
+unix/references/logs.md:142	bash	find /etc/logrotate.d -type f | head -n 40
+unix/references/logs.md:151	bash	stat -c '%y %s %n' /var/log/syslog
+unix/references/logs.md:158	bash	journalctl --since … --until …
+unix/references/logs.md:166	bash	cut -c 1
+unix/references/logs.md:166	bash	tr -s ' ' | cut -d ' ' -f N
+unix/references/logs.md:171	bash	rg -g 'PLACEHOLDER'
+unix/references/logs.md:182	bash	lsof -p PLACEHOLDER | grep deleted
+unix/references/memory.md:15	bash	free -m
+unix/references/memory.md:32	bash	grep -E 'MemTotal|MemFree|MemAvailable|Buffers|^Cached|SwapTotal|SwapFree|Dirty|Writeback' /proc/meminfo
+unix/references/memory.md:54	bash	sar -W 1 5
+unix/references/memory.md:55	bash	sar -B 1 5
+unix/references/memory.md:69	bash	sar -r 1 5
+unix/references/memory.md:70	bash	sar -r ALL -s 08:00
+unix/references/memory.md:79	bash	cat /proc/pressure/memory
+unix/references/memory.md:88	bash	ps -eo pid,ppid,rss,vsz,pmem,comm --sort=-rss | head -n 20
+unix/references/memory.md:89	bash	pidstat -r 2 5
+unix/references/memory.md:90	bash	pidstat -r -p 1234 2 5
+unix/references/memory.md:110	bash	dmesg -T | grep -i -E 'out of memory|killed process|oom-kill'
+unix/references/memory.md:111	bash	journalctl -k --since "24 hours ago" --no-pager | grep -i -E 'out of memory|killed process|oom-kill'
+unix/references/memory.md:112	bash	journalctl -k -b --no-pager | grep -i oom | head -n 40
+unix/references/memory.md:135	bash	cat /proc/1234/limits
+unix/references/memory.md:146	bash	cat /proc/sys/vm/swappiness
+unix/references/memory.md:147	bash	cat /proc/sys/vm/overcommit_memory
+unix/references/memory.md:148	bash	find /proc/sys/vm -maxdepth 1 -type f -name 'overcommit*' | xargs grep .
+unix/references/memory.md:169	bash	cat /sys/fs/cgroup/memory.max
+unix/references/memory.md:170	bash	cat /sys/fs/cgroup/memory.current
+unix/references/memory.md:171	bash	cat /sys/fs/cgroup/memory.events
+unix/references/memory.md:172	bash	find /sys/fs/cgroup -maxdepth 2 -name 'memory.max' | head -n 20
+unix/references/memory.md:183	bash	cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+unix/references/memory.md:190	bash	systemctl show nginx.service -p MemoryCurrent,MemoryMax,MemoryAccounting
+unix/references/memory.md:202	bash	sar -H 1 5
+unix/references/network.md:17	bash	ss -tlnp
+unix/references/network.md:33	bash	ss -tanp | head -n 40
+unix/references/network.md:34	bash	ss -s
+unix/references/network.md:43	bash	ss -tan | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
+unix/references/network.md:44	bash	ss -tan | grep -c TIME-WAIT
+unix/references/network.md:62	bash	ss -tanp | grep SYN-RECV | head -n 20
+unix/references/network.md:75	bash	cat /proc/sys/net/ipv4/ip_local_port_range
+unix/references/network.md:76	bash	cat /proc/net/sockstat
+unix/references/network.md:86	bash	find /proc/sys/net/ipv4 -maxdepth 1 -type f -name 'tcp_*' | xargs grep .
+unix/references/network.md:92	bash	ss -x | head -n 20
+unix/references/network.md:114	bash	iptables -L -n -v --line-numbers
+unix/references/network.md:115	bash	iptables -t nat -L -n
+unix/references/network.md:125	bash	cat /proc/net/dev
+unix/references/network.md:126	bash	sar -n DEV 1 5
+unix/references/network.md:127	bash	sar -n EDEV 1 5
+unix/references/network.md:130	bash	sar -n DEV
+unix/references/network.md:131	bash	sar -n EDEV
+unix/references/network.md:138	bash	sar -n SOCK 1 5
+unix/references/network.md:139	bash	sar -n TCP,ETCP 1 5
+unix/references/network.md:142	bash	sar -n ETCP
+unix/references/network.md:152	bash	find /sys/class/net -maxdepth 1 -type l
+unix/references/network.md:153	bash	cat /sys/class/net/eth0/mtu
+unix/references/network.md:159	bash	traceroute -n --mtu -m 15 -w 2 www.example.com
+unix/references/network.md:168	bash	ping -c 3 -W 2 8.8.8.8
+unix/references/network.md:169	bash	traceroute -n -q 1 -m 15 -w 2 www.example.com
+unix/references/network.md:170	bash	traceroute -n -T -p 443 -q 1 -m 15 -w 2 www.example.com
+unix/references/network.md:196	bash	grep hosts /etc/nsswitch.conf
+unix/references/network.md:197	bash	cat /etc/resolv.conf
+unix/references/network.md:214	bash	host www.example.com
+unix/references/network.md:215	bash	host -t A www.example.com
+unix/references/network.md:216	bash	host -t NS example.com
+unix/references/network.md:217	bash	host -W 2 -t A www.example.com 8.8.8.8
+unix/references/network.md:218	bash	dig +short www.example.com
+unix/references/network.md:219	bash	nslookup www.example.com
 unix/references/processes-services.md:14	bash	systemctl list-units --failed --no-pager
 unix/references/processes-services.md:15	bash	systemctl list-units --type service --failed --no-pager
 unix/references/processes-services.md:24	bash	systemctl status nginx.service --no-pager
@@ -458,28 +475,30 @@ unix/references/processes-services.md:70	bash	systemctl show nginx.service -p Fr
 unix/references/processes-services.md:83	bash	journalctl -u nginx.service --since "30 min ago" --no-pager
 unix/references/processes-services.md:84	bash	journalctl -u nginx.service -n 100 --no-pager -o short-precise
 unix/references/processes-services.md:85	bash	journalctl -u nginx.service -p err --since today --no-pager
-unix/references/processes-services.md:120	bash	ps -eo pid,ppid,stat,comm | grep ' Z' | head -n 20
-unix/references/processes-services.md:121	bash	ps -eo stat,comm --no-headers | cut -c 1 | sort | uniq -c | sort -n -r
-unix/references/processes-services.md:144	bash	ps -eo pid,ppid,stat,wchan,etime,comm | grep ' D' | head -n 20
-unix/references/processes-services.md:174	bash	pgrep -a nginx
-unix/references/processes-services.md:175	bash	ps -p 1234 -o pid,ppid,stat,etime,comm
-unix/references/processes-services.md:176	bash	head -n 20 /proc/1234/status
-unix/references/processes-services.md:177	bash	cat /proc/1234/wchan
-unix/references/processes-services.md:179	bash	ls -l /proc/1234/cwd
-unix/references/processes-services.md:180	bash	ls -l /proc/1234/exe
-unix/references/processes-services.md:198	bash	lsof -p 1234 | head -n 40
-unix/references/processes-services.md:199	bash	lsof -p 1234 | wc -l
-unix/references/triage.md:56	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainPID,NRestarts
-unix/references/triage.md:79	bash	systemctl show nginx.service -p Result,ExecMainCode,ExecMainStatus
-unix/references/triage.md:112	bash	journalctl -u nginx.service --since "30 min ago" --no-pager | tail -n 60
-unix/references/triage.md:181	bash	pidstat -u 2 5 | head -n 25
-unix/references/triage.md:239	bash	find /var/log -maxdepth 1 -type f | wc -l
-unix/references/triage.md:249	bash	df -h -T /var
-unix/references/triage.md:303	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainCode,FragmentPath,DropInPaths
-unix/references/triage.md:332	bash	journalctl -u nginx.service -b -1 --no-pager | tail -n 80
-unix/references/triage.md:353	bash	ausearch -m avc -ts recent
-unix/references/triage.md:388	bash	host -W 2 -t A www.example.com
-unix/references/triage.md:537	bash	journalctl -k --since "1 hour ago" --no-pager | tail -n 60
+unix/references/processes-services.md:103	bash	ausearch -m avc -ts recent
+unix/references/processes-services.md:118	bash	ps -eo pid,ppid,stat,comm | grep ' Z' | head -n 20
+unix/references/processes-services.md:119	bash	ps -eo stat,comm --no-headers | cut -c 1 | sort | uniq -c | sort -n -r
+unix/references/processes-services.md:139	bash	ps -eo pid,ppid,stat,wchan,etime,comm | grep ' D' | head -n 20
+unix/references/processes-services.md:169	bash	pgrep -a nginx
+unix/references/processes-services.md:170	bash	ps -p 1234 -o pid,ppid,stat,etime,comm
+unix/references/processes-services.md:171	bash	head -n 20 /proc/1234/status
+unix/references/processes-services.md:172	bash	cat /proc/1234/wchan
+unix/references/processes-services.md:174	bash	ls -l /proc/1234/cwd
+unix/references/processes-services.md:175	bash	ls -l /proc/1234/exe
+unix/references/processes-services.md:193	bash	lsof -p 1234 | head -n 40
+unix/references/processes-services.md:194	bash	lsof -p 1234 | wc -l
+unix/references/triage-connections-fail.md:20	bash	host -W 2 -t A www.example.com
+unix/references/triage-disk-full.md:20	bash	find /var/log -maxdepth 1 -type f | wc -l
+unix/references/triage-disk-full.md:30	bash	df -h -T /var
+unix/references/triage-host-wedged.md:42	bash	dmesg -T | tail -n 60
+unix/references/triage-process-vanished.md:17	bash	journalctl -k --since "1 hour ago" --no-pager | tail -n 60
+unix/references/triage-service-down.md:9	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainPID,NRestarts
+unix/references/triage-service-down.md:31	bash	systemctl show nginx.service -p Result,ExecMainCode,ExecMainStatus
+unix/references/triage-service-down.md:64	bash	journalctl -u nginx.service --since "30 min ago" --no-pager | tail -n 60
+unix/references/triage-slow.md:55	bash	pidstat -w 2 5
+unix/references/triage-slow.md:63	bash	pidstat -u 2 5 | head -n 25
+unix/references/triage-unit-wont-start.md:9	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainCode,FragmentPath,DropInPaths
+unix/references/triage-unit-wont-start.md:38	bash	journalctl -u nginx.service -b -1 --no-pager | tail -n 80
 windows/SKILL.md:79	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List Caption, Version, BuildNumber, InstallDate, LastBootUpTime, TotalVisibleMemorySize, FreePhysicalMemory
 windows/SKILL.md:80	powershell	Get-CimInstance -ClassName Win32_Processor | Format-List Name, NumberOfCores, NumberOfLogicalProcessors, LoadPercentage
 windows/SKILL.md:81	powershell	Get-Volume | Format-Table DriveLetter, FileSystemLabel, HealthStatus, SizeRemaining, Size -AutoSize
@@ -492,55 +511,58 @@ windows/SKILL.md:93	powershell	Get-Service | Where-Object -Property Status -eq S
 windows/SKILL.md:96	powershell	Get-PhysicalDisk | Format-Table FriendlyName, MediaType, OperationalStatus, HealthStatus, Size -AutoSize
 windows/SKILL.md:97	powershell	Get-HotFix | Sort-Object -Property InstalledOn -Descending | Select-Object -First 10 -Property HotFixID, Description, InstalledOn
 windows/SKILL.md:100	powershell	Get-ChildItem -Path 'C:\Windows\System32\LogFiles' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 20 -Property Name, Length, LastWriteTime
-windows/references/disk-filesystem.md:13	powershell	Get-Volume | Format-Table DriveLetter, FileSystemLabel, FileSystem, HealthStatus, OperationalStatus, SizeRemaining, Size -AutoSize
-windows/references/disk-filesystem.md:14	powershell	Get-PSDrive -PSProvider FileSystem | Format-Table Name, Used, Free, Root -AutoSize
-windows/references/disk-filesystem.md:15	powershell	Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType = 3' | Format-Table DeviceID, VolumeName, FileSystem, FreeSpace, Size -AutoSize
-windows/references/disk-filesystem.md:30	powershell	Get-Counter -Counter '\LogicalDisk(*)\% Free Space' -MaxSamples 1
-windows/references/disk-filesystem.md:43	powershell	Test-Path -Path 'C:\Windows\MEMORY.DMP'
-windows/references/disk-filesystem.md:44	powershell	Get-Item -Path 'C:\Windows\MEMORY.DMP' | Format-List FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:45	powershell	Get-ChildItem -Path 'C:\Windows\Minidump' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 20 -Property Name, Length, LastWriteTime
-windows/references/disk-filesystem.md:46	powershell	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl'
-windows/references/disk-filesystem.md:52	powershell	Get-ChildItem -Path 'C:\Windows\Temp' -Filter '*.dmp' | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:53	powershell	Get-ChildItem -Path 'C:\ProgramData\Microsoft\Windows\WER' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:62	powershell	Get-ChildItem -Path 'C:\inetpub\logs\LogFiles' -Recurse -Filter '*.log' | Measure-Object -Property Length -Sum
-windows/references/disk-filesystem.md:63	powershell	Get-ChildItem -Path 'C:\inetpub\logs\LogFiles' -Recurse -Filter '*.log' | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:64	powershell	Get-ChildItem -Path 'C:\Windows\System32\LogFiles' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:65	powershell	Get-ChildItem -Path 'C:\Windows\Logs' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:74	powershell	Get-ChildItem -Path 'C:\Windows\WinSxS' -Recurse | Measure-Object -Property Length -Sum
-windows/references/disk-filesystem.md:95	powershell	Get-ChildItem -Path 'C:\Windows\SoftwareDistribution\Download' -Recurse | Measure-Object -Property Length -Sum
-windows/references/disk-filesystem.md:96	powershell	Get-ChildItem -Path 'C:\Windows\Installer' | Measure-Object -Property Length -Sum
-windows/references/disk-filesystem.md:97	powershell	Get-ChildItem -Path 'C:\Users' | Format-Table Name, LastWriteTime -AutoSize
-windows/references/disk-filesystem.md:98	powershell	Test-Path -Path 'C:\pagefile.sys'
-windows/references/disk-filesystem.md:99	powershell	Test-Path -Path 'C:\hiberfil.sys'
-windows/references/disk-filesystem.md:114	powershell	Get-ChildItem -Path 'C:\' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 25 -Property FullName, Length, LastWriteTime
-windows/references/disk-filesystem.md:132	powershell	Get-PhysicalDisk | Format-Table DeviceId, FriendlyName, MediaType, BusType, OperationalStatus, HealthStatus, Size -AutoSize
-windows/references/disk-filesystem.md:133	powershell	Get-Disk | Format-Table Number, FriendlyName, OperationalStatus, HealthStatus, PartitionStyle, Size -AutoSize
-windows/references/disk-filesystem.md:134	powershell	Get-Partition | Format-Table DiskNumber, PartitionNumber, DriveLetter, Type, Size -AutoSize
-windows/references/disk-filesystem.md:135	powershell	Get-Volume | Where-Object -Property HealthStatus -ne Healthy | Format-Table DriveLetter, FileSystemLabel, HealthStatus, OperationalStatus -AutoSize
-windows/references/disk-filesystem.md:156	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=51,55,98,129,153,157} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/disk-filesystem.md:157	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='disk','Ntfs','volmgr','storahci'; Level=1,2,3} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/disk-filesystem.md:158	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=153} -MaxEvents 100 | Group-Object -Property Message -NoElement | Sort-Object -Property Count -Descending
-windows/references/disk-filesystem.md:220	powershell	Get-SmbShare | Format-Table Name, Path, Description, ScopeName -AutoSize
-windows/references/disk-filesystem.md:221	powershell	Get-SmbSession | Format-Table ClientComputerName, ClientUserName, NumOpens -AutoSize
-windows/references/disk-filesystem.md:222	powershell	Get-SmbConnection | Format-Table ServerName, ShareName, UserName, Dialect -AutoSize
-windows/references/disk-filesystem.md:223	powershell	Get-Acl -Path 'C:\Shares\Data' | Format-List Path, Owner, AccessToString
-windows/references/event-logs.md:78	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
-windows/references/event-logs.md:79	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; Level=1,2} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
-windows/references/event-logs.md:85	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2,3} -MaxEvents 300 | Group-Object -Property ProviderName -NoElement | Sort-Object -Property Count -Descending
-windows/references/event-logs.md:86	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2,3} -MaxEvents 300 | Group-Object -Property Id -NoElement | Sort-Object -Property Count -Descending
-windows/references/event-logs.md:106	powershell	Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-WinRM/Operational'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:107	powershell	Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-TaskScheduler/Operational'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:142	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=12,13,41,1001,1074,6005,6008,6009} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/event-logs.md:156	powershell	Get-ChildItem -Path 'C:\Windows\Minidump' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 10 -Property Name, Length, LastWriteTime
-windows/references/event-logs.md:181	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Service Control Manager'; Level=1,2,3} -MaxEvents 60 | Format-Table TimeCreated, Id, LevelDisplayName, Message -AutoSize
-windows/references/event-logs.md:182	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7009,7011,7022,7031,7034} -MaxEvents 60 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:194	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:195	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Hang'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:196	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='.NET Runtime'; Level=1,2} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:203	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error'; Data='w3wp.exe'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:215	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4740} -MaxEvents 50 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/event-logs.md:230	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='disk','Ntfs','volmgr'; Level=1,2,3} -MaxEvents 50 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/event-logs.md:239	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=41} -MaxEvents 3 | Format-List TimeCreated, Id, ProviderName, LevelDisplayName, Message
+windows/SKILL.md:107	powershell	Get-Content -Path 'C:\path\to.log' -Tail 100
+windows/SKILL.md:110	powershell	Select-String -Path 'C:\path\*.log' -Pattern 'error'
+windows/references/disk-filesystem.md:14	powershell	Get-Volume | Format-Table DriveLetter, FileSystemLabel, FileSystem, HealthStatus, OperationalStatus, SizeRemaining, Size -AutoSize
+windows/references/disk-filesystem.md:15	powershell	Get-PSDrive -PSProvider FileSystem | Format-Table Name, Used, Free, Root -AutoSize
+windows/references/disk-filesystem.md:16	powershell	Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType = 3' | Format-Table DeviceID, VolumeName, FileSystem, FreeSpace, Size -AutoSize
+windows/references/disk-filesystem.md:31	powershell	Get-Counter -Counter '\LogicalDisk(*)\% Free Space' -MaxSamples 1
+windows/references/disk-filesystem.md:44	powershell	Test-Path -Path 'C:\Windows\MEMORY.DMP'
+windows/references/disk-filesystem.md:45	powershell	Get-Item -Path 'C:\Windows\MEMORY.DMP' | Format-List FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:46	powershell	Get-ChildItem -Path 'C:\Windows\Minidump' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 20 -Property Name, Length, LastWriteTime
+windows/references/disk-filesystem.md:47	powershell	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl'
+windows/references/disk-filesystem.md:53	powershell	Get-ChildItem -Path 'C:\Windows\Temp' -Filter '*.dmp' | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:54	powershell	Get-ChildItem -Path 'C:\ProgramData\Microsoft\Windows\WER' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:63	powershell	Get-ChildItem -Path 'C:\inetpub\logs\LogFiles' -Recurse -Filter '*.log' | Measure-Object -Property Length -Sum
+windows/references/disk-filesystem.md:64	powershell	Get-ChildItem -Path 'C:\inetpub\logs\LogFiles' -Recurse -Filter '*.log' | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:65	powershell	Get-ChildItem -Path 'C:\Windows\System32\LogFiles' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:66	powershell	Get-ChildItem -Path 'C:\Windows\Logs' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 20 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:69	powershell	Measure-Object -Property Length -Sum
+windows/references/disk-filesystem.md:75	powershell	Get-ChildItem -Path 'C:\Windows\WinSxS' -Recurse | Measure-Object -Property Length -Sum
+windows/references/disk-filesystem.md:96	powershell	Get-ChildItem -Path 'C:\Windows\SoftwareDistribution\Download' -Recurse | Measure-Object -Property Length -Sum
+windows/references/disk-filesystem.md:97	powershell	Get-ChildItem -Path 'C:\Windows\Installer' | Measure-Object -Property Length -Sum
+windows/references/disk-filesystem.md:98	powershell	Get-ChildItem -Path 'C:\Users' | Format-Table Name, LastWriteTime -AutoSize
+windows/references/disk-filesystem.md:99	powershell	Test-Path -Path 'C:\pagefile.sys'
+windows/references/disk-filesystem.md:100	powershell	Test-Path -Path 'C:\hiberfil.sys'
+windows/references/disk-filesystem.md:115	powershell	Get-ChildItem -Path 'C:\' -Recurse | Sort-Object -Property Length -Descending | Select-Object -First 25 -Property FullName, Length, LastWriteTime
+windows/references/disk-filesystem.md:133	powershell	Get-PhysicalDisk | Format-Table DeviceId, FriendlyName, MediaType, BusType, OperationalStatus, HealthStatus, Size -AutoSize
+windows/references/disk-filesystem.md:134	powershell	Get-Disk | Format-Table Number, FriendlyName, OperationalStatus, HealthStatus, PartitionStyle, Size -AutoSize
+windows/references/disk-filesystem.md:135	powershell	Get-Partition | Format-Table DiskNumber, PartitionNumber, DriveLetter, Type, Size -AutoSize
+windows/references/disk-filesystem.md:136	powershell	Get-Volume | Where-Object -Property HealthStatus -ne Healthy | Format-Table DriveLetter, FileSystemLabel, HealthStatus, OperationalStatus -AutoSize
+windows/references/disk-filesystem.md:157	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=51,55,98,129,153,157} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/disk-filesystem.md:158	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='disk','Ntfs','volmgr','storahci'; Level=1,2,3} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/disk-filesystem.md:159	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=153} -MaxEvents 100 | Group-Object -Property Message -NoElement | Sort-Object -Property Count -Descending
+windows/references/disk-filesystem.md:222	powershell	Get-SmbShare | Format-Table Name, Path, Description, ScopeName -AutoSize
+windows/references/disk-filesystem.md:223	powershell	Get-SmbSession | Format-Table ClientComputerName, ClientUserName, NumOpens -AutoSize
+windows/references/disk-filesystem.md:224	powershell	Get-SmbConnection | Format-Table ServerName, ShareName, UserName, Dialect -AutoSize
+windows/references/disk-filesystem.md:225	powershell	Get-Acl -Path 'C:\Shares\Data' | Format-List Path, Owner, AccessToString
+windows/references/event-logs.md:79	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
+windows/references/event-logs.md:80	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; Level=1,2} -MaxEvents 50 | Format-Table TimeCreated, Id, LevelDisplayName, ProviderName, Message -AutoSize
+windows/references/event-logs.md:86	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2,3} -MaxEvents 300 | Group-Object -Property ProviderName -NoElement | Sort-Object -Property Count -Descending
+windows/references/event-logs.md:87	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2,3} -MaxEvents 300 | Group-Object -Property Id -NoElement | Sort-Object -Property Count -Descending
+windows/references/event-logs.md:107	powershell	Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-WinRM/Operational'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:108	powershell	Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-TaskScheduler/Operational'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:143	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=12,13,41,1001,1074,6005,6008,6009} -MaxEvents 60 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/event-logs.md:157	powershell	Get-ChildItem -Path 'C:\Windows\Minidump' | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 10 -Property Name, Length, LastWriteTime
+windows/references/event-logs.md:182	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Service Control Manager'; Level=1,2,3} -MaxEvents 60 | Format-Table TimeCreated, Id, LevelDisplayName, Message -AutoSize
+windows/references/event-logs.md:183	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7009,7011,7022,7031,7034} -MaxEvents 60 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:195	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:196	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Hang'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:197	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='.NET Runtime'; Level=1,2} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:204	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error'; Data='w3wp.exe'} -MaxEvents 25 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:216	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4740} -MaxEvents 50 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/event-logs.md:231	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='disk','Ntfs','volmgr'; Level=1,2,3} -MaxEvents 50 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/event-logs.md:240	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=41} -MaxEvents 3 | Format-List TimeCreated, Id, ProviderName, LevelDisplayName, Message
 windows/references/iis.md:43	powershell	Get-IISSite
 windows/references/iis.md:44	powershell	Get-IISSite -Name 'Default Web Site'
 windows/references/iis.md:45	powershell	Get-IISAppPool
@@ -570,104 +592,111 @@ windows/references/iis.md:187	powershell	Get-Acl -Path 'C:\inetpub\wwwroot' | Fo
 windows/references/iis.md:197	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 80 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
 windows/references/iis.md:198	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 443 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
 windows/references/iis.md:199	powershell	Test-NetConnection -ComputerName 127.0.0.1 -Port 80
-windows/references/networking.md:11	powershell	Get-NetIPConfiguration -Detailed
-windows/references/networking.md:12	powershell	Get-NetIPConfiguration -All
-windows/references/networking.md:13	powershell	Get-NetAdapter | Format-Table Name, InterfaceDescription, InterfaceIndex, Status, LinkSpeed, MacAddress -AutoSize
-windows/references/networking.md:14	powershell	Get-NetIPAddress | Format-Table InterfaceAlias, IPAddress, PrefixLength, AddressFamily, PrefixOrigin -AutoSize
-windows/references/networking.md:15	powershell	Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Format-Table InterfaceAlias, NextHop, RouteMetric -AutoSize
-windows/references/networking.md:37	powershell	Get-NetTCPConnection -State Listen | Sort-Object -Property LocalPort | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
-windows/references/networking.md:38	powershell	Get-NetTCPConnection -LocalPort 443 | Format-Table LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess -AutoSize
-windows/references/networking.md:39	powershell	Get-NetUDPEndpoint | Sort-Object -Property LocalPort | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
-windows/references/networking.md:46	powershell	Get-Process -Id 4321 | Format-List Id, ProcessName, Path, StartTime
-windows/references/networking.md:47	powershell	Get-CimInstance -ClassName Win32_Process -Filter 'ProcessId = 4321' | Format-List ProcessId, Name, CommandLine, ExecutablePath
-windows/references/networking.md:58	powershell	Get-NetTCPConnection | Where-Object -Property State -eq Established | Format-Table LocalPort, RemoteAddress, RemotePort, OwningProcess -AutoSize
-windows/references/networking.md:59	powershell	Get-NetTCPConnection | Where-Object -Property RemotePort -eq 1433 | Format-Table LocalAddress, RemoteAddress, State, OwningProcess -AutoSize
-windows/references/networking.md:60	powershell	Get-NetTCPConnection | Where-Object -Property OwningProcess -eq 4321 | Format-Table LocalAddress, LocalPort, RemoteAddress, RemotePort, State -AutoSize
-windows/references/networking.md:72	powershell	Get-NetTCPConnection -State Listen | Group-Object -Property LocalPort -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 10
-windows/references/networking.md:73	powershell	Get-NetTCPConnection -LocalPort 80 | Format-Table LocalAddress, LocalPort, State, OwningProcess -AutoSize
-windows/references/networking.md:93	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 8080 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
-windows/references/networking.md:102	powershell	Test-NetConnection -ComputerName 127.0.0.1 -Port 8080
-windows/references/networking.md:103	powershell	Test-NetConnection -ComputerName db01.corp.local -Port 1433 -InformationLevel Detailed
-windows/references/networking.md:104	powershell	Test-NetConnection -ComputerName 10.0.0.5 -Port 445
-windows/references/networking.md:116	powershell	Get-NetFirewallProfile | Format-Table Name, Enabled, DefaultInboundAction, DefaultOutboundAction, LogAllowed, LogBlocked, LogFileName -AutoSize
-windows/references/networking.md:117	powershell	Get-NetFirewallProfile -PolicyStore ActiveStore | Format-Table Name, Enabled, DefaultInboundAction, DefaultOutboundAction -AutoSize
-windows/references/networking.md:130	powershell	Get-NetFirewallRule -Enabled True -Direction Inbound -Action Allow | Select-Object -First 50 -Property Name, DisplayName, Profile, Action
-windows/references/networking.md:131	powershell	Get-NetFirewallRule -DisplayName 'World Wide Web Services (HTTP Traffic-In)' | Format-List Name, DisplayName, Enabled, Direction, Action, Profile
-windows/references/networking.md:132	powershell	Get-NetFirewallRule -Enabled True -Direction Inbound | Get-NetFirewallPortFilter | Format-Table Protocol, LocalPort, RemotePort -AutoSize
-windows/references/networking.md:133	powershell	Get-NetFirewallRule -DisplayName 'World Wide Web Services (HTTP Traffic-In)' | Get-NetFirewallAddressFilter | Format-List LocalAddress, RemoteAddress
-windows/references/networking.md:144	powershell	Resolve-DnsName -Name db01.corp.local
-windows/references/networking.md:145	powershell	Resolve-DnsName -Name db01.corp.local -Type A -Server 10.0.0.53
-windows/references/networking.md:146	powershell	Resolve-DnsName -Name db01.corp.local -DnsOnly -NoHostsFile
-windows/references/networking.md:147	powershell	Get-DnsClientCache | Format-Table Entry, Name, Type, Data, TimeToLive -AutoSize
-windows/references/networking.md:160	powershell	Test-NetConnection -ComputerName db01.corp.local -TraceRoute -Hops 15
-windows/references/networking.md:161	powershell	tracert -d -h 15 10.0.0.5
-windows/references/networking.md:162	powershell	Get-NetNeighbor -State Reachable | Format-Table IPAddress, LinkLayerAddress, State, InterfaceAlias -AutoSize
-windows/references/networking.md:163	powershell	Get-NetRoute | Sort-Object -Property RouteMetric | Format-Table DestinationPrefix, NextHop, RouteMetric, InterfaceAlias -AutoSize
-windows/references/networking.md:173	powershell	Get-NetTCPConnection | Group-Object -Property State -NoElement | Sort-Object -Property Count -Descending
-windows/references/networking.md:174	powershell	Get-NetTCPConnection | Where-Object -Property State -eq Established | Group-Object -Property RemoteAddress -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 15
-windows/references/networking.md:175	powershell	Get-NetTCPConnection -State Listen | Group-Object -Property OwningProcess -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 10
-windows/references/networking.md:191	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Tcpip','Microsoft-Windows-DNS-Client','NETLOGON'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/performance.md:15	powershell	Get-CimInstance -ClassName Win32_ComputerSystem | Format-List Name, Domain, Manufacturer, Model, TotalPhysicalMemory, NumberOfProcessors, NumberOfLogicalProcessors
-windows/references/performance.md:16	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List Caption, Version, BuildNumber, LastBootUpTime, LocalDateTime, TotalVisibleMemorySize, FreePhysicalMemory, TotalVirtualMemorySize, FreeVirtualMemory, SizeStoredInPagingFiles, FreeSpaceInPagingFiles
-windows/references/performance.md:17	powershell	Get-CimInstance -ClassName Win32_Processor | Format-List Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed, LoadPercentage
-windows/references/performance.md:44	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 2 -MaxSamples 5
-windows/references/performance.md:55	powershell	Get-Counter -ListSet Memory | Format-List CounterSetName, CounterSetType, Paths
-windows/references/performance.md:56	powershell	Get-Counter -ListSet PhysicalDisk | Select-Object -ExpandProperty PathsWithInstances
-windows/references/performance.md:92	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time','\Processor Information(_Total)\% User Time','\Processor Information(_Total)\% Privileged Time','\Processor Information(_Total)\% Idle Time' -SampleInterval 2 -MaxSamples 5
-windows/references/performance.md:93	powershell	Get-Counter -Counter '\System\Processor Queue Length','\System\Context Switches/sec' -SampleInterval 2 -MaxSamples 5
-windows/references/performance.md:109	powershell	Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 15 -Property Id, ProcessName, CPU, WorkingSet, Handles
-windows/references/performance.md:110	powershell	Get-Counter -Counter '\Process(*)\% Processor Time' -MaxSamples 1 | Format-List CounterSamples
-windows/references/performance.md:111	powershell	Get-CimInstance -ClassName Win32_Process | Sort-Object -Property KernelModeTime -Descending | Select-Object -First 10 -Property ProcessId, Name, KernelModeTime, UserModeTime, CommandLine
-windows/references/performance.md:142	powershell	Get-Counter -Counter '\Memory\Available MBytes','\Memory\% Committed Bytes In Use','\Memory\Committed Bytes','\Memory\Commit Limit' -SampleInterval 2 -MaxSamples 3
-windows/references/performance.md:143	powershell	Get-Counter -Counter '\Memory\Pool Nonpaged Bytes','\Memory\Pool Paged Bytes','\Memory\Page Faults/sec','\Memory\Cache Bytes' -SampleInterval 2 -MaxSamples 3
-windows/references/performance.md:163	powershell	Get-Process | Sort-Object -Property PM -Descending | Select-Object -First 15 -Property Id, ProcessName, PM, WS, NPM, Handles, Threads
-windows/references/performance.md:164	powershell	Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 15 -Property Id, ProcessName, WorkingSet, PM, StartTime
-windows/references/performance.md:165	powershell	Get-Process | Measure-Object -Property WorkingSet -Sum
-windows/references/performance.md:176	powershell	Get-CimInstance -ClassName Win32_PageFileUsage | Format-List Name, AllocatedBaseSize, CurrentUsage, PeakUsage, TempPageFile
-windows/references/performance.md:177	powershell	Get-CimInstance -ClassName Win32_PageFileSetting | Format-List Name, InitialSize, MaximumSize
-windows/references/performance.md:216	powershell	Get-Counter -Counter '\PhysicalDisk(_Total)\Avg. Disk sec/Read','\PhysicalDisk(_Total)\Avg. Disk sec/Write','\PhysicalDisk(_Total)\Current Disk Queue Length' -SampleInterval 2 -MaxSamples 5
-windows/references/performance.md:217	powershell	Get-Counter -Counter '\LogicalDisk(_Total)\Avg. Disk sec/Read','\LogicalDisk(_Total)\Avg. Disk sec/Write','\LogicalDisk(_Total)\% Free Space' -SampleInterval 2 -MaxSamples 5
-windows/references/performance.md:230	powershell	Get-Counter -Counter '\Process(*)\IO Read Operations/sec','\Process(*)\IO Write Operations/sec' -MaxSamples 1 | Format-List CounterSamples
-windows/references/performance.md:231	powershell	Get-Process | Sort-Object -Property Handles -Descending | Select-Object -First 15 -Property Id, ProcessName, Handles, WorkingSet
-windows/references/performance.md:246	powershell	Get-Process | Sort-Object -Property Handles -Descending | Select-Object -First 20 -Property Id, ProcessName, Handles, Threads, PM, StartTime
-windows/references/performance.md:247	powershell	Get-Counter -Counter '\Process(_Total)\Handle Count','\Process(_Total)\Thread Count' -SampleInterval 5 -MaxSamples 3
-windows/references/performance.md:268	powershell	Get-Counter -Counter '\Network Interface(*)\Bytes Total/sec' -SampleInterval 2 -MaxSamples 5
-windows/references/services.md:12	powershell	Get-Service -Name W3SVC | Format-List Name, DisplayName, Status, StartType
-windows/references/services.md:13	powershell	Get-Service | Where-Object -Property Status -eq Stopped | Where-Object -Property StartType -eq Automatic | Format-Table Name, DisplayName, Status, StartType -AutoSize
-windows/references/services.md:29	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'Name = "W3SVC"' | Format-List Name, DisplayName, State, StartMode, PathName, StartName, ProcessId, ExitCode, ServiceSpecificExitCode, ErrorControl, DelayedAutoStart, Description
-windows/references/services.md:47	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'StartMode = "Auto" AND State != "Running"' | Format-Table Name, DisplayName, State, ExitCode, StartName, PathName -AutoSize
-windows/references/services.md:54	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'StartName != "LocalSystem"' | Format-Table Name, StartName, State, StartMode -AutoSize
-windows/references/services.md:60	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'State = "Running" AND ProcessId != 0' | Sort-Object -Property ProcessId | Format-Table Name, ProcessId, StartName -AutoSize
-windows/references/services.md:120	powershell	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control' -Name ServicesPipeTimeout
-windows/references/services.md:165	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7001,7002,7003,7009,7011,7022,7031,7034,7038,7041} -MaxEvents 60 | Format-Table TimeCreated, Id, Message -AutoSize
-windows/references/services.md:166	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Service Control Manager'; Id=7031,7034} -MaxEvents 40 | Group-Object -Property Message -NoElement | Sort-Object -Property Count -Descending
-windows/references/services.md:174	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7045} -MaxEvents 20 | Format-Table TimeCreated, Message -AutoSize
-windows/references/services.md:183	powershell	sc.exe qc W3SVC
-windows/references/services.md:184	powershell	sc.exe qfailure W3SVC
-windows/references/services.md:185	powershell	sc.exe queryex W3SVC
-windows/references/services.md:186	powershell	sc.exe enumdepend W3SVC
-windows/references/services.md:187	powershell	sc.exe qtriggerinfo W3SVC
-windows/references/services.md:218	powershell	Get-Service -Name W3SVC | Select-Object -Property Name, Status, StartType, RequiredServices, DependentServices
-windows/references/services.md:219	powershell	Get-Service -Name W3SVC | Select-Object -ExpandProperty RequiredServices | Format-Table Name, DisplayName, Status -AutoSize
-windows/references/services.md:220	powershell	Get-Service -Name W3SVC | Select-Object -ExpandProperty DependentServices | Format-Table Name, DisplayName, Status -AutoSize
-windows/references/services.md:231	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'DelayedAutoStart = True' | Format-Table Name, DisplayName, State, StartMode -AutoSize
-windows/references/services.md:232	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List LastBootUpTime, LocalDateTime
-windows/references/services.md:243	powershell	Get-ScheduledTask | Where-Object -Property State -eq Ready | Format-Table TaskName, TaskPath, State -AutoSize
-windows/references/services.md:244	powershell	Get-ScheduledTask -TaskName 'MyJob' | Get-ScheduledTaskInfo | Format-List TaskName, LastRunTime, LastTaskResult, NextRunTime, NumberOfMissedRuns
-windows/references/triage.md:31	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List CSName, Caption, Version, BuildNumber, LastBootUpTime, LocalDateTime, CurrentTimeZone
-windows/references/triage.md:57	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'Name = "W3SVC"' | Format-List Name, DisplayName, State, StartMode, PathName, StartName, ProcessId, ExitCode, ServiceSpecificExitCode, DelayedAutoStart
-windows/references/triage.md:94	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error','Application Hang','.NET Runtime'; Level=1,2} -MaxEvents 25 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/triage.md:109	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7009,7011} -MaxEvents 20 | Format-List TimeCreated, Id, Message
-windows/references/triage.md:115	powershell	Test-Path -Path 'C:\Program Files\Example\service.exe'
-windows/references/triage.md:185	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=1074} -MaxEvents 10 | Format-List TimeCreated, Message
-windows/references/triage.md:198	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001} -MaxEvents 5 | Format-List TimeCreated, Message
-windows/references/triage.md:230	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time','\Memory\Available MBytes','\PhysicalDisk(_Total)\Avg. Disk sec/Read' -SampleInterval 2 -MaxSamples 5
-windows/references/triage.md:247	powershell	Get-Counter -Counter '\Processor Information(_Total)\% User Time','\Processor Information(_Total)\% Privileged Time' -SampleInterval 2 -MaxSamples 5
-windows/references/triage.md:259	powershell	Get-Counter -Counter '\Memory\Available MBytes','\Memory\% Committed Bytes In Use' -SampleInterval 2 -MaxSamples 3
-windows/references/triage.md:291	powershell	Get-Volume | Sort-Object -Property SizeRemaining | Format-Table DriveLetter, FileSystemLabel, FileSystem, HealthStatus, SizeRemaining, Size -AutoSize
-windows/references/triage.md:434	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4740} -MaxEvents 10 | Format-List TimeCreated, Message
-windows/references/triage.md:460	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; Level=1,2} -MaxEvents 40 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
-windows/references/triage.md:472	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'PathName LIKE "%lmgrd%" OR PathName LIKE "%DSLic%"' | Format-Table Name, DisplayName, State, StartMode, PathName -AutoSize
-windows/references/triage.md:473	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 4085 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
-windows/references/triage.md:474	powershell	Test-Path -Path 'C:\ProgramData\DassaultSystemes\Licenses\DSLicSrv.txt'
-windows/references/triage.md:483	powershell	Test-NetConnection -ComputerName licsrv01 -Port 4085
+windows/references/networking.md:12	powershell	Get-NetIPConfiguration -Detailed
+windows/references/networking.md:13	powershell	Get-NetIPConfiguration -All
+windows/references/networking.md:14	powershell	Get-NetAdapter | Format-Table Name, InterfaceDescription, InterfaceIndex, Status, LinkSpeed, MacAddress -AutoSize
+windows/references/networking.md:15	powershell	Get-NetIPAddress | Format-Table InterfaceAlias, IPAddress, PrefixLength, AddressFamily, PrefixOrigin -AutoSize
+windows/references/networking.md:16	powershell	Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Format-Table InterfaceAlias, NextHop, RouteMetric -AutoSize
+windows/references/networking.md:39	powershell	Get-NetTCPConnection -LocalPort 443 | Format-Table LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess -AutoSize
+windows/references/networking.md:40	powershell	Get-NetUDPEndpoint | Sort-Object -Property LocalPort | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
+windows/references/networking.md:47	powershell	Get-Process -Id 4321 | Format-List Id, ProcessName, Path, StartTime
+windows/references/networking.md:48	powershell	Get-CimInstance -ClassName Win32_Process -Filter 'ProcessId = 4321' | Format-List ProcessId, Name, CommandLine, ExecutablePath
+windows/references/networking.md:59	powershell	Get-NetTCPConnection | Where-Object -Property State -eq Established | Format-Table LocalPort, RemoteAddress, RemotePort, OwningProcess -AutoSize
+windows/references/networking.md:60	powershell	Get-NetTCPConnection | Where-Object -Property RemotePort -eq 1433 | Format-Table LocalAddress, RemoteAddress, State, OwningProcess -AutoSize
+windows/references/networking.md:61	powershell	Get-NetTCPConnection | Where-Object -Property OwningProcess -eq 4321 | Format-Table LocalAddress, LocalPort, RemoteAddress, RemotePort, State -AutoSize
+windows/references/networking.md:73	powershell	Get-NetTCPConnection -State Listen | Group-Object -Property LocalPort -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 10
+windows/references/networking.md:74	powershell	Get-NetTCPConnection -LocalPort 80 | Format-Table LocalAddress, LocalPort, State, OwningProcess -AutoSize
+windows/references/networking.md:94	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 8080 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
+windows/references/networking.md:103	powershell	Test-NetConnection -ComputerName 127.0.0.1 -Port 8080
+windows/references/networking.md:104	powershell	Test-NetConnection -ComputerName db01.corp.local -Port 1433 -InformationLevel Detailed
+windows/references/networking.md:105	powershell	Test-NetConnection -ComputerName 10.0.0.5 -Port 445
+windows/references/networking.md:117	powershell	Get-NetFirewallProfile | Format-Table Name, Enabled, DefaultInboundAction, DefaultOutboundAction, LogAllowed, LogBlocked, LogFileName -AutoSize
+windows/references/networking.md:118	powershell	Get-NetFirewallProfile -PolicyStore ActiveStore | Format-Table Name, Enabled, DefaultInboundAction, DefaultOutboundAction -AutoSize
+windows/references/networking.md:131	powershell	Get-NetFirewallRule -Enabled True -Direction Inbound -Action Allow | Select-Object -First 50 -Property Name, DisplayName, Profile, Action
+windows/references/networking.md:132	powershell	Get-NetFirewallRule -DisplayName 'World Wide Web Services (HTTP Traffic-In)' | Format-List Name, DisplayName, Enabled, Direction, Action, Profile
+windows/references/networking.md:133	powershell	Get-NetFirewallRule -Enabled True -Direction Inbound | Get-NetFirewallPortFilter | Format-Table Protocol, LocalPort, RemotePort -AutoSize
+windows/references/networking.md:134	powershell	Get-NetFirewallRule -DisplayName 'World Wide Web Services (HTTP Traffic-In)' | Get-NetFirewallAddressFilter | Format-List LocalAddress, RemoteAddress
+windows/references/networking.md:145	powershell	Resolve-DnsName -Name db01.corp.local
+windows/references/networking.md:146	powershell	Resolve-DnsName -Name db01.corp.local -Type A -Server 10.0.0.53
+windows/references/networking.md:147	powershell	Resolve-DnsName -Name db01.corp.local -DnsOnly -NoHostsFile
+windows/references/networking.md:148	powershell	Get-DnsClientCache | Format-Table Entry, Name, Type, Data, TimeToLive -AutoSize
+windows/references/networking.md:161	powershell	Test-NetConnection -ComputerName db01.corp.local -TraceRoute -Hops 15
+windows/references/networking.md:162	powershell	tracert -d -h 15 10.0.0.5
+windows/references/networking.md:163	powershell	Get-NetNeighbor -State Reachable | Format-Table IPAddress, LinkLayerAddress, State, InterfaceAlias -AutoSize
+windows/references/networking.md:164	powershell	Get-NetRoute | Sort-Object -Property RouteMetric | Format-Table DestinationPrefix, NextHop, RouteMetric, InterfaceAlias -AutoSize
+windows/references/networking.md:174	powershell	Get-NetTCPConnection | Group-Object -Property State -NoElement | Sort-Object -Property Count -Descending
+windows/references/networking.md:175	powershell	Get-NetTCPConnection | Where-Object -Property State -eq Established | Group-Object -Property RemoteAddress -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 15
+windows/references/networking.md:176	powershell	Get-NetTCPConnection -State Listen | Group-Object -Property OwningProcess -NoElement | Sort-Object -Property Count -Descending | Select-Object -First 10
+windows/references/networking.md:192	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Tcpip','Microsoft-Windows-DNS-Client','NETLOGON'; Level=1,2,3} -MaxEvents 40 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/networking.md:207	powershell	netstat -a -n -o
+windows/references/performance.md:17	powershell	Get-CimInstance -ClassName Win32_ComputerSystem | Format-List Name, Domain, Manufacturer, Model, TotalPhysicalMemory, NumberOfProcessors, NumberOfLogicalProcessors
+windows/references/performance.md:18	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List Caption, Version, BuildNumber, LastBootUpTime, LocalDateTime, TotalVisibleMemorySize, FreePhysicalMemory, TotalVirtualMemorySize, FreeVirtualMemory, SizeStoredInPagingFiles, FreeSpaceInPagingFiles
+windows/references/performance.md:19	powershell	Get-CimInstance -ClassName Win32_Processor | Format-List Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed, LoadPercentage
+windows/references/performance.md:46	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 2 -MaxSamples 5
+windows/references/performance.md:54	powershell	Get-Counter -ListSet PLACEHOLDER
+windows/references/performance.md:57	powershell	Get-Counter -ListSet Memory | Format-List CounterSetName, CounterSetType, Paths
+windows/references/performance.md:58	powershell	Get-Counter -ListSet PhysicalDisk | Select-Object -ExpandProperty PathsWithInstances
+windows/references/performance.md:93	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time','\Processor Information(_Total)\% User Time','\Processor Information(_Total)\% Privileged Time','\Processor Information(_Total)\% Idle Time' -SampleInterval 2 -MaxSamples 5
+windows/references/performance.md:94	powershell	Get-Counter -Counter '\System\Processor Queue Length','\System\Context Switches/sec' -SampleInterval 2 -MaxSamples 5
+windows/references/performance.md:110	powershell	Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 15 -Property Id, ProcessName, CPU, WorkingSet, Handles
+windows/references/performance.md:111	powershell	Get-Counter -Counter '\Process(*)\% Processor Time' -MaxSamples 1 | Format-List CounterSamples
+windows/references/performance.md:112	powershell	Get-CimInstance -ClassName Win32_Process | Sort-Object -Property KernelModeTime -Descending | Select-Object -First 10 -Property ProcessId, Name, KernelModeTime, UserModeTime, CommandLine
+windows/references/performance.md:143	powershell	Get-Counter -Counter '\Memory\Available MBytes','\Memory\% Committed Bytes In Use','\Memory\Committed Bytes','\Memory\Commit Limit' -SampleInterval 2 -MaxSamples 3
+windows/references/performance.md:144	powershell	Get-Counter -Counter '\Memory\Pool Nonpaged Bytes','\Memory\Pool Paged Bytes','\Memory\Page Faults/sec','\Memory\Cache Bytes' -SampleInterval 2 -MaxSamples 3
+windows/references/performance.md:164	powershell	Get-Process | Sort-Object -Property PM -Descending | Select-Object -First 15 -Property Id, ProcessName, PM, WS, NPM, Handles, Threads
+windows/references/performance.md:165	powershell	Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 15 -Property Id, ProcessName, WorkingSet, PM, StartTime
+windows/references/performance.md:166	powershell	Get-Process | Measure-Object -Property WorkingSet -Sum
+windows/references/performance.md:177	powershell	Get-CimInstance -ClassName Win32_PageFileUsage | Format-List Name, AllocatedBaseSize, CurrentUsage, PeakUsage, TempPageFile
+windows/references/performance.md:178	powershell	Get-CimInstance -ClassName Win32_PageFileSetting | Format-List Name, InitialSize, MaximumSize
+windows/references/performance.md:198	powershell	Get-CimInstance -ClassName Win32_PageFileUsage
+windows/references/performance.md:217	powershell	Get-Counter -Counter '\PhysicalDisk(_Total)\Avg. Disk sec/Read','\PhysicalDisk(_Total)\Avg. Disk sec/Write','\PhysicalDisk(_Total)\Current Disk Queue Length' -SampleInterval 2 -MaxSamples 5
+windows/references/performance.md:218	powershell	Get-Counter -Counter '\LogicalDisk(_Total)\Avg. Disk sec/Read','\LogicalDisk(_Total)\Avg. Disk sec/Write','\LogicalDisk(_Total)\% Free Space' -SampleInterval 2 -MaxSamples 5
+windows/references/performance.md:231	powershell	Get-Counter -Counter '\Process(*)\IO Read Operations/sec','\Process(*)\IO Write Operations/sec' -MaxSamples 1 | Format-List CounterSamples
+windows/references/performance.md:232	powershell	Get-Process | Sort-Object -Property Handles -Descending | Select-Object -First 15 -Property Id, ProcessName, Handles, WorkingSet
+windows/references/performance.md:247	powershell	Get-Process | Sort-Object -Property Handles -Descending | Select-Object -First 20 -Property Id, ProcessName, Handles, Threads, PM, StartTime
+windows/references/performance.md:248	powershell	Get-Counter -Counter '\Process(_Total)\Handle Count','\Process(_Total)\Thread Count' -SampleInterval 5 -MaxSamples 3
+windows/references/performance.md:269	powershell	Get-Counter -Counter '\Network Interface(*)\Bytes Total/sec' -SampleInterval 2 -MaxSamples 5
+windows/references/services.md:14	powershell	Get-Service -Name W3SVC | Format-List Name, DisplayName, Status, StartType
+windows/references/services.md:15	powershell	Get-Service | Where-Object -Property Status -eq Stopped | Where-Object -Property StartType -eq Automatic | Format-Table Name, DisplayName, Status, StartType -AutoSize
+windows/references/services.md:31	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'Name = "W3SVC"' | Format-List Name, DisplayName, State, StartMode, PathName, StartName, ProcessId, ExitCode, ServiceSpecificExitCode, ErrorControl, DelayedAutoStart, Description
+windows/references/services.md:49	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'StartMode = "Auto" AND State != "Running"' | Format-Table Name, DisplayName, State, ExitCode, StartName, PathName -AutoSize
+windows/references/services.md:56	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'StartName != "LocalSystem"' | Format-Table Name, StartName, State, StartMode -AutoSize
+windows/references/services.md:62	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'State = "Running" AND ProcessId != 0' | Sort-Object -Property ProcessId | Format-Table Name, ProcessId, StartName -AutoSize
+windows/references/services.md:125	powershell	Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control' -Name ServicesPipeTimeout
+windows/references/services.md:171	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7001,7002,7003,7009,7011,7022,7031,7034,7038,7041} -MaxEvents 60 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/services.md:172	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Service Control Manager'; Id=7031,7034} -MaxEvents 40 | Group-Object -Property Message -NoElement | Sort-Object -Property Count -Descending
+windows/references/services.md:180	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7045} -MaxEvents 20 | Format-Table TimeCreated, Message -AutoSize
+windows/references/services.md:189	powershell	sc.exe qc W3SVC
+windows/references/services.md:190	powershell	sc.exe qfailure W3SVC
+windows/references/services.md:191	powershell	sc.exe queryex W3SVC
+windows/references/services.md:192	powershell	sc.exe enumdepend W3SVC
+windows/references/services.md:193	powershell	sc.exe qtriggerinfo W3SVC
+windows/references/services.md:213	powershell	Get-CimInstance -ClassName Win32_Service
+windows/references/services.md:224	powershell	Get-Service -Name W3SVC | Select-Object -Property Name, Status, StartType, RequiredServices, DependentServices
+windows/references/services.md:225	powershell	Get-Service -Name W3SVC | Select-Object -ExpandProperty RequiredServices | Format-Table Name, DisplayName, Status -AutoSize
+windows/references/services.md:226	powershell	Get-Service -Name W3SVC | Select-Object -ExpandProperty DependentServices | Format-Table Name, DisplayName, Status -AutoSize
+windows/references/services.md:237	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'DelayedAutoStart = True' | Format-Table Name, DisplayName, State, StartMode -AutoSize
+windows/references/services.md:238	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List LastBootUpTime, LocalDateTime
+windows/references/services.md:249	powershell	Get-ScheduledTask | Where-Object -Property State -eq Ready | Format-Table TaskName, TaskPath, State -AutoSize
+windows/references/services.md:250	powershell	Get-ScheduledTask -TaskName 'MyJob' | Get-ScheduledTaskInfo | Format-List TaskName, LastRunTime, LastTaskResult, NextRunTime, NumberOfMissedRuns
+windows/references/triage-app-fails-at-launch.md:17	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; Level=1,2} -MaxEvents 40 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/triage-app-fails-at-launch.md:30	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'PathName LIKE "%lmgrd%" OR PathName LIKE "%DSLic%"' | Format-Table Name, DisplayName, State, StartMode, PathName -AutoSize
+windows/references/triage-app-fails-at-launch.md:31	powershell	Get-NetTCPConnection -State Listen | Where-Object -Property LocalPort -eq 4085 | Format-Table LocalAddress, LocalPort, OwningProcess -AutoSize
+windows/references/triage-app-fails-at-launch.md:32	powershell	Test-Path -Path 'C:\ProgramData\DassaultSystemes\Licenses\DSLicSrv.txt'
+windows/references/triage-app-fails-at-launch.md:41	powershell	Test-NetConnection -ComputerName licsrv01 -Port 4085
+windows/references/triage-clients-cannot-connect.md:58	powershell	Get-NetFirewallRule -DisplayName 'World Wide Web Services (HTTP Traffic-In)' | Get-NetFirewallPortFilter | Format-Table Protocol, LocalPort, RemotePort -AutoSize
+windows/references/triage-disk-full.md:8	powershell	Get-Volume | Sort-Object -Property SizeRemaining | Format-Table DriveLetter, FileSystemLabel, FileSystem, HealthStatus, SizeRemaining, Size -AutoSize
+windows/references/triage-logons-failing.md:26	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625} -MaxEvents 5 | Format-List TimeCreated, Id, Message
+windows/references/triage-logons-failing.md:57	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4740} -MaxEvents 10 | Format-List TimeCreated, Message
+windows/references/triage-logons-failing.md:73	powershell	Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624} -MaxEvents 20 | Format-Table TimeCreated, Id, Message -AutoSize
+windows/references/triage-logons-failing.md:74	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='NETLOGON'; Level=1,2,3} -MaxEvents 20 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/triage-server-rebooted.md:29	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=1074} -MaxEvents 10 | Format-List TimeCreated, Message
+windows/references/triage-server-rebooted.md:42	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=1001} -MaxEvents 5 | Format-List TimeCreated, Message
+windows/references/triage-service-wont-start.md:11	powershell	Get-CimInstance -ClassName Win32_Service -Filter 'Name = "W3SVC"' | Format-List Name, DisplayName, State, StartMode, PathName, StartName, ProcessId, ExitCode, ServiceSpecificExitCode, DelayedAutoStart
+windows/references/triage-service-wont-start.md:59	powershell	Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='Application Error','Application Hang','.NET Runtime'; Level=1,2} -MaxEvents 25 | Format-Table TimeCreated, Id, ProviderName, Message -AutoSize
+windows/references/triage-service-wont-start.md:85	powershell	Get-WinEvent -FilterHashtable @{LogName='System'; Id=7000,7009,7011,7022} -MaxEvents 20 | Format-List TimeCreated, Id, Message
+windows/references/triage-service-wont-start.md:91	powershell	Test-Path -Path 'C:\Program Files\Example\service.exe'
+windows/references/triage-slow.md:14	powershell	Get-Counter -Counter '\Processor(_Total)\% Processor Time','\Memory\Available MBytes','\PhysicalDisk(_Total)\Avg. Disk sec/Read' -SampleInterval 2 -MaxSamples 5
+windows/references/triage-slow.md:37	powershell	Get-Counter -Counter '\Processor Information(_Total)\% User Time','\Processor Information(_Total)\% Privileged Time' -SampleInterval 2 -MaxSamples 5
+windows/references/triage-slow.md:57	powershell	Get-Counter -Counter '\Memory\Available MBytes','\Memory\% Committed Bytes In Use' -SampleInterval 2 -MaxSamples 3
+windows/references/triage.md:76	powershell	Get-CimInstance -ClassName Win32_OperatingSystem | Format-List CSName, Caption, Version, BuildNumber, LastBootUpTime, LocalDateTime, CurrentTimeZone
