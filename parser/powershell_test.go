@@ -431,3 +431,50 @@ func TestParsePowerShell_WildcardIdent(t *testing.T) {
 		t.Errorf("expected '*.log', got %q", seg.Args[1])
 	}
 }
+
+// TestIPv4LiteralsParse covers `Test-NetConnection -ComputerName 127.0.0.1`,
+// which failed in the recorded 3DX session: Number matched `127` and the
+// remaining `.0.0.1` was unlexable because Ident must start with a letter.
+func TestIPv4LiteralsParse(t *testing.T) {
+	cases := []struct {
+		command string
+		wantArg string
+	}{
+		{"Test-NetConnection -ComputerName 127.0.0.1 -Port 443", "127.0.0.1"},
+		{"Test-NetConnection -ComputerName 10.20.30.40", "10.20.30.40"},
+		{"Test-NetConnection -ComputerName 255.255.255.255", "255.255.255.255"},
+	}
+	for _, tc := range cases {
+		p, err := ParsePowerShell(tc.command)
+		if err != nil {
+			t.Errorf("ParsePowerShell(%q) error = %v", tc.command, err)
+			continue
+		}
+		found := false
+		for _, a := range p.Segments[0].Args {
+			if a == tc.wantArg {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("ParsePowerShell(%q): args %v missing %q", tc.command, p.Segments[0].Args, tc.wantArg)
+		}
+	}
+}
+
+// TestIPLiteralDoesNotShadowExistingTokens guards the lexer ordering: the new
+// IPLiteral token sits before Number, so it must not swallow size literals,
+// arithmetic, or dotted property accessors.
+func TestIPLiteralDoesNotShadowExistingTokens(t *testing.T) {
+	cases := []string{
+		"Get-Volume | Select-Object DriveLetter, @{N='SizeGB';E={[math]::Round($_.Size/1GB,2)}}",
+		"Get-Content -Path 'C:\\logs\\a.log' -Tail 50",
+		"Get-Process | Select-Object -First 10",
+		"Get-ChildItem -Path 'C:\\Program Files'",
+	}
+	for _, c := range cases {
+		if _, err := ParsePowerShell(c); err != nil {
+			t.Errorf("ParsePowerShell(%q) error = %v", c, err)
+		}
+	}
+}

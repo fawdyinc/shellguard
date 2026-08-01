@@ -713,3 +713,31 @@ func TestDangerousWindowsBinariesDeniedWithReason(t *testing.T) {
 		}
 	}
 }
+
+// TestGetPSDriveProviderFlag covers a command from the recorded 3DX session.
+// The manifest declared `flags: []`, so -PSProvider was rejected even though
+// the command parsed — the parser corpus called this entry "already works",
+// which was true of the parser and false of the validator.
+func TestGetPSDriveProviderFlag(t *testing.T) {
+	if err := validateOne(t, "Get-PSDrive", "-PSProvider", "FileSystem"); err != nil {
+		t.Errorf("Get-PSDrive -PSProvider FileSystem: unexpected error %v", err)
+	}
+	if err := validateOne(t, "get-psdrive"); err != nil {
+		t.Errorf("bare get-psdrive: unexpected error %v", err)
+	}
+	if err := validateOne(t, "Get-PSDrive", "-NotAReal", "x"); err == nil {
+		t.Error("unknown flag should still be rejected")
+	}
+}
+
+// TestIPLiteralReachesValidator confirms the parser change lands end to end:
+// an IPv4 flag value now survives parse and validate together.
+func TestIPLiteralReachesValidator(t *testing.T) {
+	p, err := parser.ParsePowerShell("Test-NetConnection -ComputerName 127.0.0.1 -Port 443")
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	if err := ValidatePipeline(p, testRegistry(t)); err != nil {
+		t.Errorf("validate: unexpected error %v", err)
+	}
+}
