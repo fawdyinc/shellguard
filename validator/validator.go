@@ -273,6 +273,33 @@ func validateSubcommand(command string, args []string, registry map[string]*mani
 	return validateArgs(k, args[1:], m)
 }
 
+// validateRequiresOneOf enforces a manifest's requires_one_of constraint: at
+// least one of the named flags must be present.
+//
+// This exists for tools whose bare invocation is unsafe. DSCheckLS.exe with no
+// arguments requests and releases a license, and a pulled DSLS license locks
+// for 30 days - so the dangerous invocation is the one with no flags at all,
+// which per-flag validation alone cannot catch.
+//
+// PowerShell parameter names are case-insensitive, matching GetFlag. POSIX
+// flags stay case-sensitive: -l and -L are routinely different options.
+func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) error {
+	if len(m.RequiresOneOf) == 0 {
+		return nil
+	}
+	isPowerShell := m.Shell == "powershell"
+	for _, arg := range args {
+		name, _, _ := splitLongFlag(arg)
+		for _, req := range m.RequiresOneOf {
+			if name == req || (isPowerShell && strings.EqualFold(name, req)) {
+				return nil
+			}
+		}
+	}
+	return &ValidationError{Message: fmt.Sprintf(
+		"'%s' requires one of: %s.", command, strings.Join(m.RequiresOneOf, ", "))}
+}
+
 func validateArgs(command string, args []string, m *manifest.Manifest) error {
 	if err := validatePsqlRequiresC(command, args); err != nil {
 		return err
@@ -281,6 +308,9 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 		return err
 	}
 	if err := validateTarExtractRequiresStdout(command, args); err != nil {
+		return err
+	}
+	if err := validateRequiresOneOf(command, args, m); err != nil {
 		return err
 	}
 

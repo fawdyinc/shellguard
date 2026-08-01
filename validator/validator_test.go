@@ -293,3 +293,78 @@ func TestPosixGlobInFlagValueStillRejected(t *testing.T) {
 		t.Errorf("expected glob rejection for POSIX flag value, got: %v", err)
 	}
 }
+
+func TestRequiresOneOfPowerShell(t *testing.T) {
+	m := &manifest.Manifest{
+		Name:          "faketool.exe",
+		Shell:         "powershell",
+		RequiresOneOf: []string{"-l", "-r"},
+		Flags: []manifest.Flag{
+			{Flag: "-l"},
+			{Flag: "-r", TakesValue: true},
+		},
+	}
+	registry := map[string]*manifest.Manifest{"faketool.exe": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "faketool.exe", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	err := validate()
+	if err == nil {
+		t.Fatal("bare invocation should be rejected")
+	}
+	if !strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("error should explain the constraint, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "-l") || !strings.Contains(err.Error(), "-r") {
+		t.Errorf("error should list the acceptable flags, got: %v", err)
+	}
+
+	if err := validate("-l"); err != nil {
+		t.Errorf("-l should be accepted: %v", err)
+	}
+	if err := validate("-r", "IFW"); err != nil {
+		t.Errorf("-r IFW should be accepted: %v", err)
+	}
+	// PowerShell parameter names are case-insensitive.
+	if err := validate("-L"); err != nil {
+		t.Errorf("-L should be accepted for a powershell manifest: %v", err)
+	}
+}
+
+func TestRequiresOneOfPosixIsCaseSensitive(t *testing.T) {
+	m := &manifest.Manifest{
+		Name:          "faketool",
+		RequiresOneOf: []string{"-l"},
+		Flags:         []manifest.Flag{{Flag: "-l"}},
+	}
+	registry := map[string]*manifest.Manifest{"faketool": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "faketool", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	if err := validate("-l"); err != nil {
+		t.Errorf("-l should be accepted: %v", err)
+	}
+	err := validate("-L")
+	if err == nil {
+		t.Fatal("-L should be rejected for a POSIX manifest")
+	}
+	if !strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("expected the requires_one_of message, got: %v", err)
+	}
+}
+
+func TestRequiresOneOfAbsentIsUnconstrained(t *testing.T) {
+	m := &manifest.Manifest{
+		Name:  "freetool",
+		Flags: []manifest.Flag{{Flag: "-l"}},
+	}
+	registry := map[string]*manifest.Manifest{"freetool": m}
+	p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "freetool"}}}
+	if err := ValidatePipeline(p, registry); err != nil {
+		t.Errorf("a manifest without requires_one_of must accept bare invocation: %v", err)
+	}
+}
