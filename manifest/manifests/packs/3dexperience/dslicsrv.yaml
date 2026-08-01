@@ -1,0 +1,25 @@
+name: dslicsrv
+description: "DS License Server binary and its command-line administration tool."
+category: 3dexperience
+deny: true
+# Source: DS License Server 3DEXPERIENCE R2025x Installation Guide, "Reference ->
+# DSLicSrv Command". Four of the five modes change state outright: -initServer
+# (with -force, re-enrolls every license), -startServer, -stopServer, and -adminUI
+# (a GUI, useless over a shell). The fifth, -admin, is the diagnostic mode -- but
+# its only non-interactive form is -run "c host 4084; glu", a semicolon-separated
+# list of admin commands inside one quoted string. Flag validation cannot see
+# inside that string, so allowing -run would equally allow setConfig (changes
+# ports and admin passwords), deleteExpiredLicenses, and importAuthorizations
+# -clear. `-admin -i <file>` is the same hole through a file, as with `jcmd -f`.
+#
+# Bare `dslicsrv` is also the Windows service binary name; on Linux the same
+# binary is DSLicSrv. Both spellings resolve here because manifest lookup is
+# case-insensitive on the command name.
+reason:
+  "DSLicSrv starts, stops, and reconfigures the DS License Server, and its one
+  scriptable diagnostic form -- -admin -run \"...\" -- carries a whole admin command
+  language inside a quoted string that cannot be validated. Read licensing state from
+  the server logs instead, or from dslsstat, and use DSCheckLS.exe -l on the client to
+  check its DSLicSrv.txt. If a live server query is genuinely required, hand the
+  operator the restricted-mode line: DSLicSrv -admin -run \"c <server> 4084 -r; gsi;
+  glu -all\" -- the -r forces a read-only connection."
