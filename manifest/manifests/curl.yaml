@@ -54,5 +54,29 @@ flags:
   - flag: "--upload-file"
     deny: true
     reason: "Uploading files is not allowed"
+  # -H was briefly added and reverted: it broke TestE2E_CurlHeaderInjection, which
+  # asserts that `curl -H 'Authorization: Bearer stolen' http://internal:8080/admin`
+  # is refused. An arbitrary header lets an agent forge Authorization or Cookie
+  # against an internal service, and no GET-only policy constrains that. Declared
+  # explicitly rather than left undeclared, so the next author reads a decision
+  # instead of an oversight and does not add it back.
+  - flag: "-H"
+    takes_value: true
+    deny: true
+    reason:
+      "An arbitrary request header can forge Authorization or Cookie against an
+      internal service, so it is refused even though the method stays GET. To find
+      which vhost answers a name, read the resolved server blocks with `nginx -T` or
+      `apachectl -S` and the per-vhost access log. For TLS, `openssl s_client
+      -servername <name>` selects by SNI without a header. If a Host-header probe is
+      genuinely needed, hand the operator the line."
+  - flag: "--header"
+    takes_value: true
+    deny: true
+    reason:
+      "An arbitrary request header can forge Authorization or Cookie against an
+      internal service, so it is refused even though the method stays GET. Use
+      `nginx -T` / `apachectl -S` plus the per-vhost access log to settle vhost
+      selection, or `openssl s_client -servername <name>` for the TLS case."
 stdin: false
 stdout: true

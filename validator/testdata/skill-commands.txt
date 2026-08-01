@@ -2,7 +2,7 @@
 # bash/powershell blocks and from inline code spans. Regenerate with:
 #   scripts/extract-skill-commands.py <fawdy-legacy>/src/lib/skills \
 #     > validator/testdata/skill-commands.txt
-# 696 unique commands (819 from fences, 30 from inline spans); 8 dropped as shell constructs, 2 skipped for a Unicode dash before a flag, 367 skipped as counter-examples.
+# 1058 unique commands (1349 from fences, 33 from inline spans); 4 dropped as shell constructs, 2 skipped for a Unicode dash before a flag, 624 skipped as counter-examples.
 # Format: <source>\t<shell>\t<command>
 3dexperience/SKILL.md:26	powershell	DSYListInstalls.exe
 3dexperience/SKILL.md:27	powershell	DSYListInstalls.exe -h
@@ -17,38 +17,39 @@
 3dexperience/references/simulia-installation.md:355	powershell	Get-Content -Path "C:\SIMULIA\EstProducts\2025\InstallData\UserIntentions_CODE.xml"
 3dexperience/references/simulia-installation.md:356	powershell	Get-ChildItem -Recurse "C:\SIMULIA\EstProducts\2025\InstallData\log"
 3dexperience/references/simulia-installation.md:506	powershell	Get-Content -Path "C:\Program Files\Dassault Systemes\SIMULIA2025doc\StartDocumentationUsingCloudViewSearch.txt"
-apache/SKILL.md:20	bash	systemctl status httpd
-apache/SKILL.md:21	bash	systemctl status apache2
-apache/SKILL.md:24	bash	apachectl configtest
-apache/SKILL.md:27	bash	httpd -V
-apache/SKILL.md:28	bash	httpd -M
-apache/SKILL.md:29	bash	httpd -S
-apache/SKILL.md:32	bash	tail -50 /var/log/httpd/error_log
-apache/SKILL.md:33	bash	tail -50 /var/log/apache2/error.log
-apache/SKILL.md:36	bash	ss -tlnp | grep -E "httpd|apache2"
-apache/SKILL.md:43	bash	rg "\[error\]|\[crit\]|\[alert\]|\[emerg\]" /var/log/httpd/error_log | tail -20
-apache/SKILL.md:46	bash	rg "AH[0-9]+" /var/log/httpd/error_log | tail -20
-apache/SKILL.md:49	bash	cut -d' ' -f9 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head
-apache/SKILL.md:52	bash	rg '" 5[0-9][0-9] ' /var/log/httpd/access_log | tail -20
-apache/SKILL.md:55	bash	cut -d' ' -f1 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
-apache/SKILL.md:56	bash	cut -d' ' -f7 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
-apache/SKILL.md:73	bash	ss -tlnp | grep ":80\|:443"
-apache/SKILL.md:74	bash	journalctl -u httpd --since "5 min ago"
-apache/references/access-rewrite.md:7	bash	rg "AH01630|AH01797|client denied|Permission" /var/log/httpd/error_log | tail -10
-apache/references/access-rewrite.md:15	bash	ls -la /var/www/html/
-apache/references/access-rewrite.md:16	bash	namei -l /var/www/html/index.html
-apache/references/access-rewrite.md:24	bash	rg "Require|Order|Allow|Deny" /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
-apache/references/access-rewrite.md:34	bash	getenforce
-apache/references/access-rewrite.md:35	bash	ls -Z /var/www/html/
-apache/references/access-rewrite.md:36	bash	ausearch -m avc -ts recent | grep httpd
-apache/references/access-rewrite.md:48	bash	rg "AllowOverride" /etc/httpd/ /etc/apache2/
-apache/references/access-rewrite.md:56	bash	rg "DirectoryIndex" /etc/httpd/ /etc/apache2/
-apache/references/access-rewrite.md:69	bash	httpd -M | grep rewrite
-apache/references/access-rewrite.md:72	bash	rg "Rewrite" /etc/httpd/ /etc/apache2/
-apache/references/access-rewrite.md:73	bash	rg -l "Rewrite" /var/www --glob ".htaccess"
-apache/references/access-rewrite.md:91	bash	curl -vL http://example.com/path
-apache/references/access-rewrite.md:104	bash	httpd -M | grep status
-apache/references/access-rewrite.md:107	bash	curl -s http://localhost/server-status?auto
+apache/SKILL.md:41	bash	systemctl status httpd
+apache/SKILL.md:42	bash	systemctl status apache2
+apache/SKILL.md:45	bash	apachectl configtest
+apache/SKILL.md:48	bash	httpd -V
+apache/SKILL.md:49	bash	httpd -M
+apache/SKILL.md:50	bash	httpd -S
+apache/SKILL.md:53	bash	tail -50 /var/log/httpd/error_log
+apache/SKILL.md:54	bash	tail -50 /var/log/apache2/error.log
+apache/SKILL.md:57	bash	ss -tlnp | grep -E "httpd|apache2"
+apache/SKILL.md:64	bash	rg "\[error\]|\[crit\]|\[alert\]|\[emerg\]" /var/log/httpd/error_log | tail -20
+apache/SKILL.md:67	bash	rg "AH[0-9]+" /var/log/httpd/error_log | tail -20
+apache/SKILL.md:70	bash	cut -d' ' -f9 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head
+apache/SKILL.md:73	bash	rg '" 5[0-9][0-9] ' /var/log/httpd/access_log | tail -20
+apache/SKILL.md:76	bash	cut -d' ' -f1 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
+apache/SKILL.md:77	bash	cut -d' ' -f7 /var/log/httpd/access_log | sort | uniq -c | sort -rn | head -10
+apache/SKILL.md:94	bash	ss -tlnp | grep ":80\|:443"
+apache/SKILL.md:95	bash	journalctl -u httpd --since "5 min ago"
+apache/references/access-rewrite.md:12	bash	rg "AH01630|AH01797|client denied|Permission" /var/log/httpd/error_log | tail -10
+apache/references/access-rewrite.md:20	bash	ls -la /var/www/html/
+apache/references/access-rewrite.md:21	bash	namei -l /var/www/html/index.html
+apache/references/access-rewrite.md:29	bash	rg "Require|Order|Allow|Deny" /etc/httpd/conf.d/ /etc/apache2/sites-enabled/
+apache/references/access-rewrite.md:39	bash	getenforce
+apache/references/access-rewrite.md:40	bash	ls -Z /var/www/html/
+apache/references/access-rewrite.md:41	bash	ausearch -m avc -ts recent | grep httpd
+apache/references/access-rewrite.md:53	bash	rg "AllowOverride" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:61	bash	rg "DirectoryIndex" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:88	bash	rg -n "^\s*Options" /etc/httpd /etc/apache2
+apache/references/access-rewrite.md:100	bash	httpd -M | grep rewrite
+apache/references/access-rewrite.md:103	bash	rg "Rewrite" /etc/httpd/ /etc/apache2/
+apache/references/access-rewrite.md:104	bash	rg -l "Rewrite" /var/www --glob ".htaccess"
+apache/references/access-rewrite.md:122	bash	curl -vL http://example.com/path
+apache/references/access-rewrite.md:135	bash	httpd -M | grep status
+apache/references/access-rewrite.md:138	bash	curl -s http://localhost/server-status?auto
 apache/references/config-mpm.md:14	bash	httpd -V | grep "SERVER_CONFIG_FILE\|HTTPD_ROOT"
 apache/references/config-mpm.md:20	bash	find /etc/httpd/ -name "*.conf" -type f
 apache/references/config-mpm.md:21	bash	find /etc/apache2/ -name "*.conf" -type f
@@ -80,7 +81,42 @@ apache/references/proxy-ssl.md:109	bash	openssl x509 -noout -modulus -in /etc/ht
 apache/references/proxy-ssl.md:110	bash	openssl rsa -noout -modulus -in /etc/httpd/ssl/key.pem | md5sum
 apache/references/proxy-ssl.md:117	bash	rg "SSLCertificate|SSLProtocol|SSLCipherSuite" /etc/httpd/ /etc/apache2/
 apache/references/proxy-ssl.md:120	bash	httpd -M | grep ssl
-apache/references/proxy-ssl.md:123	bash	rg "SSL|AH0089|AH02003|AH02561" /var/log/httpd/error_log | tail -20
+apache/references/proxy-ssl.md:123	bash	rg "\[ssl:(error|warn|crit)\]" /var/log/httpd/error_log | tail -20
+apache/references/triage-403-404.md:34	bash	grep -E "AH01630|AH01797|AH00035|AH00037|AH01276|File does not exist" /var/log/httpd/error_log | tail -20
+apache/references/triage-403-404.md:71	bash	namei -l -Z /var/www/html/index.html
+apache/references/triage-403-404.md:95	bash	ausearch -m avc -ts recent -c httpd -i
+apache/references/triage-403-404.md:114	bash	httpd -M | grep -E "authz|access_compat|rewrite|alias|dir_module|autoindex"
+apache/references/triage-403-404.md:133	bash	rg -n -B 3 "AllowOverride" /etc/httpd /etc/apache2
+apache/references/triage-5xx.md:16	bash	grep -o -E "\[[a-z_0-9]+:(error|crit|alert|emerg)\]" /var/log/httpd/error_log | sort | uniq -c | sort -n -r
+apache/references/triage-5xx.md:42	bash	grep -E "AH00124|internal redirect" /var/log/httpd/error_log | tail -20
+apache/references/triage-5xx.md:60	bash	grep -E "\[proxy" /var/log/httpd/error_log | tail -20
+apache/references/triage-5xx.md:83	bash	grep -E "AH00286|AH00287|AH00288|AH00161" /var/log/httpd/error_log | tail -10
+apache/references/triage-5xx.md:95	bash	rg -n "R=503|Redirect 503|ErrorDocument 503" /etc/httpd /etc/apache2
+apache/references/triage-5xx.md:107	bash	grep -E '" 5[0-9][0-9] ' /var/log/httpd/access_log | cut -d ' ' -f 7 | sort | uniq -c | sort -n -r | head -20
+apache/references/triage-slow-or-stalled.md:39	bash	httpd -V | grep -E "Server MPM|threaded|forked"
+apache/references/triage-slow-or-stalled.md:92	bash	ps -C httpd -o pid,rss,etimes,stat --sort=-etimes | head -30
+apache/references/triage-slow-or-stalled.md:98	bash	ps -C apache2 -o pid,rss,etimes,stat --sort=-etimes | head -30
+apache/references/triage-slow-or-stalled.md:126	bash	curl -s -w "dns %{time_namelookup} connect %{time_connect} firstbyte %{time_starttransfer} total %{time_total}\n" http://127.0.0.1:8080/ | tail -1
+apache/references/triage-slow-or-stalled.md:150	bash	rg -n "KeepAlive|KeepAliveTimeout|MaxKeepAliveRequests" /etc/httpd /etc/apache2
+apache/references/triage-tls.md:13	bash	grep -E "\[ssl:" /var/log/httpd/error_log | tail -20
+apache/references/triage-tls.md:27	bash	ss -tlnp | grep -E ":443"
+apache/references/triage-tls.md:61	bash	openssl s_client -connect 127.0.0.1:443 -servername www.example.com -brief
+apache/references/triage-tls.md:70	bash	openssl x509 -in /etc/pki/tls/certs/server.crt -noout -subject -issuer -dates -checkend 604800
+apache/references/triage-tls.md:89	bash	openssl x509 -in /etc/pki/tls/certs/server.crt -noout -subject -ext subjectAltName
+apache/references/triage-tls.md:126	bash	openssl s_client -connect 127.0.0.1:443 -servername www.example.com -showcerts -verify 5
+apache/references/triage-tls.md:133	bash	openssl verify -untrusted /etc/pki/tls/certs/chain.crt -show_chain /etc/pki/tls/certs/server.crt
+apache/references/triage-tls.md:148	bash	rg -n "SSLProtocol|SSLCipherSuite|SSLHonorCipherOrder|SSLOpenSSLConfCmd" /etc/httpd /etc/apache2
+apache/references/triage-tls.md:152	bash	openssl s_client -connect 127.0.0.1:443 -servername www.example.com -tls1_2 -brief
+apache/references/triage-wont-start.md:37	bash	ss -tlnp | grep -E ":80|:443"
+apache/references/triage-wont-start.md:43	bash	rg -n "Listen" /etc/httpd /etc/apache2
+apache/references/triage-wont-start.md:60	bash	journalctl -u httpd --since "15 min ago" --no-pager -o cat
+apache/references/triage-wont-start.md:66	bash	journalctl -u apache2 --since "15 min ago" --no-pager -o cat
+apache/references/triage-wont-start.md:126	bash	systemctl show httpd -p ExecStart -p ExecReload -p Environment -p MainPID
+apache/references/triage-wrong-vhost.md:22	bash	apache2 -S
+apache/references/triage-wrong-vhost.md:78	bash	rg -n "ServerName|ServerAlias" /etc/httpd /etc/apache2
+apache/references/triage-wrong-vhost.md:102	bash	rg -n "IncludeOptional|Include" /etc/httpd/conf/httpd.conf /etc/apache2/apache2.conf
+apache/references/triage-wrong-vhost.md:129	bash	grep -E "File does not exist" /var/log/httpd/error_log | tail -20
+apache/references/triage-wrong-vhost.md:138	bash	rg -n "Alias|DocumentRoot|RewriteRule" /etc/httpd /etc/apache2
 cst-studio/SKILL.md:25	bash	cst_system_check
 cst-studio/references/gpu.md:31	bash	nvidia-smi
 cst-studio/references/gpu.md:32	bash	nvidia-smi --query-gpu=index,name,driver_version --format=csv
@@ -146,13 +182,142 @@ cst-studio/references/observing-a-run.md:150	bash	SystemCheck_AMD64 -m PLACEHOLD
 cst-studio/references/observing-a-run.md:226	bash	grep -n flock /etc/fstab
 cst-studio/references/observing-a-run.md:227	bash	cat /etc/fstab
 cst-studio/references/observing-a-run.md:259	bash	printenv CST_WAIT_FOR_LICENSE
-docker/SKILL.md:82	bash	docker ps --format '{{.Names}}' --filter 'name=prod-'
-docker/SKILL.md:85	bash	docker inspect prod-api-1 prod-worker-60 prod-worker-bg-60 | jq -r '.[] | "\(.Name) restarts=\(.RestartCount) oom=\(.State.OOMKilled) status=\(.State.Status)"'
-docker/SKILL.md:93	bash	docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.PIDs}}'
-docker/SKILL.md:102	bash	docker logs prod-api-1 --tail 200 --since 30m
-docker/SKILL.md:103	bash	docker logs prod-worker-60 --since 2026-04-26T19:00:00
-docker/SKILL.md:111	bash	docker inspect prod-api-1 | jq '.[].State | {Status, StartedAt, FinishedAt, OOMKilled, ExitCode, RestartCount}'
-docker/SKILL.md:120	bash	docker inspect prod-api-1 | jq '.[].Config | {Cmd, Entrypoint, Env, WorkingDir, User}'
+docker/SKILL.md:108	bash	docker ps --format '{{.Names}}' --filter 'name=prod-'
+docker/SKILL.md:111	bash	docker inspect prod-api-1 prod-worker-60 prod-worker-bg-60 | jq -r '.[] | "\(.Name) restarts=\(.RestartCount) oom=\(.State.OOMKilled) status=\(.State.Status)"'
+docker/SKILL.md:119	bash	docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.PIDs}}'
+docker/SKILL.md:128	bash	docker logs prod-api-1 --tail 200 --since 30m
+docker/SKILL.md:129	bash	docker logs prod-worker-60 --since 2026-04-26T19:00:00
+docker/SKILL.md:137	bash	docker inspect prod-api-1 | jq '.[].State | {Status, StartedAt, FinishedAt, OOMKilled, ExitCode, RestartCount}'
+docker/SKILL.md:146	bash	docker inspect prod-api-1 | jq '.[].Config | {Cmd, Entrypoint, Env, WorkingDir, User}'
+docker/references/constraints.md:68	bash	docker inspect --format '{{.State.Status}}' web
+docker/references/constraints.md:69	bash	docker inspect --format '{{json .State}}' web
+docker/references/constraints.md:70	bash	docker ps --format 'table {{.Names}}\t{{.Status}}'
+docker/references/constraints.md:71	bash	docker stats --no-stream --format '{{.Name}} {{.MemUsage}}'
+docker/references/constraints.md:88	bash	docker inspect web | jq '.[0].State'
+docker/references/images.md:25	bash	docker inspect PLACEHOLDER | jq -r '.[0].Config.Image, .[0].Image'
+docker/references/images.md:26	bash	docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.CreatedAt}}'
+docker/references/images.md:35	bash	docker inspect PLACEHOLDER | jq -r '.[0].Id'
+docker/references/images.md:51	bash	docker inspect PLACEHOLDER | jq '.[0] | {Id, RepoTags, RepoDigests, Created, Architecture, Os, Size}'
+docker/references/images.md:52	bash	docker inspect PLACEHOLDER | jq -r '.[0].RepoDigests[]'
+docker/references/images.md:53	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Entrypoint, Cmd, Env, WorkingDir, User, ExposedPorts}'
+docker/references/images.md:54	bash	docker inspect PLACEHOLDER | jq '.[0].Config.Labels'
+docker/references/images.md:75	bash	docker inspect PLACEHOLDER | jq -r '.[0].Config.Labels["org.opencontainers.image.revision"]'
+docker/references/images.md:76	bash	docker inspect PLACEHOLDER | jq -r '.[0].Config.Labels["org.opencontainers.image.created"]'
+docker/references/images.md:77	bash	docker inspect PLACEHOLDER | jq -r '.[0].Config.Labels["org.opencontainers.image.source"]'
+docker/references/images.md:87	bash	docker inspect PLACEHOLDER | jq '.[0].Mounts'
+docker/references/images.md:88	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Image, Entrypoint, Cmd, Env, WorkingDir, User}'
+docker/references/images.md:89	bash	docker inspect PLACEHOLDER | jq '.[0] | {Created, RestartCount}'
+docker/references/lifecycle.md:10	bash	docker inspect PLACEHOLDER
+docker/references/lifecycle.md:16	bash	docker inspect api web db | jq -r '.[] | "\(.Name) \(.State.Status) exit=\(.State.ExitCode) oom=\(.State.OOMKilled) restarts=\(.RestartCount)"'
+docker/references/lifecycle.md:42	bash	docker inspect PLACEHOLDER | jq '.[0].State'
+docker/references/lifecycle.md:43	bash	docker inspect PLACEHOLDER | jq '.[0] | {Name, Created, RestartCount, Image}'
+docker/references/lifecycle.md:95	bash	dmesg -T | grep -i -E 'out of memory|killed process|oom-kill'
+docker/references/lifecycle.md:96	bash	journalctl -k --since '6 hours ago' --no-pager | grep -i -E 'oom|memory cgroup'
+docker/references/lifecycle.md:107	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Entrypoint, Cmd, User, WorkingDir}'
+docker/references/lifecycle.md:113	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig.RestartPolicy'
+docker/references/lifecycle.md:114	bash	docker ps -a --filter 'status=restarting'
+docker/references/lifecycle.md:146	bash	docker inspect PLACEHOLDER | jq '.[0].State | {StartedAt, FinishedAt, ExitCode}'
+docker/references/lifecycle.md:160	bash	docker inspect PLACEHOLDER | jq '.[0].State.Health | {Status, FailingStreak}'
+docker/references/lifecycle.md:161	bash	docker inspect PLACEHOLDER | jq '.[0].State.Health.Log[-3:]'
+docker/references/lifecycle.md:162	bash	docker inspect PLACEHOLDER | jq '.[0].Config.Healthcheck'
+docker/references/lifecycle.md:163	bash	docker ps --filter 'health=unhealthy'
+docker/references/logs.md:10	bash	docker logs PLACEHOLDER --tail 200
+docker/references/logs.md:11	bash	docker logs PLACEHOLDER --tail 200 --since 30m
+docker/references/logs.md:12	bash	docker logs PLACEHOLDER --since 2026-08-01T09:00:00 --tail 500
+docker/references/logs.md:23	bash	docker logs PLACEHOLDER --tail 2000 | grep -i -E 'error|fatal|panic|exception'
+docker/references/logs.md:24	bash	docker logs PLACEHOLDER --tail 2000 | grep -c -i error
+docker/references/logs.md:25	bash	docker logs PLACEHOLDER --tail 500 | tail -n 60
+docker/references/logs.md:46	bash	docker inspect PLACEHOLDER | jq -r '.[0].LogPath'
+docker/references/logs.md:47	bash	tail -n 200 /var/lib/docker/containers/PLACEHOLDER/PLACEHOLDER-json.log
+docker/references/logs.md:48	bash	tail -n 200 /var/lib/docker/containers/PLACEHOLDER/PLACEHOLDER-json.log | jq -r '.time + " " + .stream + " " + .log'
+docker/references/logs.md:63	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig.LogConfig'
+docker/references/logs.md:64	bash	cat /etc/docker/daemon.json
+docker/references/logs.md:77	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Entrypoint, Cmd, Env}'
+docker/references/logs.md:92	bash	docker inspect PLACEHOLDER | jq -r '.[0].HostConfig.LogConfig.Type'
+docker/references/logs.md:130	bash	docker inspect PLACEHOLDER | jq '.[0].State | {StartedAt, FinishedAt}'
+docker/references/logs.md:146	bash	find /var/lib/docker/containers -name '*-json.log*' | xargs wc -c | sort -n -r | head -n 20
+docker/references/logs.md:178	bash	systemctl is-active docker
+docker/references/logs.md:179	bash	journalctl -u docker.service --since '2 hours ago' --no-pager
+docker/references/logs.md:180	bash	journalctl -u docker.service -n 200 --no-pager
+docker/references/logs.md:181	bash	pgrep -fa dockerd
+docker/references/logs.md:188	bash	journalctl CONTAINER_NAME=PLACEHOLDER --no-pager -n 200
+docker/references/network.md:38	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Ports'
+docker/references/network.md:39	bash	docker inspect PLACEHOLDER | jq '.[0].Config.ExposedPorts'
+docker/references/network.md:40	bash	docker ps --format 'table {{.Names}}\t{{.Ports}}'
+docker/references/network.md:78	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Networks | keys'
+docker/references/network.md:79	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Networks | to_entries | map({net: .key, ip: .value.IPAddress, aliases: .value.Aliases, gw: .value.Gateway})'
+docker/references/network.md:80	bash	docker inspect PLACEHOLDER | jq '.[0].Config.Hostname'
+docker/references/network.md:81	bash	docker inspect PLACEHOLDER | jq '.[0] | {Name, Driver, Internal, IPAM, Containers}'
+docker/references/network.md:131	bash	ss -tlnp
+docker/references/network.md:132	bash	ss -tnp state established
+docker/references/network.md:133	bash	curl -sS -m 5 -I http://127.0.0.1:8080/
+docker/references/network.md:134	bash	curl -s -m 5 -w '%{http_code} %{time_total}' http://127.0.0.1:8080/healthz
+docker/references/network.md:135	bash	dig +short PLACEHOLDER
+docker/references/network.md:136	bash	cat /etc/resolv.conf
+docker/references/network.md:153	bash	iptables -t nat -L DOCKER -n
+docker/references/network.md:154	bash	iptables -L -n
+docker/references/network.md:155	bash	cat /proc/net/nf_conntrack | wc -l
+docker/references/resources.md:20	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig | {Memory, MemoryReservation, MemorySwap, NanoCpus, CpuQuota, CpuPeriod, CpuShares, CpusetCpus, PidsLimit, OomKillDisable}'
+docker/references/resources.md:48	bash	docker stats --no-stream --all --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.NetIO}}\t{{.BlockIO}}\t{{.PIDs}}'
+docker/references/resources.md:49	bash	docker stats --no-stream PLACEHOLDER
+docker/references/resources.md:77	bash	docker inspect PLACEHOLDER | jq '.[0].State.Pid'
+docker/references/resources.md:78	bash	cat /proc/PLACEHOLDER/cgroup
+docker/references/resources.md:94	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/memory.max
+docker/references/resources.md:95	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/memory.current
+docker/references/resources.md:96	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/memory.events
+docker/references/resources.md:97	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/memory.stat
+docker/references/resources.md:118	bash	cat /sys/fs/cgroup/memory/docker/PLACEHOLDER/memory.limit_in_bytes
+docker/references/resources.md:119	bash	cat /sys/fs/cgroup/memory/docker/PLACEHOLDER/memory.usage_in_bytes
+docker/references/resources.md:120	bash	cat /sys/fs/cgroup/memory/docker/PLACEHOLDER/memory.failcnt
+docker/references/resources.md:128	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/cpu.max
+docker/references/resources.md:129	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/cpu.stat
+docker/references/resources.md:145	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/pids.max
+docker/references/resources.md:146	bash	cat /sys/fs/cgroup/system.slice/docker-PLACEHOLDER.scope/pids.current
+docker/references/resources.md:180	bash	free -m
+docker/references/resources.md:181	bash	cat /proc/pressure/memory
+docker/references/resources.md:182	bash	cat /proc/pressure/cpu
+docker/references/storage.md:34	bash	cat /proc/mounts | grep -E 'docker|overlay' | head -n 20
+docker/references/storage.md:35	bash	df -h /var/lib/docker
+docker/references/storage.md:36	bash	lsblk
+docker/references/storage.md:47	bash	df -i /var/lib/docker
+docker/references/storage.md:48	bash	du -d 1 /var/lib/docker | sort -n -r | head -n 20
+docker/references/storage.md:63	bash	du -d 1 /var/lib/docker/overlay2 | sort -n -r | head -n 20
+docker/references/storage.md:64	bash	ls /var/lib/docker/overlay2 | wc -l
+docker/references/storage.md:65	bash	ls /var/lib/docker/image/overlay2/imagedb/content/sha256 | wc -l
+docker/references/storage.md:66	bash	docker ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+docker/references/storage.md:67	bash	docker inspect PLACEHOLDER | jq '.[0].GraphDriver'
+docker/references/storage.md:86	bash	du -d 1 /var/lib/docker/containers | sort -n -r | head -n 20
+docker/references/storage.md:88	bash	find /var/lib/docker/containers -name '*-json.log' -size +1G
+docker/references/storage.md:103	bash	du -d 1 /var/lib/docker/volumes | sort -n -r | head -n 20
+docker/references/storage.md:104	bash	ls /var/lib/docker/volumes | wc -l
+docker/references/storage.md:106	bash	docker inspect PLACEHOLDER | jq '.[0] | {Name, Driver, Mountpoint, Labels}'
+docker/references/storage.md:130	bash	du -d 1 /var/lib/docker/buildkit | sort -n -r | head -n 10
+docker/references/storage.md:162	bash	find /var/lib/docker -type f -mmin -30 -size +100M
+docker/references/storage.md:163	bash	docker stats --no-stream --format 'table {{.Name}}\t{{.BlockIO}}'
+docker/references/triage-host-disk-full.md:19	bash	df -h
+docker/references/triage-host-disk-full.md:31	bash	ls /var/lib/docker/containers | wc -l
+docker/references/triage-host-disk-full.md:98	bash	docker ps -a
+docker/references/triage-network.md:21	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Networks | to_entries | map({net: .key, ip: .value.IPAddress, aliases: .value.Aliases})'
+docker/references/triage-network.md:59	bash	curl -sS -m 5 -I https://PLACEHOLDER/
+docker/references/triage-network.md:86	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Networks | to_entries | map({net: .key, aliases: .value.Aliases, links: .value.Links})'
+docker/references/triage-network.md:118	bash	docker inspect PLACEHOLDER | jq '.[0].NetworkSettings.Networks | to_entries | map({net: .key, ip: .value.IPAddress})'
+docker/references/triage-not-serving.md:14	bash	docker ps -a --format 'table {{.Names}}\t{{.State}}\t{{.Status}}\t{{.Ports}}'
+docker/references/triage-not-serving.md:115	bash	docker logs PLACEHOLDER --tail 200 --since 15m
+docker/references/triage-not-serving.md:116	bash	docker logs PLACEHOLDER --tail 2000 | grep -i -E 'error|fatal|panic|exception|refused|timeout'
+docker/references/triage-not-serving.md:134	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig | {Memory, NanoCpus, CpuQuota, CpuPeriod, PidsLimit}'
+docker/references/triage-slow.md:39	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig | {Memory, MemoryReservation, MemorySwap, OomKillDisable}'
+docker/references/triage-slow.md:40	bash	docker inspect PLACEHOLDER | jq '.[0].State | {Pid, OOMKilled, ExitCode, RestartCount}'
+docker/references/triage-slow.md:81	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig | {NanoCpus, CpuQuota, CpuPeriod, CpuShares, CpusetCpus}'
+docker/references/triage-slow.md:113	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig.PidsLimit'
+docker/references/triage-slow.md:129	bash	docker inspect PLACEHOLDER | jq '.[0].HostConfig | {BlkioWeight, BlkioDeviceReadBps, BlkioDeviceWriteBps}'
+docker/references/triage-wont-start.md:11	bash	docker inspect PLACEHOLDER | jq '.[0] | {Name, RestartCount, Created, State}'
+docker/references/triage-wont-start.md:59	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Image, Entrypoint, Cmd, User, WorkingDir}'
+docker/references/triage-wont-start.md:60	bash	docker inspect PLACEHOLDER | jq '.[0].State.Error'
+docker/references/triage-wont-start.md:81	bash	docker inspect PLACEHOLDER | jq '.[0].State | {ExitCode, OOMKilled, FinishedAt}'
+docker/references/triage-wont-start.md:127	bash	docker inspect PLACEHOLDER | jq '.[0].State | {Status, StartedAt, FinishedAt, ExitCode, OOMKilled}'
+docker/references/triage-wrong-image.md:53	bash	docker inspect PLACEHOLDER | jq '.[0] | {Id, RepoTags, RepoDigests, Created, Architecture, Os}'
+docker/references/triage-wrong-image.md:105	bash	docker inspect PLACEHOLDER | jq '.[0].Config | {Entrypoint, Cmd, WorkingDir, User}'
+docker/references/triage.md:39	bash	docker ps -a --format 'table {{.Names}}\t{{.State}}\t{{.Status}}\t{{.Image}}'
 ds-licensing/SKILL.md:37	powershell	Get-Content -Path "PLACEHOLDER\SMA\site\EstablishedProductsConfig.ini"
 ds-licensing/SKILL.md:64	powershell	abaqus licensing dslsstat
 ds-licensing/SKILL.md:67	powershell	abaqus licensing dslsstat -usage
@@ -189,45 +354,54 @@ ds-licensing/references/flexnet.md:524	bash	lmpath -status
 ds-licensing/references/flexnet.md:610	bash	lmver /usr/local/flexlm/bin/lmgrd
 ds-licensing/references/flexnet.md:612	bash	lmutil lmstat -a
 ds-licensing/references/flexnet.md:613	bash	lmutil lmhostid -ether
-java-jvm/SKILL.md:27	bash	pgrep -fa java
-java-jvm/SKILL.md:28	bash	jps -lvm
-java-jvm/SKILL.md:29	bash	jcmd -l
-java-jvm/SKILL.md:32	bash	jcmd PLACEHOLDER VM.flags
-java-jvm/SKILL.md:33	bash	jcmd PLACEHOLDER VM.system_properties
-java-jvm/SKILL.md:34	bash	jcmd PLACEHOLDER VM.command_line
-java-jvm/SKILL.md:35	bash	jcmd PLACEHOLDER VM.info
-java-jvm/SKILL.md:42	bash	top -bn1 | grep java
-java-jvm/SKILL.md:45	bash	top -H -p PLACEHOLDER -bn1 | head -20
-java-jvm/SKILL.md:48	bash	printf '%x\n' PLACEHOLDER
-java-jvm/SKILL.md:51	bash	jstack PLACEHOLDER | grep -A 30 "nid=0xPLACEHOLDER"
-java-jvm/SKILL.md:54	bash	jstack PLACEHOLDER | rg -A 30 "nid=0xPLACEHOLDER"
-java-jvm/SKILL.md:73	bash	jstack PLACEHOLDER | grep "java.lang.Thread.State" | sort | uniq -c | sort -rn
-java-jvm/SKILL.md:76	bash	jstack PLACEHOLDER | rg -A 5 "BLOCKED"
-java-jvm/SKILL.md:77	bash	jstack PLACEHOLDER | rg -B 2 -A 10 "waiting to lock"
-java-jvm/SKILL.md:80	bash	jstack PLACEHOLDER | rg -A 20 "Found.*deadlock"
-java-jvm/SKILL.md:83	bash	jcmd PLACEHOLDER Thread.print | rg -A 5 "BLOCKED"
-java-jvm/SKILL.md:100	bash	jstat -gcutil PLACEHOLDER 1000 5
-java-jvm/SKILL.md:103	bash	jmap -histo PLACEHOLDER | head -30
-java-jvm/SKILL.md:104	bash	jcmd PLACEHOLDER GC.class_histogram | head -30
-java-jvm/SKILL.md:107	bash	jcmd PLACEHOLDER GC.heap_info
-java-jvm/SKILL.md:123	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.active | jq .
-java-jvm/SKILL.md:124	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.pending | jq .
-java-jvm/SKILL.md:125	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.timeout | jq .
-java-jvm/SKILL.md:129	bash	jstack PLACEHOLDER | rg -A 5 "HikariPool|getConnection|connectionTimeout"
-java-jvm/SKILL.md:141	bash	systemctl status PLACEHOLDER
-java-jvm/SKILL.md:142	bash	journalctl -u PLACEHOLDER --since "5 min ago"
-java-jvm/SKILL.md:145	bash	rg "APPLICATION FAILED TO START|BeanCreationException|BindException|Address already in use" /var/log/app/
-java-jvm/SKILL.md:152	bash	jcmd PLACEHOLDER VM.version
-java-jvm/SKILL.md:153	bash	jps -v
-java-jvm/SKILL.md:156	bash	ls -la /etc/app/ /var/log/app/ /var/lib/app/
-java-jvm/SKILL.md:163	bash	curl -s localhost:8080/actuator/health | jq .
-java-jvm/SKILL.md:166	bash	curl -s localhost:8080/actuator/threaddump | jq .
-java-jvm/SKILL.md:169	bash	curl -s localhost:8080/actuator/metrics/jvm.memory.used | jq .
-java-jvm/references/gc-memory.md:40	bash	jstat -gc PLACEHOLDER
-java-jvm/references/gc-memory.md:62	bash	jcmd PLACEHOLDER VM.flags | rg "gc|GC"
-java-jvm/references/gc-memory.md:65	bash	find / -name "gc*.log*" -o -name "*gc.log*"
-java-jvm/references/gc-memory.md:71	bash	rg "Full GC|Pause Full" /path/to/gc.log | tail -20
-java-jvm/references/gc-memory.md:72	bash	rg "Pause Young|GC pause" /path/to/gc.log | tail -20
+java-jvm/SKILL.md:50	bash	pgrep -fa java
+java-jvm/SKILL.md:51	bash	jps -lvm
+java-jvm/SKILL.md:52	bash	jcmd -l
+java-jvm/SKILL.md:55	bash	jcmd PLACEHOLDER VM.flags
+java-jvm/SKILL.md:56	bash	jcmd PLACEHOLDER VM.system_properties
+java-jvm/SKILL.md:57	bash	jcmd PLACEHOLDER VM.command_line
+java-jvm/SKILL.md:58	bash	jcmd PLACEHOLDER VM.info
+java-jvm/SKILL.md:65	bash	top -bn1 | grep java
+java-jvm/SKILL.md:68	bash	top -H -p PLACEHOLDER -bn1 | head -20
+java-jvm/SKILL.md:71	bash	printf '%x\n' PLACEHOLDER
+java-jvm/SKILL.md:74	bash	jstack PLACEHOLDER | grep -A 30 "nid=0xPLACEHOLDER"
+java-jvm/SKILL.md:77	bash	jstack PLACEHOLDER | rg -A 30 "nid=0xPLACEHOLDER"
+java-jvm/SKILL.md:96	bash	jstack PLACEHOLDER | grep "java.lang.Thread.State" | sort | uniq -c | sort -rn
+java-jvm/SKILL.md:99	bash	jstack PLACEHOLDER | rg -A 5 "BLOCKED"
+java-jvm/SKILL.md:100	bash	jstack PLACEHOLDER | rg -B 2 -A 10 "waiting to lock"
+java-jvm/SKILL.md:103	bash	jstack PLACEHOLDER | rg -A 20 "Found.*deadlock"
+java-jvm/SKILL.md:106	bash	jcmd PLACEHOLDER Thread.print | rg -A 5 "BLOCKED"
+java-jvm/SKILL.md:123	bash	jstat -gcutil PLACEHOLDER 1000 5
+java-jvm/SKILL.md:126	bash	jmap -histo PLACEHOLDER | head -30
+java-jvm/SKILL.md:127	bash	jcmd PLACEHOLDER GC.class_histogram | head -30
+java-jvm/SKILL.md:130	bash	jcmd PLACEHOLDER GC.heap_info
+java-jvm/SKILL.md:146	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.active | jq .
+java-jvm/SKILL.md:147	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.pending | jq .
+java-jvm/SKILL.md:148	bash	curl -s localhost:8080/actuator/metrics/hikaricp.connections.timeout | jq .
+java-jvm/SKILL.md:152	bash	jstack PLACEHOLDER | rg -A 5 "HikariPool|getConnection|connectionTimeout"
+java-jvm/SKILL.md:164	bash	systemctl status PLACEHOLDER
+java-jvm/SKILL.md:165	bash	journalctl -u PLACEHOLDER --since "5 min ago"
+java-jvm/SKILL.md:168	bash	rg "APPLICATION FAILED TO START|BeanCreationException|BindException|Address already in use" /var/log/app/
+java-jvm/SKILL.md:175	bash	jcmd PLACEHOLDER VM.version
+java-jvm/SKILL.md:176	bash	jps -v
+java-jvm/SKILL.md:179	bash	ls -la /etc/app/ /var/log/app/ /var/lib/app/
+java-jvm/SKILL.md:186	bash	curl -s localhost:8080/actuator/health | jq .
+java-jvm/SKILL.md:189	bash	curl -s localhost:8080/actuator/threaddump | jq .
+java-jvm/SKILL.md:192	bash	curl -s localhost:8080/actuator/metrics/jvm.memory.used | jq .
+java-jvm/references/gc-memory.md:29	bash	jcmd PLACEHOLDER GC.class_histogram | head -n 30
+java-jvm/references/gc-memory.md:30	bash	jmap -histo PLACEHOLDER | head -n 30
+java-jvm/references/gc-memory.md:76	bash	jstat -gcutil 21891 250 7
+java-jvm/references/gc-memory.md:81	bash	jstat -gcutil PLACEHOLDER 5000 12
+java-jvm/references/gc-memory.md:82	bash	jstat -t -gcutil PLACEHOLDER 5000 12
+java-jvm/references/gc-memory.md:119	bash	jstat -gccause PLACEHOLDER 2000 10
+java-jvm/references/gc-memory.md:132	bash	jstat -gc PLACEHOLDER
+java-jvm/references/gc-memory.md:133	bash	jstat -gccapacity PLACEHOLDER
+java-jvm/references/gc-memory.md:142	bash	jcmd PLACEHOLDER VM.command_line | grep -n -E "Xlog|Xloggc"
+java-jvm/references/gc-memory.md:143	bash	jinfo -flags PLACEHOLDER | grep -n -i "gc"
+java-jvm/references/gc-memory.md:147	bash	jinfo -flags PLACEHOLDER
+java-jvm/references/gc-memory.md:153	bash	find /var/log /opt /home -maxdepth 5 -name "gc*.log*"
+java-jvm/references/gc-memory.md:154	bash	rg -n -e "Pause Full" -e "Pause Young" /var/log/app/gc.log | tail -n 20
+java-jvm/references/gc-memory.md:169	bash	jinfo -flags PLACEHOLDER | grep -n -E "UseG1GC|UseZGC|UseShenandoahGC|UseParallelGC|UseSerialGC"
 java-jvm/references/spring-boot.md:35	bash	curl -s http://localhost:8080/actuator/loggers/com.example.myapp | jq .
 java-jvm/references/spring-boot.md:38	bash	curl -s http://localhost:8080/actuator/loggers | jq '.loggers | keys'
 java-jvm/references/spring-boot.md:54	bash	curl -s localhost:8080/actuator/metrics/jvm.gc.pause | jq .
@@ -247,69 +421,270 @@ java-jvm/references/spring-boot.md:139	bash	curl -s localhost:8080/actuator/env/
 java-jvm/references/spring-boot.md:148	bash	rg "logging.file|logging.path" /path/to/application.properties
 java-jvm/references/spring-boot.md:149	bash	find /var/log -name "*.log" -path "*app*" -o -name "spring*.log"
 java-jvm/references/spring-boot.md:150	bash	rg "Exception|ERROR" /var/log/app/ --glob "*.log" -C2 | tail -50
-nginx/SKILL.md:22	bash	systemctl status nginx
-nginx/SKILL.md:23	bash	pgrep -fa nginx
-nginx/SKILL.md:26	bash	nginx -t
-nginx/SKILL.md:29	bash	tail -50 /var/log/nginx/error.log
-nginx/SKILL.md:32	bash	ss -tlnp | grep nginx
-nginx/SKILL.md:39	bash	nginx -t | grep "configuration file"
-nginx/SKILL.md:42	bash	nginx -T
-nginx/SKILL.md:45	bash	rg "server_name|listen " /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
-nginx/SKILL.md:48	bash	rg "include " /etc/nginx/nginx.conf /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
-nginx/SKILL.md:64	bash	rg "access_log|error_log" /etc/nginx/
-nginx/SKILL.md:67	bash	rg "upstream" /var/log/nginx/error.log | tail -20
-nginx/SKILL.md:70	bash	rg "connect\(\) failed|Connection refused|Connection timed out" /var/log/nginx/error.log | tail -20
-nginx/SKILL.md:73	bash	cut -d' ' -f9 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head
-nginx/SKILL.md:76	bash	rg '" 5[0-9][0-9] ' /var/log/nginx/access.log | tail -20
-nginx/SKILL.md:79	bash	cut -d' ' -f1 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10
-nginx/SKILL.md:105	bash	ls -la /etc/nginx/ssl/
-nginx/SKILL.md:106	bash	ls -la /var/log/nginx/
-nginx/SKILL.md:109	bash	nginx -T | grep "open()"
-nginx/SKILL.md:112	bash	journalctl -u nginx --since "5 min ago"
+java-jvm/references/thread-dumps.md:9	bash	jcmd PLACEHOLDER Thread.print
+java-jvm/references/thread-dumps.md:10	bash	jcmd PLACEHOLDER Thread.print -l
+java-jvm/references/thread-dumps.md:21	bash	jstack PLACEHOLDER
+java-jvm/references/thread-dumps.md:22	bash	jstack -l PLACEHOLDER
+java-jvm/references/thread-dumps.md:130	bash	jcmd PLACEHOLDER Thread.print | grep "java.lang.Thread.State" | sort | uniq -c | sort -n -r
+java-jvm/references/thread-dumps.md:177	bash	jcmd PLACEHOLDER Thread.print -l | grep -A 40 "Found one Java-level deadlock"
+java-jvm/references/triage-died-silently.md:33	bash	find /tmp /var/log /opt -maxdepth 4 -name "hs_err_pid*.log" -mmin -1440
+java-jvm/references/triage-died-silently.md:39	bash	find / -maxdepth 6 -name "hs_err_pid*.log" -mmin -1440
+java-jvm/references/triage-died-silently.md:53	bash	head -n 40 /tmp/hs_err_pid12345.log
+java-jvm/references/triage-died-silently.md:54	bash	grep -n -A 3 "Problematic frame" /tmp/hs_err_pid12345.log
+java-jvm/references/triage-died-silently.md:78	bash	grep -n -A 5 "Command Line" /tmp/hs_err_pid12345.log
+java-jvm/references/triage-died-silently.md:87	bash	dmesg -T | grep -i -E "out of memory|killed process|oom-kill"
+java-jvm/references/triage-died-silently.md:94	bash	journalctl -k --since "2 hours ago" --no-pager | tail -n 60
+java-jvm/references/triage-died-silently.md:105	bash	cat /sys/fs/cgroup/memory.max
+java-jvm/references/triage-died-silently.md:106	bash	cat /sys/fs/cgroup/memory.events
+java-jvm/references/triage-died-silently.md:122	bash	systemctl show PLACEHOLDER -p Result,ExecMainStatus,ExecMainCode,NRestarts --no-pager
+java-jvm/references/triage-died-silently.md:123	bash	journalctl -u PLACEHOLDER --since "2 hours ago" --no-pager | tail -n 60
+java-jvm/references/triage-died-silently.md:153	bash	systemctl show PLACEHOLDER -p ExecStart,Environment --no-pager
+java-jvm/references/triage-died-silently.md:154	bash	rg -n -e "ExitOnOutOfMemoryError" -e "CrashOnOutOfMemoryError" /etc/systemd/system/ /etc/default/ /etc/sysconfig/
+java-jvm/references/triage-high-cpu.md:12	bash	top -b -n 1 -o %CPU | head -n 15
+java-jvm/references/triage-high-cpu.md:34	bash	top -b -n 1 -H -p PLACEHOLDER -o %CPU | head -n 20
+java-jvm/references/triage-high-cpu.md:65	bash	jcmd PLACEHOLDER Thread.print | grep -B 2 -A 30 "nid=0xPLACEHOLDER"
+java-jvm/references/triage-high-cpu.md:76	bash	jstack PLACEHOLDER | grep -B 2 -A 30 "nid=0xPLACEHOLDER"
+java-jvm/references/triage-high-cpu.md:113	bash	jstat -gcutil PLACEHOLDER 2000 6
+java-jvm/references/triage-high-cpu.md:136	bash	jcmd PLACEHOLDER Compiler.queue
+java-jvm/references/triage-high-cpu.md:137	bash	jcmd PLACEHOLDER Compiler.codecache
+java-jvm/references/triage-hung.md:16	bash	top -b -n 1 -p PLACEHOLDER -o %CPU | head -n 12
+java-jvm/references/triage-hung.md:34	bash	jcmd PLACEHOLDER VM.uptime
+java-jvm/references/triage-hung.md:47	bash	jstat -gcutil PLACEHOLDER 1000 3
+java-jvm/references/triage-hung.md:76	bash	jcmd PLACEHOLDER Thread.print -l | grep -n "deadlock"
+java-jvm/references/triage-hung.md:129	bash	jcmd PLACEHOLDER Thread.print -l | grep -B 5 -A 15 "waiting to lock"
+java-jvm/references/triage-oom.md:15	bash	rg -n "java.lang.OutOfMemoryError" /var/log/app/ | tail -n 20
+java-jvm/references/triage-oom.md:21	bash	journalctl -u PLACEHOLDER --since "24 hours ago" --no-pager | grep -n "OutOfMemoryError"
+java-jvm/references/triage-oom.md:28	bash	jcmd PLACEHOLDER VM.system_properties | grep -n -E "user.dir|log"
+java-jvm/references/triage-oom.md:92	bash	jcmd PLACEHOLDER VM.metaspace basic
+java-jvm/references/triage-oom.md:93	bash	jcmd PLACEHOLDER VM.classloader_stats
+java-jvm/references/triage-oom.md:102	bash	jmap -clstats PLACEHOLDER
+java-jvm/references/triage-oom.md:108	bash	jinfo -flags PLACEHOLDER | grep -n -E "Metaspace|ClassSpace"
+java-jvm/references/triage-oom.md:135	bash	jcmd PLACEHOLDER VM.command_line | grep -n "NativeMemoryTracking"
+java-jvm/references/triage-oom.md:141	bash	jcmd PLACEHOLDER VM.native_memory summary
+java-jvm/references/triage-oom.md:153	bash	jcmd PLACEHOLDER System.native_heap_info
+java-jvm/references/triage-oom.md:177	bash	cat /proc/PLACEHOLDER/status | grep -n Threads
+java-jvm/references/triage-oom.md:178	bash	cat /proc/PLACEHOLDER/limits
+java-jvm/references/triage-oom.md:179	bash	cat /proc/sys/kernel/threads-max
+java-jvm/references/triage-slow-requests.md:21	bash	jstat -gcutil PLACEHOLDER 2000 15
+java-jvm/references/triage-slow-requests.md:106	bash	jcmd PLACEHOLDER Thread.print | grep -n -E "http-nio|HikariPool|getConnection"
+java-jvm/references/triage-slow-requests.md:114	bash	curl -s localhost:8080/actuator/metrics/tomcat.threads.busy | jq .
+java-jvm/references/triage-slow-requests.md:115	bash	curl -s localhost:8080/actuator/metrics/tomcat.threads.config.max | jq .
+java-jvm/references/triage-slow-requests.md:139	bash	jcmd PLACEHOLDER Thread.print | grep -n -E "socketRead0|SocketInputStream|sun.nio.ch"
+java-jvm/references/triage-slow-requests.md:140	bash	ss -t -n -p | grep PLACEHOLDER
+java-jvm/references/triage-wont-start.md:18	bash	systemctl show PLACEHOLDER -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainCode,FragmentPath
+java-jvm/references/triage-wont-start.md:39	bash	journalctl -u PLACEHOLDER -n 200 --no-pager -o short-precise
+java-jvm/references/triage-wont-start.md:45	bash	rg -n "APPLICATION FAILED TO START|Caused by:|Error occurred during initialization" /var/log/app/ | tail -n 20
+java-jvm/references/triage-wont-start.md:76	bash	systemctl show PLACEHOLDER -p ExecStart --no-pager
+java-jvm/references/triage-wont-start.md:80	bash	rg -n -e "Xmx" -e "Xms" -e "XX:" /etc/systemd/system/ /etc/default/ /etc/sysconfig/
+java-jvm/references/triage-wont-start.md:122	bash	find /usr/lib/jvm /opt -maxdepth 3 -name release -type f
+java-jvm/references/triage-wont-start.md:123	bash	cat /usr/lib/jvm/java-21-openjdk/release
+java-jvm/references/triage-wont-start.md:132	bash	systemctl show PLACEHOLDER -p Environment,ExecStart --no-pager
+java-jvm/references/triage-wont-start.md:163	bash	ls -l -a /etc/app/ /var/log/app/ /var/lib/app/
+java-jvm/references/triage-wont-start.md:164	bash	systemctl show PLACEHOLDER -p User,Group,WorkingDirectory --no-pager
+java-jvm/references/triage-wont-start.md:175	bash	find /usr/lib/jvm /opt -maxdepth 4 -name java -type f
+java-jvm/references/triage-wont-start.md:187	bash	systemctl show PLACEHOLDER -p Requires,After,Wants,Condition --no-pager
+java-jvm/references/triage-wont-start.md:188	bash	journalctl -u PLACEHOLDER --since "1 hour ago" --no-pager | tail -n 40
+java-jvm/references/triage.md:38	bash	pgrep -f -a java
+nginx/SKILL.md:46	bash	systemctl status nginx
+nginx/SKILL.md:47	bash	pgrep -fa nginx
+nginx/SKILL.md:50	bash	nginx -t
+nginx/SKILL.md:53	bash	tail -50 /var/log/nginx/error.log
+nginx/SKILL.md:56	bash	ss -tlnp | grep nginx
+nginx/SKILL.md:63	bash	nginx -t | grep "configuration file"
+nginx/SKILL.md:66	bash	nginx -T
+nginx/SKILL.md:69	bash	rg "server_name|listen " /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
+nginx/SKILL.md:72	bash	rg "include " /etc/nginx/nginx.conf /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
+nginx/SKILL.md:88	bash	rg "access_log|error_log" /etc/nginx/
+nginx/SKILL.md:91	bash	rg "upstream" /var/log/nginx/error.log | tail -20
+nginx/SKILL.md:94	bash	rg "connect\(\) failed|Connection refused|Connection timed out" /var/log/nginx/error.log | tail -20
+nginx/SKILL.md:97	bash	cut -d' ' -f9 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head
+nginx/SKILL.md:100	bash	rg '" 5[0-9][0-9] ' /var/log/nginx/access.log | tail -20
+nginx/SKILL.md:103	bash	cut -d' ' -f1 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10
+nginx/SKILL.md:129	bash	ls -la /etc/nginx/ssl/
+nginx/SKILL.md:130	bash	ls -la /var/log/nginx/
+nginx/SKILL.md:133	bash	nginx -T | grep "open()"
+nginx/SKILL.md:136	bash	journalctl -u nginx --since "5 min ago"
 nginx/references/proxy-upstream.md:12	bash	rg "upstream" /var/log/nginx/error.log | tail -10
 nginx/references/proxy-upstream.md:15	bash	rg "proxy_pass|upstream" /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
-nginx/references/proxy-upstream.md:38	bash	rg "proxy_connect_timeout|proxy_send_timeout|proxy_read_timeout" /etc/nginx/
-nginx/references/proxy-upstream.md:59	bash	rg -A 10 "upstream " /etc/nginx/
-nginx/references/proxy-upstream.md:62	bash	rg "server " /etc/nginx/conf.d/ --glob "upstream*.conf"
+nginx/references/proxy-upstream.md:49	bash	rg "proxy_connect_timeout|proxy_send_timeout|proxy_read_timeout" /etc/nginx/
+nginx/references/proxy-upstream.md:70	bash	rg -A 10 "upstream " /etc/nginx/
+nginx/references/proxy-upstream.md:73	bash	rg "server " /etc/nginx/conf.d/ --glob "upstream*.conf"
+nginx/references/ssl-performance.md:12	bash	echo | openssl s_client -connect localhost:443 -servername example.com | openssl x509 -noout -dates
+nginx/references/ssl-performance.md:15	bash	echo | openssl s_client -connect localhost:443 -servername example.com -showcerts
 nginx/references/ssl-performance.md:18	bash	openssl x509 -noout -modulus -in /etc/nginx/ssl/cert.pem | md5sum
 nginx/references/ssl-performance.md:19	bash	openssl rsa -noout -modulus -in /etc/nginx/ssl/key.pem | md5sum
 nginx/references/ssl-performance.md:22	bash	openssl x509 -noout -text -in /etc/nginx/ssl/cert.pem | rg "Subject:|DNS:"
-nginx/references/ssl-performance.md:25	bash	openssl s_client -connect localhost:443 -tls1_2
-nginx/references/ssl-performance.md:26	bash	openssl s_client -connect localhost:443 -tls1_3
+nginx/references/ssl-performance.md:25	bash	echo | openssl s_client -connect localhost:443 -tls1_2
+nginx/references/ssl-performance.md:26	bash	echo | openssl s_client -connect localhost:443 -tls1_3
 nginx/references/ssl-performance.md:29	bash	rg "ssl_certificate|ssl_protocols|ssl_ciphers" /etc/nginx/
 nginx/references/ssl-performance.md:32	bash	rg "SSL" /var/log/nginx/error.log | tail -20
-nginx/references/ssl-performance.md:51	bash	rg "worker_processes|worker_connections|worker_rlimit" /etc/nginx/nginx.conf
-nginx/references/ssl-performance.md:54	bash	ss -s | grep -i tcp
-nginx/references/ssl-performance.md:73	bash	rg "proxy_buffering|proxy_buffer_size|proxy_buffers" /etc/nginx/
-nginx/references/ssl-performance.md:109	bash	curl -s http://localhost:8080/nginx_status
-postgres/SKILL.md:20	bash	pg_isready -h localhost -p 5432
-postgres/SKILL.md:23	bash	psql -c "SELECT version();"
-postgres/SKILL.md:26	bash	psql -c "SELECT count(*), max_conn FROM pg_stat_activity, (SELECT setting::int AS max_conn FROM pg_settings WHERE name = 'max_connections') mc GROUP BY max_conn;"
-postgres/SKILL.md:29	bash	psql -c "SELECT pid, now() - pg_stat_activity.query_start AS duration, state, left(query, 80) FROM pg_stat_activity WHERE state != 'idle' AND query NOT LIKE '%pg_stat_activity%' ORDER BY duration DESC LIMIT 10;"
-postgres/SKILL.md:32	bash	psql -c "SELECT pid, pg_blocking_pids(pid) AS blocked_by, wait_event_type, wait_event, left(query, 60) FROM pg_stat_activity WHERE pg_blocking_pids(pid) != '{}';"
-postgres/SKILL.md:47	bash	psql -c "SHOW config_file;"
-postgres/SKILL.md:48	bash	psql -c "SHOW data_directory;"
-postgres/SKILL.md:49	bash	psql -c "SHOW log_directory;"
-postgres/SKILL.md:66	bash	psql -c "SELECT * FROM pg_available_extensions WHERE name = 'pg_stat_statements';"
-postgres/SKILL.md:75	bash	psql -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) PLACEHOLDER;"
-postgres/SKILL.md:91	bash	psql -c "SELECT relname, seq_scan, idx_scan, seq_scan - idx_scan AS diff FROM pg_stat_user_tables WHERE seq_scan > 1000 ORDER BY diff DESC LIMIT 10;"
-postgres/SKILL.md:94	bash	psql -c "SELECT indexrelname, idx_scan, pg_size_pretty(pg_relation_size(indexrelid)) AS size FROM pg_stat_user_indexes WHERE idx_scan = 0 ORDER BY pg_relation_size(indexrelid) DESC LIMIT 10;"
-postgres/SKILL.md:111	bash	psql -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state ORDER BY count DESC;"
-postgres/SKILL.md:114	bash	psql -c "SELECT setting FROM pg_settings WHERE name = 'max_connections';"
-postgres/SKILL.md:131	bash	ss -tlnp | grep 5432
-postgres/SKILL.md:134	bash	psql -c "SHOW listen_addresses;"
-postgres/SKILL.md:135	bash	psql -c "SHOW hba_file;"
-postgres/SKILL.md:148	bash	psql -c "SELECT locktype, relation::regclass, mode, granted, pid FROM pg_locks WHERE NOT granted ORDER BY pid;"
-postgres/references/replication-storage.md:11	bash	psql -c "SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replay_lag_bytes FROM pg_stat_replication;"
-postgres/references/replication-storage.md:18	bash	psql -c "SELECT pg_is_in_recovery(), pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn(), pg_last_xact_replay_timestamp();"
-postgres/references/replication-storage.md:21	bash	psql -c "SELECT CASE WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn() THEN 0 ELSE EXTRACT(EPOCH FROM now() - pg_last_xact_replay_timestamp()) END AS lag_seconds;"
-postgres/references/replication-storage.md:30	bash	psql -c "SELECT slot_name, slot_type, active, pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn) AS retained_bytes FROM pg_replication_slots;"
-postgres/references/replication-storage.md:48	bash	psql -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) AS size FROM pg_database ORDER BY pg_database_size(datname) DESC;"
-postgres/references/replication-storage.md:58	bash	psql -c "SELECT relname, n_dead_tup, n_live_tup, round(n_dead_tup::numeric / NULLIF(n_live_tup, 0) * 100, 1) AS dead_pct, last_autovacuum FROM pg_stat_user_tables WHERE n_dead_tup > 10000 ORDER BY n_dead_tup DESC LIMIT 10;"
-postgres/references/replication-storage.md:80	bash	psql -c "SELECT datname, temp_files, pg_size_pretty(temp_bytes) AS temp_size FROM pg_stat_database WHERE temp_files > 0 ORDER BY temp_bytes DESC;"
-postgres/references/replication-storage.md:90	bash	systemctl status postgresql
-postgres/references/replication-storage.md:91	bash	journalctl -u postgresql --since "5 min ago"
-postgres/references/replication-storage.md:103	bash	journalctl -u postgresql -n 50 --no-pager
+nginx/references/ssl-performance.md:56	bash	rg "worker_processes|worker_connections|worker_rlimit" /etc/nginx/nginx.conf
+nginx/references/ssl-performance.md:59	bash	ss -s | grep -i tcp
+nginx/references/ssl-performance.md:63	bash	ps -C nginx -o pid,ppid,args --no-headers
+nginx/references/ssl-performance.md:64	bash	cat /proc/1234/limits | grep "open files"
+nginx/references/ssl-performance.md:65	bash	ls /proc/1234/fd | wc -l
+nginx/references/ssl-performance.md:86	bash	rg "proxy_buffering|proxy_buffer_size|proxy_buffers" /etc/nginx/
+nginx/references/ssl-performance.md:122	bash	curl -s http://localhost:8080/nginx_status
+nginx/references/triage-5xx.md:12	bash	cut -d'"' -f3 /var/log/nginx/access.log | cut -d' ' -f2 | sort | uniq -c | sort -rn
+nginx/references/triage-5xx.md:44	bash	grep -o "([0-9]*: [A-Za-z ]*)" /var/log/nginx/error.log | sort | uniq -c | sort -rn | head -n 15
+nginx/references/triage-5xx.md:45	bash	tail -n 100 /var/log/nginx/error.log
+nginx/references/triage-5xx.md:84	bash	nginx -T | grep -n "proxy_pass"
+nginx/references/triage-5xx.md:85	bash	nginx -T | grep -B 2 -A 8 "upstream "
+nginx/references/triage-5xx.md:116	bash	nginx -T | grep -E "proxy_connect_timeout|proxy_read_timeout|proxy_send_timeout"
+nginx/references/triage-5xx.md:138	bash	curl -sS -m 70 -w "connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total} code=%{http_code}\n" -I http://127.0.0.1:8080/
+nginx/references/triage-5xx.md:154	bash	nginx -T | grep -E "limit_req|limit_conn"
+nginx/references/triage-5xx.md:155	bash	grep -c "limiting requests" /var/log/nginx/error.log
+nginx/references/triage-5xx.md:156	bash	grep "limiting connections" /var/log/nginx/error.log | tail -n 10
+nginx/references/triage-5xx.md:157	bash	nginx -T | grep -n "return 503"
+nginx/references/triage-connections-refused.md:26	bash	nginx -T | grep -n "listen"
+nginx/references/triage-connections-refused.md:53	bash	grep "worker_connections are not enough" /var/log/nginx/error.log
+nginx/references/triage-connections-refused.md:54	bash	grep "Too many open files" /var/log/nginx/error.log | tail -n 10
+nginx/references/triage-connections-refused.md:56	bash	cat /proc/sys/net/core/somaxconn
+nginx/references/triage-connections-refused.md:80	bash	nginx -T | grep -E "worker_processes|worker_connections|worker_rlimit_nofile"
+nginx/references/triage-connections-refused.md:81	bash	systemctl show nginx.service -p LimitNOFILE
+nginx/references/triage-connections-refused.md:112	bash	ss -tan | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
+nginx/references/triage-connections-refused.md:113	bash	iptables -L -n -v
+nginx/references/triage-slow.md:12	bash	nginx -T | grep -n "log_format"
+nginx/references/triage-slow.md:13	bash	nginx -T | grep -n "access_log"
+nginx/references/triage-slow.md:33	bash	grep '" 200 ' /var/log/nginx/access.log | tail -n 40
+nginx/references/triage-slow.md:56	bash	curl -sS -m 30 -w "connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total} code=%{http_code}\n" -I http://127.0.0.1:8080/
+nginx/references/triage-slow.md:62	bash	curl -sS -m 30 -w "connect=%{time_connect} tls=%{time_appconnect} ttfb=%{time_starttransfer} total=%{time_total} code=%{http_code}\n" -I https://127.0.0.1/
+nginx/references/triage-slow.md:84	bash	ps -C nginx -o pid,ppid,etime,user,args --no-headers
+nginx/references/triage-slow.md:85	bash	ss -s
+nginx/references/triage-slow.md:109	bash	nginx -T | grep -n "keepalive"
+nginx/references/triage-slow.md:110	bash	nginx -T | grep -E "proxy_http_version|proxy_set_header Connection"
+nginx/references/triage-slow.md:129	bash	nginx -v
+nginx/references/triage-slow.md:138	bash	nginx -T | grep -E "proxy_buffering|proxy_buffer_size|proxy_buffers"
+nginx/references/triage-tls.md:15	bash	grep -i "SSL_" /var/log/nginx/error.log | tail -n 20
+nginx/references/triage-tls.md:45	bash	echo | openssl s_client -connect 127.0.0.1:443 -servername www.example.com | openssl x509 -noout -subject -issuer -dates
+nginx/references/triage-tls.md:64	bash	nginx -T | grep -E "ssl_certificate|ssl_certificate_key"
+nginx/references/triage-tls.md:73	bash	openssl x509 -noout -ext subjectAltName -in /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:74	bash	openssl x509 -noout -checkhost www.example.com -in /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:92	bash	openssl x509 -noout -dates -in /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:93	bash	openssl x509 -noout -checkend 604800 -in /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:115	bash	echo | openssl s_client -connect 127.0.0.1:443 -servername www.example.com -showcerts | grep -E "^ *[si]:"
+nginx/references/triage-tls.md:116	bash	openssl verify -untrusted /etc/nginx/ssl/chain.pem /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:135	bash	nginx -T | grep -E "ssl_protocols|ssl_ciphers|ssl_prefer_server_ciphers"
+nginx/references/triage-tls.md:136	bash	openssl s_client -connect 127.0.0.1:443 -servername www.example.com -tls1_2
+nginx/references/triage-tls.md:137	bash	openssl s_client -connect 127.0.0.1:443 -servername www.example.com -tls1_3
+nginx/references/triage-tls.md:158	bash	stat -c '%n %U %G %a' /etc/nginx/ssl/cert.pem
+nginx/references/triage-tls.md:159	bash	namei -l /etc/nginx/ssl/cert.pem
+nginx/references/triage-wont-start.md:53	bash	ss -tlnp | grep ":80"
+nginx/references/triage-wont-start.md:54	bash	lsof -i :80
+nginx/references/triage-wont-start.md:69	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainPID,NRestarts
+nginx/references/triage-wont-start.md:70	bash	journalctl -u nginx.service -p err --since "1 day ago" --no-pager
+nginx/references/triage-wont-start.md:89	bash	ps -C nginx -o pid,ppid,lstart,args --no-headers
+nginx/references/triage-wont-start.md:90	bash	stat -c '%y %n' /etc/nginx/nginx.conf
+nginx/references/triage-wont-start.md:91	bash	find /etc/nginx -name '*.conf' -newer /etc/nginx/nginx.conf
+nginx/references/triage-wont-start.md:92	bash	grep -i "reconfiguring\|start worker processes\|signal 1" /var/log/nginx/error.log | tail -n 20
+nginx/references/triage-wont-start.md:93	bash	journalctl -u nginx.service --since "1 day ago" --no-pager | grep -i "reload"
+nginx/references/triage-wont-start.md:137	bash	nginx -T | grep -n "# configuration file"
+nginx/references/triage-wont-start.md:138	bash	nginx -V
+nginx/references/triage-wont-start.md:149	bash	ls -la /etc/nginx/conf.d/
+nginx/references/triage-wont-start.md:150	bash	ls -la /etc/nginx/sites-enabled/
+nginx/references/triage-wont-start.md:151	bash	readlink -f /etc/nginx/sites-enabled/default
+nginx/references/triage-wrong-vhost.md:47	bash	nginx -T | grep -n "default_server"
+nginx/references/triage-wrong-vhost.md:48	bash	nginx -T | grep -n "server_name"
+nginx/references/triage-wrong-vhost.md:91	bash	echo | openssl s_client -connect 127.0.0.1:443 -servername www.example.com | openssl x509 -noout -subject -issuer
+nginx/references/triage-wrong-vhost.md:111	bash	tail -n 20 /var/log/nginx/site-a.access.log
+nginx/references/triage-wrong-vhost.md:131	bash	nginx -T | grep -n "root \|alias \|index "
+nginx/references/triage-wrong-vhost.md:132	bash	nginx -T | grep -n "return \|rewrite "
+nginx/references/triage-wrong-vhost.md:157	bash	stat -c '%n %U %G %a' /var/www/html
+nginx/references/triage.md:41	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainPID,NRestarts
+nginx/references/triage.md:42	bash	tail -n 50 /var/log/nginx/error.log
+postgres/SKILL.md:42	bash	pg_isready -h localhost -p 5432
+postgres/SKILL.md:45	bash	psql -c "SELECT version();"
+postgres/SKILL.md:48	bash	psql -c "SELECT count(*), max_conn FROM pg_stat_activity, (SELECT setting::int AS max_conn FROM pg_settings WHERE name = 'max_connections') mc GROUP BY max_conn;"
+postgres/SKILL.md:51	bash	psql -c "SELECT pid, now() - pg_stat_activity.query_start AS duration, state, left(query, 80) FROM pg_stat_activity WHERE state != 'idle' AND query NOT LIKE '%pg_stat_activity%' ORDER BY duration DESC LIMIT 10;"
+postgres/SKILL.md:54	bash	psql -c "SELECT pid, pg_blocking_pids(pid) AS blocked_by, wait_event_type, wait_event, left(query, 60) FROM pg_stat_activity WHERE pg_blocking_pids(pid) != '{}';"
+postgres/SKILL.md:69	bash	psql -c "SHOW config_file;"
+postgres/SKILL.md:70	bash	psql -c "SHOW data_directory;"
+postgres/SKILL.md:71	bash	psql -c "SHOW log_directory;"
+postgres/SKILL.md:88	bash	psql -c "SELECT * FROM pg_available_extensions WHERE name = 'pg_stat_statements';"
+postgres/SKILL.md:97	bash	psql -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) PLACEHOLDER;"
+postgres/SKILL.md:113	bash	psql -c "SELECT relname, seq_scan, idx_scan, seq_scan - idx_scan AS diff FROM pg_stat_user_tables WHERE seq_scan > 1000 ORDER BY diff DESC LIMIT 10;"
+postgres/SKILL.md:116	bash	psql -c "SELECT indexrelname, idx_scan, pg_size_pretty(pg_relation_size(indexrelid)) AS size FROM pg_stat_user_indexes WHERE idx_scan = 0 ORDER BY pg_relation_size(indexrelid) DESC LIMIT 10;"
+postgres/SKILL.md:133	bash	psql -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state ORDER BY count DESC;"
+postgres/SKILL.md:136	bash	psql -c "SELECT setting FROM pg_settings WHERE name = 'max_connections';"
+postgres/SKILL.md:153	bash	ss -tlnp | grep 5432
+postgres/SKILL.md:156	bash	psql -c "SHOW listen_addresses;"
+postgres/SKILL.md:157	bash	psql -c "SHOW hba_file;"
+postgres/SKILL.md:170	bash	psql -c "SELECT locktype, relation::regclass, mode, granted, pid FROM pg_locks WHERE NOT granted ORDER BY pid;"
+postgres/references/replication-storage.md:16	bash	psql -c "SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replay_lag_bytes FROM pg_stat_replication;"
+postgres/references/replication-storage.md:23	bash	psql -c "SELECT pg_is_in_recovery(), pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn(), pg_last_xact_replay_timestamp();"
+postgres/references/replication-storage.md:26	bash	psql -c "SELECT CASE WHEN pg_last_wal_receive_lsn() = pg_last_wal_replay_lsn() THEN 0 ELSE EXTRACT(EPOCH FROM now() - pg_last_xact_replay_timestamp()) END AS lag_seconds;"
+postgres/references/replication-storage.md:34	bash	psql -c "SELECT slot_name, slot_type, active, pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn) AS retained_bytes FROM pg_replication_slots;"
+postgres/references/replication-storage.md:57	bash	psql -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) AS size FROM pg_database ORDER BY pg_database_size(datname) DESC;"
+postgres/references/replication-storage.md:67	bash	psql -c "SELECT relname, n_dead_tup, n_live_tup, round(n_dead_tup::numeric / NULLIF(n_live_tup, 0) * 100, 1) AS dead_pct, last_autovacuum FROM pg_stat_user_tables WHERE n_dead_tup > 10000 ORDER BY n_dead_tup DESC LIMIT 10;"
+postgres/references/replication-storage.md:83	bash	psql -c "SELECT current_setting('data_directory') AS data_directory;"
+postgres/references/replication-storage.md:87	bash	du -s -h /var/lib/postgresql/16/main/pg_wal
+postgres/references/replication-storage.md:101	bash	psql -c "SELECT archived_count, last_archived_wal, last_archived_time, failed_count, last_failed_wal, last_failed_time FROM pg_stat_archiver;"
+postgres/references/replication-storage.md:115	bash	psql -c "SELECT datname, temp_files, pg_size_pretty(temp_bytes) AS temp_size FROM pg_stat_database WHERE temp_files > 0 ORDER BY temp_bytes DESC;"
+postgres/references/replication-storage.md:127	bash	systemctl status postgresql@16-main
+postgres/references/replication-storage.md:131	bash	journalctl -u postgresql@16-main --since "5 min ago" --no-pager
+postgres/references/replication-storage.md:143	bash	ls -l -d /var/lib/postgresql/16/main
+postgres/references/replication-storage.md:147	bash	cat /var/lib/postgresql/16/main/postmaster.pid
+postgres/references/triage-disk-filling.md:17	bash	df -h /var/lib/postgresql
+postgres/references/triage-disk-filling.md:21	bash	du -d 1 /var/lib/postgresql/16/main | sort -n -r | head -n 20
+postgres/references/triage-disk-filling.md:52	bash	psql -c "SELECT slot_name, slot_type, active, active_pid, wal_status, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS retained FROM pg_replication_slots ORDER BY pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn) DESC;"
+postgres/references/triage-disk-filling.md:56	bash	psql -c "SELECT archived_count, last_archived_wal, last_archived_time, failed_count, last_failed_wal, last_failed_time, now() - last_archived_time AS since_last_success FROM pg_stat_archiver;"
+postgres/references/triage-disk-filling.md:94	bash	psql -c "SELECT name, setting, unit FROM pg_settings WHERE name IN ('max_wal_size', 'min_wal_size', 'wal_keep_size', 'max_slot_wal_keep_size', 'checkpoint_timeout', 'archive_mode');"
+postgres/references/triage-disk-filling.md:111	bash	psql -c "SELECT schemaname, relname, pg_size_pretty(pg_total_relation_size(relid)) AS total, n_live_tup, n_dead_tup, round(n_dead_tup * 100.0 / NULLIF(n_live_tup + n_dead_tup, 0), 1) AS dead_pct, last_autovacuum, last_autoanalyze FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 15;"
+postgres/references/triage-disk-filling.md:127	bash	psql -c "SELECT name, setting, unit FROM pg_settings WHERE name IN ('autovacuum', 'autovacuum_max_workers', 'autovacuum_naptime', 'autovacuum_vacuum_threshold', 'autovacuum_vacuum_scale_factor', 'autovacuum_freeze_max_age', 'vacuum_failsafe_age');"
+postgres/references/triage-disk-filling.md:153	bash	psql -c "SELECT datname, age(datfrozenxid) AS xid_age FROM pg_database ORDER BY xid_age DESC;"
+postgres/references/triage-disk-filling.md:157	bash	psql -c "SELECT c.oid::regclass AS table_name, greatest(age(c.relfrozenxid), age(t.relfrozenxid)) AS age FROM pg_class c LEFT JOIN pg_class t ON c.reltoastrelid = t.oid WHERE c.relkind IN ('r', 'm') ORDER BY age DESC LIMIT 15;"
+postgres/references/triage-disk-filling.md:194	bash	grep -E "must be vacuumed within|not accepting commands" /var/log/postgresql/postgresql-16-main.log | tail -n 20
+postgres/references/triage-disk-filling.md:210	bash	psql -c "SELECT datname, temp_files, pg_size_pretty(temp_bytes) AS temp_total FROM pg_stat_database WHERE temp_files > 0 ORDER BY temp_bytes DESC;"
+postgres/references/triage-disk-filling.md:214	bash	psql -c "SELECT name, setting, unit FROM pg_settings WHERE name IN ('work_mem', 'maintenance_work_mem', 'temp_file_limit', 'log_temp_files');"
+postgres/references/triage-disk-filling.md:245	bash	df -i
+postgres/references/triage-no-connections.md:13	bash	pg_isready -p 5432
+postgres/references/triage-no-connections.md:37	bash	psql -c "SELECT count(*) AS total, current_setting('max_connections')::int AS max_conn, current_setting('superuser_reserved_connections')::int AS superuser_reserved FROM pg_stat_activity;"
+postgres/references/triage-no-connections.md:68	bash	psql -c "SELECT state, count(*), max(now() - state_change) AS longest_in_state FROM pg_stat_activity WHERE backend_type = 'client backend' GROUP BY state ORDER BY count DESC;"
+postgres/references/triage-no-connections.md:96	bash	psql -c "SELECT pid, usename, application_name, client_addr, now() - xact_start AS xact_age, now() - state_change AS idle_for, left(query, 80) AS last_query FROM pg_stat_activity WHERE state LIKE 'idle in transaction%' ORDER BY xact_start;"
+postgres/references/triage-no-connections.md:117	bash	psql -c "SELECT application_name, client_addr, count(*) FROM pg_stat_activity GROUP BY application_name, client_addr ORDER BY count DESC LIMIT 20;"
+postgres/references/triage-no-connections.md:165	bash	cat /etc/postgresql/16/main/pg_hba.conf
+postgres/references/triage-no-connections.md:177	bash	grep -E "FATAL|no pg_hba.conf entry|authentication failed" /var/log/postgresql/postgresql-16-main.log | tail -n 40
+postgres/references/triage-replication-behind.md:18	bash	psql -c "SELECT pg_is_in_recovery() AS is_standby;"
+postgres/references/triage-replication-behind.md:27	bash	psql -c "SELECT application_name, client_addr, state, sync_state, sent_lsn, replay_lsn, pg_wal_lsn_diff(sent_lsn, replay_lsn) AS replay_lag_bytes, write_lag, flush_lag, replay_lag FROM pg_stat_replication;"
+postgres/references/triage-replication-behind.md:75	bash	psql -c "SELECT pid, status, sender_host, sender_port, slot_name, latest_end_lsn, latest_end_time, now() - latest_end_time AS since_last_wal FROM pg_stat_wal_receiver;"
+postgres/references/triage-replication-behind.md:79	bash	psql -c "SELECT pg_last_wal_receive_lsn() AS received, pg_last_wal_replay_lsn() AS replayed, pg_wal_lsn_diff(pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn()) AS unapplied_bytes, pg_last_xact_replay_timestamp() AS last_xact, now() - pg_last_xact_replay_timestamp() AS replay_delay;"
+postgres/references/triage-replication-behind.md:101	bash	psql -c "SELECT pid, backend_type, state, wait_event_type, wait_event, now() - query_start AS runtime, left(query, 80) AS query FROM pg_stat_activity WHERE backend_type IN ('startup', 'client backend') ORDER BY runtime DESC LIMIT 20;"
+postgres/references/triage-replication-behind.md:105	bash	psql -c "SELECT name, setting, unit FROM pg_settings WHERE name IN ('hot_standby_feedback', 'max_standby_streaming_delay', 'max_standby_archive_delay', 'recovery_min_apply_delay', 'wal_receiver_status_interval');"
+postgres/references/triage-replication-behind.md:129	bash	psql -c "SELECT * FROM pg_stat_database_conflicts WHERE datname NOT LIKE 'template%';"
+postgres/references/triage-replication-behind.md:138	bash	journalctl -u postgresql@16-main --since "2 hours ago" --no-pager | tail -n 60
+postgres/references/triage-replication-behind.md:142	bash	grep -E "started streaming|terminating walreceiver|could not connect|has already been removed|requested WAL segment" /var/log/postgresql/postgresql-16-main.log | tail -n 40
+postgres/references/triage-slow-queries.md:12	bash	psql -c "SELECT pid, now() - query_start AS runtime, state, wait_event_type, wait_event, left(query, 100) AS query FROM pg_stat_activity WHERE backend_type = 'client backend' AND state = 'active' AND pid != pg_backend_pid() ORDER BY runtime DESC LIMIT 20;"
+postgres/references/triage-slow-queries.md:45	bash	psql -c "SELECT count(*) AS installed FROM pg_extension WHERE extname = 'pg_stat_statements';"
+postgres/references/triage-slow-queries.md:57	bash	psql -c "SELECT calls, round(total_exec_time::numeric) AS total_ms, round(mean_exec_time::numeric) AS mean_ms, rows, left(query, 100) AS query FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 15;"
+postgres/references/triage-slow-queries.md:81	bash	psql -c "SHOW log_min_duration_statement;"
+postgres/references/triage-slow-queries.md:90	bash	grep -E "duration: [0-9]{4,}" /var/log/postgresql/postgresql-16-main.log | tail -n 40
+postgres/references/triage-slow-queries.md:101	bash	psql -c "EXPLAIN (VERBOSE, COSTS, FORMAT TEXT) PLACEHOLDER;"
+postgres/references/triage-slow-queries.md:144	bash	psql -c "SELECT datname, temp_files, pg_size_pretty(temp_bytes) AS temp_total, blks_read, blks_hit, round(blks_hit * 100.0 / NULLIF(blks_hit + blks_read, 0), 2) AS cache_hit_pct FROM pg_stat_database WHERE datname NOT LIKE 'template%' ORDER BY temp_bytes DESC;"
+postgres/references/triage-slow-queries.md:148	bash	psql -c "SHOW work_mem;"
+postgres/references/triage-slow-queries.md:175	bash	psql -c "SELECT schemaname, relname, n_live_tup, n_dead_tup, last_analyze, last_autoanalyze, last_autovacuum FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 15;"
+postgres/references/triage-stuck.md:15	bash	psql -c "SELECT pid, cardinality(pg_blocking_pids(pid)) AS blockers, pg_blocking_pids(pid) AS blocked_by, wait_event_type, wait_event, now() - query_start AS waiting_for, left(query, 80) AS query FROM pg_stat_activity WHERE cardinality(pg_blocking_pids(pid)) > 0 ORDER BY waiting_for DESC;"
+postgres/references/triage-stuck.md:40	bash	psql -c "SELECT a.pid, a.usename, a.application_name, a.client_addr, a.state, now() - a.xact_start AS xact_age, now() - a.state_change AS in_state_for, left(a.query, 100) AS query FROM pg_stat_activity a WHERE cardinality(pg_blocking_pids(a.pid)) = 0 AND a.pid IN (SELECT unnest(pg_blocking_pids(b.pid)) FROM pg_stat_activity b);"
+postgres/references/triage-stuck.md:75	bash	psql -c "SELECT pid, locktype, relation::regclass AS relation, mode, granted, waitstart FROM pg_locks WHERE NOT granted ORDER BY waitstart;"
+postgres/references/triage-stuck.md:106	bash	psql -c "SELECT gid, prepared, owner, database, now() - prepared AS age FROM pg_prepared_xacts ORDER BY prepared;"
+postgres/references/triage-stuck.md:124	bash	psql -c "SELECT pid, backend_type, state, wait_event_type, wait_event, now() - backend_start AS uptime FROM pg_stat_activity WHERE backend_type <> 'client backend';"
+postgres/references/triage-stuck.md:128	bash	psql -c "SELECT pid, phase, relid::regclass AS relation, heap_blks_scanned, heap_blks_total, index_vacuum_count FROM pg_stat_progress_vacuum;"
+postgres/references/triage-stuck.md:163	bash	psql -c "SELECT datname, deadlocks FROM pg_stat_database WHERE deadlocks > 0;"
+postgres/references/triage-stuck.md:167	bash	psql -c "SHOW log_lock_waits;"
+postgres/references/triage-stuck.md:171	bash	grep -E "deadlock detected|still waiting for" /var/log/postgresql/postgresql-16-main.log | tail -n 30
+postgres/references/triage-wont-start.md:14	bash	systemctl show postgresql@16-main.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainPID,NRestarts --no-pager
+postgres/references/triage-wont-start.md:24	bash	systemctl list-units --type=service --no-pager | grep -i postgres
+postgres/references/triage-wont-start.md:50	bash	journalctl -u postgresql@16-main.service --since "30 min ago" --no-pager | tail -n 60
+postgres/references/triage-wont-start.md:54	bash	tail -n 100 /var/log/postgresql/postgresql-16-main.log
+postgres/references/triage-wont-start.md:64	bash	grep -E "^[[:space:]]*(log_destination|logging_collector|log_directory|log_filename|data_directory|port)" /etc/postgresql/16/main/postgresql.conf
+postgres/references/triage-wont-start.md:78	bash	grep -E "FATAL|PANIC|could not|permission denied|does not exist" /var/log/postgresql/postgresql-16-main.log | tail -n 40
+postgres/references/triage-wont-start.md:88	bash	pgrep -a postgres
+postgres/references/triage-wont-start.md:111	bash	stat -c "%U %G %a %n" /var/lib/postgresql/16/main
+postgres/references/triage-wont-start.md:131	bash	cat /var/lib/postgresql/16/main/PG_VERSION
+postgres/references/triage-wont-start.md:148	bash	df -i /var/lib/postgresql
+postgres/references/triage-wont-start.md:173	bash	grep -E "database system was not properly shut down|redo starts at|redo in progress|consistent recovery state|database system is ready" /var/log/postgresql/postgresql-16-main.log | tail -n 20
+postgres/references/triage-wont-start.md:203	bash	ls -l /etc/postgresql/16/main
+postgres/references/triage-wont-start.md:207	bash	grep -E "configuration file|unrecognized configuration parameter|syntax error" /var/log/postgresql/postgresql-16-main.log | tail -n 20
+postgres/references/triage.md:39	bash	psql -c "SELECT count(*) AS total, count(*) FILTER (WHERE state = 'active') AS active, count(*) FILTER (WHERE state = 'idle in transaction') AS idle_in_xact, current_setting('max_connections') AS max_conn FROM pg_stat_activity;"
 unix/SKILL.md:43	bash	tail -n 100
 unix/SKILL.md:59	bash	find -name PLACEHOLDER
 unix/SKILL.md:69	bash	find /var/log -name '*.log' -mmin -30 -type f
@@ -334,7 +709,6 @@ unix/references/cpu.md:52	bash	mpstat -P ALL 2 5
 unix/references/cpu.md:53	bash	mpstat 2 5
 unix/references/cpu.md:78	bash	mpstat -P ALL -I SUM 2 5
 unix/references/cpu.md:86	bash	vmstat 1 5
-unix/references/cpu.md:97	bash	cat /proc/pressure/cpu
 unix/references/cpu.md:111	bash	sar -u ALL 1 5
 unix/references/cpu.md:112	bash	sar -u -P ALL -s 08:00
 unix/references/cpu.md:113	bash	sar -q -s 09:00 -e 10:00
@@ -353,7 +727,6 @@ unix/references/cpu.md:189	bash	numactl --hardware
 unix/references/cpu.md:190	bash	numactl --hardware --cpu-compress
 unix/references/cpu.md:191	bash	numactl --show
 unix/references/cpu.md:196	bash	mpstat -P ALL -T
-unix/references/disk-io.md:13	bash	df -h
 unix/references/disk-io.md:14	bash	df -h -T
 unix/references/disk-io.md:24	bash	du -d 1 /var | sort -n -r | head -n 20
 unix/references/disk-io.md:25	bash	du -s -h /var/log
@@ -362,7 +735,6 @@ unix/references/disk-io.md:35	bash	find /var/log -type f -size +100M | head -n 2
 unix/references/disk-io.md:36	bash	find /var/log -type f -mtime -1 -size +10M
 unix/references/disk-io.md:52	bash	lsof | grep deleted | head -n 40
 unix/references/disk-io.md:53	bash	lsof -p 1234 | grep deleted
-unix/references/disk-io.md:70	bash	df -i
 unix/references/disk-io.md:78	bash	find /var -maxdepth 2 -type d | head -n 40
 unix/references/disk-io.md:84	bash	find /var/lib/php/sessions -maxdepth 1 -type f | wc -l
 unix/references/disk-io.md:91	bash	sar -v 1 5
@@ -406,34 +778,26 @@ unix/references/logs.md:166	bash	cut -c 1
 unix/references/logs.md:166	bash	tr -s ' ' | cut -d ' ' -f N
 unix/references/logs.md:171	bash	rg -g 'PLACEHOLDER'
 unix/references/logs.md:182	bash	lsof -p PLACEHOLDER | grep deleted
-unix/references/memory.md:15	bash	free -m
 unix/references/memory.md:32	bash	grep -E 'MemTotal|MemFree|MemAvailable|Buffers|^Cached|SwapTotal|SwapFree|Dirty|Writeback' /proc/meminfo
 unix/references/memory.md:54	bash	sar -W 1 5
 unix/references/memory.md:55	bash	sar -B 1 5
 unix/references/memory.md:69	bash	sar -r 1 5
 unix/references/memory.md:70	bash	sar -r ALL -s 08:00
-unix/references/memory.md:79	bash	cat /proc/pressure/memory
 unix/references/memory.md:88	bash	ps -eo pid,ppid,rss,vsz,pmem,comm --sort=-rss | head -n 20
 unix/references/memory.md:89	bash	pidstat -r 2 5
 unix/references/memory.md:90	bash	pidstat -r -p 1234 2 5
-unix/references/memory.md:110	bash	dmesg -T | grep -i -E 'out of memory|killed process|oom-kill'
 unix/references/memory.md:111	bash	journalctl -k --since "24 hours ago" --no-pager | grep -i -E 'out of memory|killed process|oom-kill'
 unix/references/memory.md:112	bash	journalctl -k -b --no-pager | grep -i oom | head -n 40
 unix/references/memory.md:135	bash	cat /proc/1234/limits
 unix/references/memory.md:146	bash	cat /proc/sys/vm/swappiness
 unix/references/memory.md:147	bash	cat /proc/sys/vm/overcommit_memory
 unix/references/memory.md:148	bash	find /proc/sys/vm -maxdepth 1 -type f -name 'overcommit*' | xargs grep .
-unix/references/memory.md:169	bash	cat /sys/fs/cgroup/memory.max
 unix/references/memory.md:170	bash	cat /sys/fs/cgroup/memory.current
-unix/references/memory.md:171	bash	cat /sys/fs/cgroup/memory.events
 unix/references/memory.md:172	bash	find /sys/fs/cgroup -maxdepth 2 -name 'memory.max' | head -n 20
 unix/references/memory.md:183	bash	cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 unix/references/memory.md:190	bash	systemctl show nginx.service -p MemoryCurrent,MemoryMax,MemoryAccounting
 unix/references/memory.md:202	bash	sar -H 1 5
-unix/references/network.md:17	bash	ss -tlnp
 unix/references/network.md:33	bash	ss -tanp | head -n 40
-unix/references/network.md:34	bash	ss -s
-unix/references/network.md:43	bash	ss -tan | tr -s ' ' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
 unix/references/network.md:44	bash	ss -tan | grep -c TIME-WAIT
 unix/references/network.md:62	bash	ss -tanp | grep SYN-RECV | head -n 20
 unix/references/network.md:75	bash	cat /proc/sys/net/ipv4/ip_local_port_range
@@ -457,7 +821,6 @@ unix/references/network.md:168	bash	ping -c 3 -W 2 8.8.8.8
 unix/references/network.md:169	bash	traceroute -n -q 1 -m 15 -w 2 www.example.com
 unix/references/network.md:170	bash	traceroute -n -T -p 443 -q 1 -m 15 -w 2 www.example.com
 unix/references/network.md:196	bash	grep hosts /etc/nsswitch.conf
-unix/references/network.md:197	bash	cat /etc/resolv.conf
 unix/references/network.md:214	bash	host www.example.com
 unix/references/network.md:215	bash	host -t A www.example.com
 unix/references/network.md:216	bash	host -t NS example.com
@@ -492,7 +855,6 @@ unix/references/triage-disk-full.md:20	bash	find /var/log -maxdepth 1 -type f | 
 unix/references/triage-disk-full.md:30	bash	df -h -T /var
 unix/references/triage-host-wedged.md:42	bash	dmesg -T | tail -n 60
 unix/references/triage-process-vanished.md:17	bash	journalctl -k --since "1 hour ago" --no-pager | tail -n 60
-unix/references/triage-service-down.md:9	bash	systemctl show nginx.service -p LoadState,ActiveState,SubState,Result,ExecMainStatus,ExecMainPID,NRestarts
 unix/references/triage-service-down.md:31	bash	systemctl show nginx.service -p Result,ExecMainCode,ExecMainStatus
 unix/references/triage-service-down.md:64	bash	journalctl -u nginx.service --since "30 min ago" --no-pager | tail -n 60
 unix/references/triage-slow.md:55	bash	pidstat -w 2 5
