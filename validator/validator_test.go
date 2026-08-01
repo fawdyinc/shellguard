@@ -368,3 +368,68 @@ func TestRequiresOneOfAbsentIsUnconstrained(t *testing.T) {
 		t.Errorf("a manifest without requires_one_of must accept bare invocation: %v", err)
 	}
 }
+
+func TestRequiresOneOfValueNotMistakenForFlag(t *testing.T) {
+	// When -x takes a value and -l is passed as that value, it must not
+	// satisfy a requires_one_of constraint for -l.
+	m := &manifest.Manifest{
+		Name:          "faketool",
+		RequiresOneOf: []string{"-l"},
+		Flags: []manifest.Flag{
+			{Flag: "-l"},
+			{Flag: "-x", TakesValue: true},
+		},
+	}
+	registry := map[string]*manifest.Manifest{"faketool": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "faketool", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	// -l as the value for -x should be rejected (constraint not met)
+	err := validate("-x", "-l")
+	if err == nil {
+		t.Fatal("tool -x -l should be rejected: -l is a value, not a flag")
+	}
+	if !strings.Contains(err.Error(), "requires one of") {
+		t.Errorf("expected requires_one_of error, got: %v", err)
+	}
+
+	// -l genuinely as a flag should be accepted
+	if err := validate("-l", "-x", "value"); err != nil {
+		t.Errorf("-l -x value should be accepted: %v", err)
+	}
+
+	// Positional arg that looks like -l should be rejected
+	err = validate("-x", "-l")
+	if err == nil {
+		t.Fatal("-x -l should be rejected (constraint not met)")
+	}
+}
+
+func TestRequiresOneOfInlineValueSyntax(t *testing.T) {
+	// Inline value syntax (--flag=value) should satisfy requires_one_of.
+	m := &manifest.Manifest{
+		Name:          "faketool",
+		RequiresOneOf: []string{"--level"},
+		Flags: []manifest.Flag{
+			{Flag: "--level", TakesValue: true},
+			{Flag: "-x", TakesValue: true},
+		},
+	}
+	registry := map[string]*manifest.Manifest{"faketool": m}
+	validate := func(args ...string) error {
+		p := &parser.Pipeline{Segments: []parser.PipelineSegment{{Command: "faketool", Args: args}}}
+		return ValidatePipeline(p, registry)
+	}
+
+	// Inline form should be accepted
+	if err := validate("--level=5"); err != nil {
+		t.Errorf("--level=5 should be accepted: %v", err)
+	}
+
+	// Mixed forms should be accepted
+	if err := validate("-x", "foo", "--level=5"); err != nil {
+		t.Errorf("-x foo --level=5 should be accepted: %v", err)
+	}
+}

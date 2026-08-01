@@ -283,18 +283,38 @@ func validateSubcommand(command string, args []string, registry map[string]*mani
 //
 // PowerShell parameter names are case-insensitive, matching GetFlag. POSIX
 // flags stay case-sensitive: -l and -L are routinely different options.
+//
+// The scan is position-aware: when a flag takes a value as a separate token,
+// that token is skipped so it is never mistaken for a flag. This prevents
+// false positives like "tool -x -l" satisfying RequiresOneOf: ["-l"] when -l
+// is actually consumed as the value for -x. POSIX bundling (-la) is not
+// supported as a match for RequiresOneOf entries; that's a minor limitation
+// of scanning tokens rather than parsed flags.
 func validateRequiresOneOf(command string, args []string, m *manifest.Manifest) error {
 	if len(m.RequiresOneOf) == 0 {
 		return nil
 	}
 	isPowerShell := m.Shell == "powershell"
-	for _, arg := range args {
-		name, _, _ := splitLongFlag(arg)
+	idx := 0
+	for idx < len(args) {
+		arg := args[idx]
+		if !strings.HasPrefix(arg, "-") || arg == "-" {
+			idx++
+			continue
+		}
+		name, _, hasInline := splitLongFlag(arg)
 		for _, req := range m.RequiresOneOf {
 			if name == req || (isPowerShell && strings.EqualFold(name, req)) {
 				return nil
 			}
 		}
+		// Skip a value consumed by this flag so it is never mistaken for a
+		// flag itself: `tool -x -l` passes -l as -x's value, and must not
+		// satisfy a requires_one_of entry for -l.
+		if f := m.GetFlag(name); f != nil && f.TakesValue && !hasInline {
+			idx++
+		}
+		idx++
 	}
 	return &ValidationError{Message: fmt.Sprintf(
 		"'%s' requires one of: %s.", command, strings.Join(m.RequiresOneOf, ", "))}
