@@ -1,7 +1,19 @@
 name: cat
 description: Concatenate and print files
 category: filesystem
-flags: []
+flags:
+  - flag: "-n"
+    description: "Number all output lines."
+  - flag: "-b"
+    description: "Number non-blank output lines."
+  - flag: "-s"
+    description: "Squeeze repeated blank lines."
+  - flag: "-E"
+    description: "Show line ends as $."
+  - flag: "-T"
+    description: "Show tabs as ^I."
+  - flag: "-A"
+    description: "Show all non-printing characters."
 allows_path_args: true
-stdin: false
+stdin: true
 stdout: true

@@ -741,3 +741,51 @@ func TestIPLiteralReachesValidator(t *testing.T) {
 		t.Errorf("validate: unexpected error %v", err)
 	}
 }
+
+// TestEmptyFlagListManifestsFixed covers manifests that shipped with
+// `flags: []` and therefore rejected every flag, despite the commands parsing
+// fine. netstat -ano in particular is a first-reach Windows diagnostic.
+func TestEmptyFlagListManifestsFixed(t *testing.T) {
+	cases := [][]string{
+		{"netstat", "-ano"}, {"netstat", "-an"}, {"netstat", "-p", "TCP"},
+		{"tracert", "-d", "8.8.8.8"}, {"tracert", "-h", "10", "example.com"},
+		{"get-volume", "-DriveLetter", "C"}, {"get-disk", "-Number", "0"},
+		{"cat", "-n", "/var/log/syslog"}, {"who", "-a"}, {"w", "-h"}, {"lscpu", "-e"},
+	}
+	for _, c := range cases {
+		if err := validateOne(t, c[0], c[1:]...); err != nil {
+			t.Errorf("%v: unexpected error %v", c, err)
+		}
+	}
+}
+
+// TestFlagBundlingStaysOptIn is the containment guard for
+// allows_flag_bundling. Native Windows executables opt in; PowerShell cmdlets
+// must not, or an unknown parameter would be shredded into a short-flag
+// cluster naming flags the operator never typed.
+func TestFlagBundlingStaysOptIn(t *testing.T) {
+	// Opted in: netstat bundles, so an unknown cluster names the component.
+	err := validateOne(t, "netstat", "-zzz")
+	if err == nil {
+		t.Fatal("netstat -zzz should be rejected")
+	}
+	if !strings.Contains(err.Error(), "'-z'") {
+		t.Errorf("netstat opts into bundling, so the error should name -z: %v", err)
+	}
+
+	// Not opted in: cmdlets keep the whole parameter intact.
+	for _, tc := range []struct{ cmd, flag string }{
+		{"where-object", "-NotARealParameter"},
+		{"get-service", "-Nam"},
+		{"get-volume", "-Bogus"},
+	} {
+		err := validateOne(t, tc.cmd, tc.flag)
+		if err == nil {
+			t.Errorf("%s %s should be rejected", tc.cmd, tc.flag)
+			continue
+		}
+		if !strings.Contains(err.Error(), tc.flag) {
+			t.Errorf("%s: error should name the whole parameter %q, got: %v", tc.cmd, tc.flag, err)
+		}
+	}
+}

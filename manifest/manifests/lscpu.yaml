@@ -1,6 +1,18 @@
 name: lscpu
-description: Display information about the CPU architecture
+description: Display CPU architecture information
 category: system
-flags: []
+flags:
+  - flag: "-a"
+    description: "Include both online and offline CPUs."
+  - flag: "-b"
+    description: "Online CPUs only."
+  - flag: "-c"
+    description: "Offline CPUs only."
+  - flag: "-e"
+    description: "Human-readable table format."
+  - flag: "-p"
+    description: "Parsable format."
+  - flag: "-J"
+    description: "JSON output."
 stdin: false
 stdout: true

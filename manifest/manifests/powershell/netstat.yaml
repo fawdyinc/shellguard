@@ -1,7 +1,27 @@
 name: netstat
-description: Display network connections
+description: Display network connections, listening ports, and owning processes
 category: network
 shell: powershell
-flags: []
+# netstat.exe is a native Windows executable, not a cmdlet: it uses DOS-style
+# bundled switches, so `netstat -ano` must split into -a -n -o.
+allows_flag_bundling: true
+flags:
+  - flag: "-a"
+    description: "All connections and listening ports."
+  - flag: "-n"
+    description: "Numeric addresses and ports, no name resolution."
+  - flag: "-o"
+    description: "Show the owning process ID."
+  - flag: "-r"
+    description: "Routing table."
+  - flag: "-s"
+    description: "Per-protocol statistics."
+  - flag: "-e"
+    description: "Ethernet statistics."
+  - flag: "-q"
+    description: "All connections plus bound non-listening ports."
+  - flag: "-p"
+    takes_value: true
+    description: "Restrict to a protocol, e.g. TCP or UDP."
 stdin: false
 stdout: true

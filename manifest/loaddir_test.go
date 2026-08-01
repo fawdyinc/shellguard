@@ -341,3 +341,44 @@ requires_one_of: ["-t"]
 		t.Errorf("error should name requires_one_of and denied, got: %v", err)
 	}
 }
+
+func TestAllowsFlagBundlingParsed(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: bundler
+shell: powershell
+allows_flag_bundling: true
+flags:
+  - flag: "-a"
+  - flag: "-n"
+`
+	if err := os.WriteFile(filepath.Join(dir, "bundler.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+	registry, err := LoadDir(dir)
+	if err != nil {
+		t.Fatalf("LoadDir() error = %v", err)
+	}
+	if !registry["bundler"].AllowsFlagBundling {
+		t.Error("AllowsFlagBundling = false, want true")
+	}
+}
+
+// Absent means false: cmdlets must not bundle unless they say so.
+func TestAllowsFlagBundlingDefaultsFalse(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: plaincmdlet
+shell: powershell
+flags:
+  - flag: "-Name"
+`
+	if err := os.WriteFile(filepath.Join(dir, "plaincmdlet.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+	registry, err := LoadDir(dir)
+	if err != nil {
+		t.Fatalf("LoadDir() error = %v", err)
+	}
+	if registry["plaincmdlet"].AllowsFlagBundling {
+		t.Error("AllowsFlagBundling = true, want false by default")
+	}
+}

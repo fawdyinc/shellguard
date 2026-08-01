@@ -1,7 +1,16 @@
 name: get-disk
-description: Get disk information
+description: Get physical disk information
 category: storage
 shell: powershell
-flags: []
+flags:
+  - flag: "-Number"
+    takes_value: true
+    description: "Filter by disk number."
+  - flag: "-FriendlyName"
+    takes_value: true
+    description: "Filter by friendly name."
+  - flag: "-UniqueId"
+    takes_value: true
+    description: "Filter by unique ID."
 stdin: false
 stdout: true

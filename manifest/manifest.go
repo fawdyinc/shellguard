@@ -63,6 +63,14 @@ type Manifest struct {
 	RegexArgPosition *int     `yaml:"regex_arg_position"`
 	Shell            string   `yaml:"shell"` // "powershell" or "" (bash)
 	RequiresOneOf    []string `yaml:"requires_one_of"`
+	// AllowsFlagBundling re-enables POSIX-style short-flag bundling for a
+	// manifest that declares shell: powershell. Native Windows executables
+	// (netstat, tracert, ping) run on a Windows host but use DOS-style bundled
+	// switches — `netstat -ano` is -a -n -o — whereas PowerShell cmdlets do not
+	// bundle at all and must not be split (`-Match` is one parameter, never
+	// -M -a -t -c -h). `shell: powershell` conflates "runs on Windows" with
+	// "uses PowerShell parameter conventions"; this field separates them.
+	AllowsFlagBundling bool `yaml:"allows_flag_bundling"`
 
 	source string
 }
@@ -254,8 +262,9 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		Stdin:            defaultBool(data, "stdin"),
 		Stdout:           stdout,
 		RegexArgPosition: regexPos,
-		Shell:            defaultString(data, "shell"),
-		RequiresOneOf:    requiresOneOf,
+		Shell:              defaultString(data, "shell"),
+		RequiresOneOf:      requiresOneOf,
+		AllowsFlagBundling: defaultBool(data, "allows_flag_bundling"),
 	}, nil
 }
 

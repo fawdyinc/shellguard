@@ -2,6 +2,15 @@ name: get-volume
 description: Get volume information
 category: storage
 shell: powershell
-flags: []
+flags:
+  - flag: "-DriveLetter"
+    takes_value: true
+    description: "Filter by drive letter."
+  - flag: "-FileSystemLabel"
+    takes_value: true
+    description: "Filter by volume label."
+  - flag: "-Path"
+    takes_value: true
+    description: "Filter by access path."
 stdin: false
 stdout: true
