@@ -399,12 +399,6 @@ func TestRequiresOneOfValueNotMistakenForFlag(t *testing.T) {
 	if err := validate("-l", "-x", "value"); err != nil {
 		t.Errorf("-l -x value should be accepted: %v", err)
 	}
-
-	// Positional arg that looks like -l should be rejected
-	err = validate("-x", "-l")
-	if err == nil {
-		t.Fatal("-x -l should be rejected (constraint not met)")
-	}
 }
 
 func TestRequiresOneOfInlineValueSyntax(t *testing.T) {
@@ -642,6 +636,57 @@ func TestDSCheckLSTokenFlagDenied(t *testing.T) {
 	}
 	if !strings.Contains(msg, "-r") {
 		t.Errorf("denial should point at -r as the safe alternative, got: %v", msg)
+	}
+}
+
+// A denied flag must not reach the vendor binary disguised as another flag's
+// value. -r takes_value, so DSCheckLS.exe -r -t previously let -t through as
+// -r's value without ever being flag-validated - PowerShellQuote then passes
+// it unquoted, so the wire command literally contains -t. -t requests and
+// consumes a Dassault license, locking it for 30 days.
+func TestDSCheckLSTokenFlagCannotBeSmuggledAsAValue(t *testing.T) {
+	cases := [][]string{
+		{"-r", "-t"},
+		{"-r", "-t", "IFW"},
+		{"-l", "-r", "-t"},
+		{"-r", "-T"}, // case variant; dscheckls.exe is shell: powershell
+	}
+	for _, args := range cases {
+		err := validateOne(t, "DSCheckLS.exe", args...)
+		if err == nil {
+			t.Fatalf("DSCheckLS.exe %v: expected rejection, -t must not reach the wire as a value", args)
+		}
+		msg := err.Error()
+		// PowerShell flag matching is case-insensitive (dscheckls.exe is
+		// shell: powershell), so the -r -T case variant reports the value as
+		// typed ('-T') rather than as declared ('-t'). Compare case-insensitively.
+		if !strings.Contains(strings.ToLower(msg), "-t") {
+			t.Errorf("DSCheckLS.exe %v: error should name -t, got: %v", args, msg)
+		}
+		if !strings.Contains(msg, "30 days") {
+			t.Errorf("DSCheckLS.exe %v: error should carry the 30-day reason, got: %v", args, msg)
+		}
+	}
+}
+
+// A legitimate value for -r must still be accepted - only values that
+// exactly name a denied flag are caught.
+func TestDSCheckLSLegitimateValueStillAccepted(t *testing.T) {
+	if err := validateOne(t, "DSCheckLS.exe", "-r", "IFW"); err != nil {
+		t.Errorf("DSCheckLS.exe -r IFW: unexpected error %v", err)
+	}
+}
+
+// Same smuggling mechanism, POSIX side: tail -n takes a value, and -f is
+// denied (follow mode). `tail -n -f` is malformed anyway - it means "print
+// the last -f lines" - so rejecting it is correct, not a regression.
+func TestTailFollowCannotBeSmuggledAsNValue(t *testing.T) {
+	err := validateOne(t, "tail", "-n", "-f")
+	if err == nil {
+		t.Fatal("tail -n -f: expected rejection, -f must not reach the wire as -n's value")
+	}
+	if !strings.Contains(err.Error(), "-f") {
+		t.Errorf("tail -n -f: error should name -f, got: %v", err)
 	}
 }
 

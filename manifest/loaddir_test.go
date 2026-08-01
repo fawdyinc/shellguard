@@ -315,3 +315,29 @@ requires_one_of: ["-1"]
 		t.Errorf("error should name requires_one_of, got: %v", err)
 	}
 }
+
+// A requires_one_of entry that is itself deny: true makes the tool
+// permanently unusable: every invocation is rejected for missing the flag,
+// and the one flag that would satisfy it is denied. That is the same
+// "unusable in a way indistinguishable from a validator bug" failure the
+// undeclared-entry check above exists to prevent. Fail the build instead.
+func TestRequiresOneOfRejectsDeniedFlag(t *testing.T) {
+	dir := t.TempDir()
+	content := `name: denied
+flags:
+  - flag: "-t"
+    deny: true
+    reason: "consumes a license"
+requires_one_of: ["-t"]
+`
+	if err := os.WriteFile(filepath.Join(dir, "denied.yaml"), []byte(content), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+	_, err := LoadDir(dir)
+	if err == nil {
+		t.Fatal("LoadDir() error = nil, want error for denied requires_one_of entry")
+	}
+	if !strings.Contains(err.Error(), "requires_one_of") || !strings.Contains(err.Error(), "denied") {
+		t.Errorf("error should name requires_one_of and denied, got: %v", err)
+	}
+}

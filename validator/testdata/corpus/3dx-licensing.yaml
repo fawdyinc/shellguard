@@ -26,10 +26,12 @@ entries:
   - command: "DSCheckLS.exe"
     expect: rejects
     reason: dscheckls-bare-pulls-license
+    error_contains: "requires one of"
 
   - command: "DSCheckLS.exe -t IFW"
     expect: rejects
     reason: dscheckls-token-consumes-license
+    error_contains: "30 days"
 
   - command: "SomeVendorTool.exe -status"
     expect: rejects

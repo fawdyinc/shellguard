@@ -217,15 +217,26 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 	// manifest bug. Fail at load time instead.
 	for _, req := range requiresOneOf {
 		declared := false
+		denied := false
 		for i := range flags {
 			if flags[i].Flag == req {
 				declared = true
+				denied = flags[i].Deny
 				break
 			}
 		}
 		if !declared {
 			return nil, &ManifestError{
 				Message: fmt.Sprintf("manifest %s: requires_one_of entry %q is not declared in flags", filePath, req),
+			}
+		}
+		// A requires_one_of entry that is itself deny: true makes the command
+		// permanently unusable: the validator would reject every invocation for
+		// missing the flag, then reject the one flag that would satisfy it. That
+		// is indistinguishable from a validator bug to whoever hits it.
+		if denied {
+			return nil, &ManifestError{
+				Message: fmt.Sprintf("manifest %s: requires_one_of entry %q is denied and can never satisfy the requirement", filePath, req),
 			}
 		}
 	}

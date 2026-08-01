@@ -309,24 +309,36 @@ func TestPackManifestsAreEmbedded(t *testing.T) {
 }
 
 // Pack manifests are reviewed as security changes; these fields are what make
-// a review possible.
+// a review possible. The gate is driven off the pack's source path, not off
+// the category value it is meant to validate - filtering on Category would
+// let a manifest that omits category entirely skip the check it exists to
+// enforce, and would silently leave any pack outside "3dexperience"
+// unguarded.
 func TestPackManifestHygiene(t *testing.T) {
 	registry, err := LoadEmbedded()
 	if err != nil {
 		t.Fatalf("LoadEmbedded() error = %v", err)
 	}
+	checked := 0
 	for name, m := range registry {
-		if m == nil || m.Category != "3dexperience" {
+		if m == nil || !strings.Contains(m.source, "manifests/packs/") {
 			continue
 		}
+		checked++
 		if m.Description == "" {
 			t.Errorf("pack manifest %q has no description", name)
+		}
+		if m.Category == "" {
+			t.Errorf("pack manifest %q has no category", name)
 		}
 		for _, f := range m.Flags {
 			if f.Deny && f.Reason == "" {
 				t.Errorf("pack manifest %q: denied flag %q has no reason", name, f.Flag)
 			}
 		}
+	}
+	if checked == 0 {
+		t.Fatal("TestPackManifestHygiene checked zero pack manifests - source-path filter or pack layout changed")
 	}
 }
 

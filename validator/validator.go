@@ -536,6 +536,24 @@ func validateFlagValue(command string, m *manifest.Manifest, flag *manifest.Flag
 		return validateSQL(value)
 	}
 
+	// A denied flag must not reach the wire disguised as another flag's value.
+	// `-r` takes a value, so `DSCheckLS.exe -r -t` would otherwise hand the
+	// vendor binary a bare `-t` switch - a token request that consumes a
+	// license and locks it for 30 days. Case-fold the comparison for
+	// PowerShell (parameter names are case-insensitive there), same as the
+	// rest of this file gates PowerShell behavior.
+	for i := range m.Flags {
+		if !m.Flags[i].Deny {
+			continue
+		}
+		if value == m.Flags[i].Flag ||
+			(m.Shell == "powershell" && strings.EqualFold(value, m.Flags[i].Flag)) {
+			return &ValidationError{Message: fmt.Sprintf(
+				"Value '%s' for flag '%s' of '%s' names a flag that is not available: %s",
+				value, flag.Flag, command, m.Flags[i].Reason)}
+		}
+	}
+
 	// PowerShell wildcards in parameter values (-Name '3D*') are matched by the
 	// cmdlet itself, not expanded by a shell, so they are legitimate. This
 	// mirrors the existing exemption for PowerShell positional arguments.

@@ -641,6 +641,12 @@ func (c *Core) DownloadFile(ctx context.Context, in DownloadInput) (DownloadResu
 func (c *Core) getPipelineTimeout(p *parser.Pipeline) time.Duration {
 	maxSec := c.DefaultTimeout
 	for _, seg := range p.Segments {
+		// Raw map lookup, not validator.lookupManifest's PowerShell case-fold
+		// fallback. This resolves correctly today only because the parser
+		// already lowercases seg.Command (e.g. "dscheckls.exe"), which happens
+		// to match the manifest's lowercase name. If that parser behavior ever
+		// changes, mixed-case PowerShell executables would silently fall back
+		// to DefaultTimeout here instead of erroring.
 		m := c.Registry[seg.Command]
 		if m != nil && m.Timeout > maxSec {
 			maxSec = m.Timeout

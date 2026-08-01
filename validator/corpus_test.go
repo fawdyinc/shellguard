@@ -3,6 +3,7 @@ package validator
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/fawdyinc/shellguard/parser"
@@ -10,9 +11,10 @@ import (
 )
 
 type corpusEntry struct {
-	Command string `yaml:"command"`
-	Expect  string `yaml:"expect"`
-	Reason  string `yaml:"reason"`
+	Command       string `yaml:"command"`
+	Expect        string `yaml:"expect"`
+	Reason        string `yaml:"reason"`
+	ErrorContains string `yaml:"error_contains"`
 }
 
 type corpusFile struct {
@@ -42,6 +44,12 @@ func TestCorpus(t *testing.T) {
 		if err := yaml.Unmarshal(b, &cf); err != nil {
 			t.Fatalf("parse %s: %v", path, err)
 		}
+		// A misspelled or emptied `entries:` key would otherwise unmarshal to
+		// zero entries and this test would report green having asserted
+		// nothing at all.
+		if len(cf.Entries) == 0 {
+			t.Fatalf("%s: yielded zero entries - check the entries: key", path)
+		}
 
 		for _, e := range cf.Entries {
 			t.Run(e.Reason, func(t *testing.T) {
@@ -61,6 +69,12 @@ func TestCorpus(t *testing.T) {
 				case "rejects":
 					if err == nil {
 						t.Errorf("%q: expected reject, got nil", e.Command)
+					}
+					// error_contains proves the rejection happens for the
+					// documented reason, not merely that *some* layer (parser
+					// or validator) happened to reject the command.
+					if err != nil && e.ErrorContains != "" && !strings.Contains(err.Error(), e.ErrorContains) {
+						t.Errorf("%q: expected error to contain %q, got %v", e.Command, e.ErrorContains, err)
 					}
 				default:
 					t.Fatalf("%q: unknown expect value %q", e.Command, e.Expect)
