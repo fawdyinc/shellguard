@@ -478,3 +478,20 @@ func TestIPLiteralDoesNotShadowExistingTokens(t *testing.T) {
 		}
 	}
 }
+
+// The pre-safe-expression error said only "Script blocks are not supported",
+// which primed agents to avoid constructs that now work (Where-Object blocks,
+// calculated properties). When a block fails to parse, the error must describe
+// the supported subset rather than deny that blocks exist.
+func TestScriptBlockParseErrorDescribesSafeSubset(t *testing.T) {
+	_, err := ParsePowerShell("Get-Process | ForEach-Object { Stop-Process $_ }")
+	if err == nil {
+		t.Fatal("cmdlet call inside a script block should not parse")
+	}
+	msg := err.Error()
+	for _, want := range []string{"$_", "[math]::"} {
+		if !strings.Contains(msg, want) {
+			t.Errorf("script-block parse error should mention %q, got: %v", want, msg)
+		}
+	}
+}

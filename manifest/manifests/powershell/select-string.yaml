@@ -9,5 +9,8 @@ flags:
   - flag: "-Path"
     takes_value: true
   - flag: "-SimpleMatch"
+  - flag: "-Context"
+    takes_value: true
+    description: "Lines of context around each match, e.g. -Context 2,5 (2 before, 5 after). The grep -B/-A equivalent."
 stdin: true
 stdout: true

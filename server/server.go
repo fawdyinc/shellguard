@@ -369,9 +369,19 @@ func (c *Core) connectWinRM(ctx context.Context, in ConnectInput, start time.Tim
 		"host":    in.Host,
 		"shell":   "powershell",
 		"message": message,
-		"hint":    "Use PowerShell cmdlets (Get-Process, Get-Service, Get-WinEvent, etc.). Single quotes only, no $ or {} or ;. Use | to pipe between commands.",
+		"hint":    winrmConnectHint,
 	}, nil
 }
+
+// winrmConnectHint describes the PowerShell dialect to the connecting agent.
+// Keep it in sync with the parser's safe-expression grammar: agents trust this
+// hint completely and never attempt constructs it says are unsupported.
+const winrmConnectHint = "Use PowerShell cmdlets (Get-Process, Get-Service, Get-WinEvent, etc.), single-quoted strings, and | to pipe. " +
+	"Script blocks support $_ and [math]::/[datetime]:: calls: calculated properties like Select-Object @{N='GB';E={[math]::Round($_.WorkingSet64/1GB,2)}} " +
+	"and filters like Where-Object { $_.Id -eq 4625 } work. " +
+	"Get-WinEvent -FilterHashtable accepts time bounds: @{LogName='System'; StartTime='2026-08-05 03:00'}. " +
+	"JVM tools (jps, jstack, jcmd, jmap, jstat) and net accounts are available. " +
+	"Not supported: variables/assignment, subexpressions $(...), semicolons outside hashtables, redirection."
 
 func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResult, error) {
 	if strings.TrimSpace(in.Command) == "" {

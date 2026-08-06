@@ -1,4 +1,6 @@
 name: net
 shell: powershell
 deny: true
-reason: "Use Get-Service, Get-NetAdapter, etc. instead."
+reason:
+  "Only 'net accounts' (account/lockout policy, no arguments) is allowed. For everything
+  else use Get-LocalUser, Get-LocalGroupMember, Get-SmbShare, Get-Service, etc. instead."
