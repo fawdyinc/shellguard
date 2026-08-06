@@ -359,7 +359,7 @@ func diagnoseParseError(input string, parseErr error) error {
 			return &ParseError{Message: "Subexpressions and method calls are not allowed. Use cmdlet parameters instead."}
 		case '{':
 			if i == 0 || input[i-1] != '@' {
-				return &ParseError{Message: "Script blocks are not supported. Use simplified Where-Object syntax: Where-Object PropertyName -eq Value"}
+				return &ParseError{Message: "This script block does not parse under the safe subset. Blocks support only: $_ with property access, comparison/arithmetic operators, and [math]::/[datetime]:: calls - e.g. Where-Object { $_.Id -eq 4625 } or @{N='GB';E={[math]::Round($_.WorkingSet64/1GB,2)}}. Cmdlet calls and assignments inside blocks are not allowed."}
 			}
 		case ';':
 			if !insideHashtable(input, i) {
