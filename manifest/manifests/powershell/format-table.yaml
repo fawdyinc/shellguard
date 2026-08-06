@@ -6,5 +6,7 @@ flags:
   - flag: "-Property"
     takes_value: true
   - flag: "-AutoSize"
+  - flag: "-Wrap"
+    description: "Wrap long cell text (e.g. event Message columns) instead of truncating it."
 stdin: true
 stdout: true

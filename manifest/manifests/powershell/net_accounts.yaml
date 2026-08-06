@@ -1,0 +1,15 @@
+name: net_accounts
+description:
+  Show the local account policy - lockout threshold, lockout duration, observation
+  window, password age limits. No Get-* cmdlet exposes this policy.
+category: security
+shell: powershell
+# `net accounts` is read-only ONLY when bare: the same switches that would
+# display nothing (/forcelogoff:N, /lockoutthreshold:N, ...) SET the policy.
+# Switches are slash-style, so they reach the validator as positionals and
+# flag validation cannot catch them. Only the bare read-only form is allowed;
+# bare `net` and all other subcommands stay denied.
+no_positional_args: true
+flags: []
+stdin: false
+stdout: true

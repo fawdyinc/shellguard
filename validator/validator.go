@@ -462,6 +462,9 @@ func validateArgs(command string, args []string, m *manifest.Manifest) error {
 				}
 			}
 		} else {
+			if m.NoPositionalArgs {
+				return &ValidationError{Message: fmt.Sprintf("'%s' does not accept arguments.", command)}
+			}
 			if m.AllowsPathArgs {
 				if err := checkRestrictedPath(arg, m); err != nil {
 					return err

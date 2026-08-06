@@ -8,6 +8,9 @@ flags:
   - flag: "-Recurse"
   - flag: "-Filter"
     takes_value: true
+  - flag: "-Include"
+    takes_value: true
+    description: "Comma-separated patterns, e.g. 'hs_err_pid*.log','*.hprof'. Unlike -Filter, matches several patterns in one pass; combine with -Recurse."
   - flag: "-LiteralPath"
     takes_value: true
   - flag: "-Name"

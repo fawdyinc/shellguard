@@ -27,6 +27,7 @@ var SubcommandCommands = map[string]bool{
 	"abaqus":    true,
 	"apachectl": true,
 	"openssl":   true,
+	"net":       true,
 }
 
 //go:embed manifests/*.yaml manifests/denied/*.yaml manifests/powershell/*.yaml manifests/powershell/denied/*.yaml manifests/packs/*/*.yaml
@@ -91,6 +92,13 @@ type Manifest struct {
 	// (after the pid), and jcmd GC.run, VM.set_flag, and JVMTI.agent_load all
 	// change the target JVM. Without this, such a tool is all-or-nothing.
 	PositionalAllowlist *PositionalAllowlist `yaml:"positional_allowlist"`
+	// NoPositionalArgs rejects every positional argument. This is for tools
+	// that are read-only bare but write-capable with arguments - `net accounts`
+	// displays policy, while `net accounts /forcelogoff:30` sets it. Slash-style
+	// switches reach the validator as positionals, so flag validation alone
+	// cannot catch them. positional_allowlist cannot express this: an empty
+	// values list is rejected at load time as a likely manifest bug.
+	NoPositionalArgs bool `yaml:"no_positional_args"`
 	// AllowsFlagBundling re-enables POSIX-style short-flag bundling for a
 	// manifest that declares shell: powershell. Native Windows executables
 	// (netstat, tracert, ping) run on a Windows host but use DOS-style bundled
@@ -299,6 +307,7 @@ func parseManifest(data map[string]any, filePath string) (*Manifest, error) {
 		RequiresOneOf:       requiresOneOf,
 		AllowsFlagBundling:  defaultBool(data, "allows_flag_bundling"),
 		PositionalAllowlist: positionalAllowlist,
+		NoPositionalArgs:    defaultBool(data, "no_positional_args"),
 	}, nil
 }
 
