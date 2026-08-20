@@ -24,6 +24,18 @@ func PowerShellQuote(token string) string {
 	if strings.HasPrefix(token, "@{") {
 		return token
 	}
+	// Comma-lists that mix identifiers with hashtable literals (e.g.
+	// `Name,Id,@{N='MB';E={...}}` from Select-Object -Property) must be
+	// quoted per element: quoting the joined token turns the whole list
+	// into a single string property name, which PowerShell resolves to an
+	// empty column instead of an array of properties.
+	if parts, ok := splitTopLevelCommaList(token); ok {
+		quoted := make([]string, len(parts))
+		for i, p := range parts {
+			quoted[i] = PowerShellQuote(p)
+		}
+		return strings.Join(quoted, ",")
+	}
 	// Env refs pass through unquoted so PowerShell resolves the variable at
 	// execution time. The parser's EnvRef token already validated the shape.
 	if isPSEnvRef(token) {
@@ -35,6 +47,46 @@ func PowerShellQuote(token string) string {
 	}
 	// Single-quote with embedded quote doubling.
 	return "'" + strings.ReplaceAll(token, "'", "''") + "'"
+}
+
+// splitTopLevelCommaList splits token at commas that sit outside any brace
+// nesting and outside single quotes. It reports ok only when the token is a
+// genuine mixed comma-list — at least one top-level comma AND at least one
+// element that is a hashtable literal. Plain identifier lists (`Name,Id`) and
+// string arguments that merely contain commas keep their existing quoting.
+func splitTopLevelCommaList(token string) ([]string, bool) {
+	var parts []string
+	depth := 0
+	inQuote := false
+	start := 0
+	for i, r := range token {
+		switch {
+		case r == '\'':
+			inQuote = !inQuote
+		case inQuote:
+		case r == '{':
+			depth++
+		case r == '}':
+			if depth > 0 {
+				depth--
+			}
+		case r == ',' && depth == 0:
+			parts = append(parts, token[start:i])
+			start = i + 1
+		}
+	}
+	parts = append(parts, token[start:])
+	if len(parts) < 2 {
+		return nil, false
+	}
+	hasHashtable := false
+	for _, p := range parts {
+		if strings.HasPrefix(p, "@{") {
+			hasHashtable = true
+			break
+		}
+	}
+	return parts, hasHashtable
 }
 
 // isPSEnvRef returns true if the token matches the parser's EnvRef shape:
@@ -63,6 +115,15 @@ func isPSEnvRef(token string) bool {
 	return true
 }
 
+// psAliasBypass maps command names that PowerShell 5.1 shadows with cmdlet
+// aliases to their explicit .exe spellings. A validated `curl -k -m 10 <url>`
+// otherwise resolves to the Invoke-WebRequest alias, which is a denied cmdlet
+// with incompatible flags — the validated command is not the command that runs.
+// curl.exe ships in System32 on Windows Server 2016+/Windows 10 1803+.
+var psAliasBypass = map[string]string{
+	"curl": "curl.exe",
+}
+
 // ReconstructPowerShellCommand rebuilds a validated pipeline into a PowerShell
 // command string with proper quoting.
 func ReconstructPowerShellCommand(pipeline *parser.Pipeline) string {
@@ -75,8 +136,12 @@ func ReconstructPowerShellCommand(pipeline *parser.Pipeline) string {
 		if seg.Operator != "" {
 			parts = append(parts, seg.Operator)
 		}
+		name := seg.Command
+		if exe, ok := psAliasBypass[name]; ok {
+			name = exe
+		}
 		tokens := make([]string, 0, len(seg.Args)+1)
-		tokens = append(tokens, seg.Command) // command name unquoted
+		tokens = append(tokens, name) // command name unquoted
 		for _, arg := range seg.Args {
 			tokens = append(tokens, PowerShellQuote(arg))
 		}
