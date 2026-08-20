@@ -1,7 +1,6 @@
 name: jmap
 description: Print heap, class loader, and finalizer statistics for a running JVM
 category: java
-shell: bash
 # Source: JDK 21 jmap man page. It documents exactly four options.
 flags:
   - flag: "-clstats"

@@ -1,0 +1,82 @@
+name: curl.exe
+description: Transfer data from or to a server (GET-only policy, explicit Windows spelling)
+category: network
+shell: powershell
+# Native Windows executable rather than a cmdlet, hence allows_flag_bundling:
+# `curl.exe -sS` is -s -S, exactly as on the universal curl manifest.
+allows_flag_bundling: true
+# PowerShell 5.1 aliases bare `curl` to Invoke-WebRequest, so the reconstructor
+# rewrites validated `curl` pipelines to `curl.exe` (winrm/reconstruct.go
+# psAliasBypass) — the same alias-collision fix as sc.exe.yaml. This manifest
+# admits the explicit spelling too, so agents that write `curl.exe` directly are
+# not rejected while bare `curl` works. Policy mirrors curl.yaml exactly:
+# GET-only, no bodies, no file output, no arbitrary headers.
+regex_arg_position: 0
+flags:
+  - flag: "-I"
+  - flag: "-s"
+  - flag: "-S"
+  - flag: "-m"
+    takes_value: true
+  - flag: "-k"
+  - flag: "-L"
+  - flag: "-v"
+  - flag: "-w"
+    takes_value: true
+    description: "Format what is written to stdout after the transfer"
+  - flag: "--write-out"
+    takes_value: true
+  - flag: "-X"
+    deny: true
+    reason: "Only GET requests are allowed"
+  - flag: "--request"
+    deny: true
+    reason: "Only GET requests are allowed"
+  - flag: "-d"
+    deny: true
+    reason: "Request bodies are not allowed"
+  - flag: "--data"
+    deny: true
+    reason: "Request bodies are not allowed"
+  - flag: "--data-binary"
+    deny: true
+    reason: "Request bodies are not allowed"
+  - flag: "--data-urlencode"
+    deny: true
+    reason: "Request bodies are not allowed"
+  - flag: "-o"
+    deny: true
+    reason: "Writing output to files is not allowed"
+  - flag: "--output"
+    deny: true
+    reason: "Writing output to files is not allowed"
+  - flag: "-O"
+    deny: true
+    reason: "Writing output to files is not allowed"
+  - flag: "--remote-name"
+    deny: true
+    reason: "Writing output to files is not allowed"
+  - flag: "-T"
+    deny: true
+    reason: "Uploading files is not allowed"
+  - flag: "--upload-file"
+    deny: true
+    reason: "Uploading files is not allowed"
+  # Kept in lockstep with curl.yaml: -H/--header stay denied because an
+  # arbitrary request header can forge Authorization or Cookie against an
+  # internal service even on a GET.
+  - flag: "-H"
+    takes_value: true
+    deny: true
+    reason:
+      "An arbitrary request header can forge Authorization or Cookie against an
+      internal service, so it is refused even though the method stays GET. If a
+      Host-header probe is genuinely needed, hand the operator the line."
+  - flag: "--header"
+    takes_value: true
+    deny: true
+    reason:
+      "An arbitrary request header can forge Authorization or Cookie against an
+      internal service, so it is refused even though the method stays GET."
+stdin: false
+stdout: true

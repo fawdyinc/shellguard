@@ -1,7 +1,6 @@
 name: jstat
 description: Display JVM performance statistics (GC, class loading, JIT)
 category: java
-shell: bash
 # Source: JDK 21 jstat man page. jstat is documented purely as a monitoring
 # tool: it attaches to a JVM and reads instrumentation counters.
 flags:
