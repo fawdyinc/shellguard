@@ -124,8 +124,10 @@ func (c *winrmClient) Execute(ctx context.Context, command string, timeout time.
 	}
 
 	return ssh.ExecResult{
-		Stdout:    stdout.String(),
-		Stderr:    stderr.String(),
+		Stdout: stdout.String(),
+		// Decode remoting's CLIXML stream serialization here so agents, the
+		// UI, and logs never see progress-record XML noise on exit-0 calls.
+		Stderr:    DecodeCLIXMLStderr(stderr.String()),
 		ExitCode:  exitCode,
 		RuntimeMs: runtime,
 	}, nil
