@@ -64,7 +64,7 @@ func TestLiveWinRM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("connect to %s: %v", host, err)
 	}
-	defer mgr.Disconnect(ctx, host)
+	defer func() { _ = mgr.Disconnect(ctx, host) }()
 
 	// run pushes one command through the exact pipeline server.Core.Execute
 	// uses for a WinRM host, then executes it for real.
