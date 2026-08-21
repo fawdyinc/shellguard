@@ -137,3 +137,59 @@ func TestReconstructPowerShellCommand_QuoteEscaping(t *testing.T) {
 		t.Errorf("expected escaped single quotes, got %q", got)
 	}
 }
+
+// Regression: a Select-Object -Property list mixing identifiers with a
+// calculated property must not be quoted as one token. Quoting the joined
+// list turns it into a single string property name, which PowerShell resolves
+// to a literal-named empty column (2026-08-20 windows-dev audit, row 8).
+func TestReconstructPowerShellCommand_CommaListWithHashtable(t *testing.T) {
+	cmd := `Get-Process | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 5 -Property Name, Id, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB,1)}}`
+	pipeline, err := parser.ParsePowerShell(cmd)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	got := ReconstructPowerShellCommand(pipeline)
+	if strings.Contains(got, "'Name") {
+		t.Errorf("property list was quoted as a single string: %q", got)
+	}
+	if !strings.Contains(got, "Name,Id,@{") {
+		t.Errorf("expected unquoted property array, got %q", got)
+	}
+}
+
+func TestPowerShellQuote_CommaLists(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		// Mixed list with hashtable: per-element quoting, hashtable verbatim.
+		{"Name,Id,@{N='MB'; E={[math]::Round($_.WorkingSet64/1MB,1)}}",
+			"Name,Id,@{N='MB'; E={[math]::Round($_.WorkingSet64/1MB,1)}}"},
+		// Commas inside the hashtable are not split points.
+		{"Name,@{N='a,b'; E={[math]::Round($_.CPU,2)}}",
+			"Name,@{N='a,b'; E={[math]::Round($_.CPU,2)}}"},
+		// Plain identifier lists keep existing pass-through behavior.
+		{"Name,Id", "Name,Id"},
+		// A string arg containing commas (no hashtable) keeps whole-token quoting.
+		{"foo, bar", "'foo, bar'"},
+	}
+	for _, tc := range tests {
+		if got := PowerShellQuote(tc.input); got != tc.want {
+			t.Errorf("PowerShellQuote(%q) = %q, want %q", tc.input, got, tc.want)
+		}
+	}
+}
+
+// PowerShell 5.1 shadows `curl` with an Invoke-WebRequest alias whose flags
+// are incompatible with real curl — the 2026-08-20 customer-demo failure.
+// Validated curl pipelines must execute as curl.exe.
+func TestReconstructPowerShellCommand_CurlAliasBypass(t *testing.T) {
+	pipeline, err := parser.ParsePowerShell("curl -sS -k -m 10 -I 'https://example.com'")
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	got := ReconstructPowerShellCommand(pipeline)
+	if !strings.HasPrefix(got, "curl.exe ") {
+		t.Errorf("expected curl to be rewritten to curl.exe, got %q", got)
+	}
+}

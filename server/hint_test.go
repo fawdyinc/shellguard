@@ -11,7 +11,7 @@ import (
 // "no $ or {} or ;" - a claim that stopped being true when the safe-expression
 // grammar landed. The hint must advertise what the dialect supports.
 func TestWinRMConnectHintAdvertisesSafeExpressions(t *testing.T) {
-	for _, want := range []string{"$_", "[math]::", "jps", "jstack", "FilterHashtable"} {
+	for _, want := range []string{"$_", "[math]::", "jps", "jstack", "FilterHashtable", "Test-NetConnection", "curl", "DSCheckLS.exe", "not recognized"} {
 		if !strings.Contains(winrmConnectHint, want) {
 			t.Errorf("winrm connect hint should mention %q\nhint: %s", want, winrmConnectHint)
 		}

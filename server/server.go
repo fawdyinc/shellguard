@@ -374,13 +374,18 @@ func (c *Core) connectWinRM(ctx context.Context, in ConnectInput, start time.Tim
 }
 
 // winrmConnectHint describes the PowerShell dialect to the connecting agent.
-// Keep it in sync with the parser's safe-expression grammar: agents trust this
-// hint completely and never attempt constructs it says are unsupported.
+// Keep it in sync with the parser's safe-expression grammar AND the manifest
+// registry: agents trust this hint completely — they never attempt constructs
+// it says are unsupported, and they treat tools it omits as unavailable
+// (2026-08-05 and 2026-08-20 incidents were both hint-inventory lies, not
+// policy gaps). If you change what validates, change this string in the same
+// commit.
 const winrmConnectHint = "Use PowerShell cmdlets (Get-Process, Get-Service, Get-WinEvent, etc.), single-quoted strings, and | to pipe. " +
 	"Script blocks support $_ and [math]::/[datetime]:: calls: calculated properties like Select-Object @{N='GB';E={[math]::Round($_.WorkingSet64/1GB,2)}} " +
 	"and filters like Where-Object { $_.Id -eq 4625 } work. " +
 	"Get-WinEvent -FilterHashtable accepts time bounds: @{LogName='System'; StartTime='2026-08-05 03:00'}. " +
-	"JVM tools (jps, jstack, jcmd, jmap, jstat) and net accounts are available. " +
+	"Network checks: Test-NetConnection <host> -Port <n> for TCP reachability, and curl -k -m 10 <url> for HTTP (GET-only; executed as curl.exe, so real curl flags apply — Invoke-WebRequest is denied). " +
+	"JVM tools (jps, jstack, jcmd, jmap, jstat), net accounts, and installed vendor pack CLIs (e.g. DSCheckLS.exe -l) pass policy; if one is not installed or not on PATH the host returns 'not recognized' — attempt it and report that as an installation gap, never assume policy blocked it. " +
 	"Not supported: variables/assignment, subexpressions $(...), semicolons outside hashtables, redirection."
 
 func (c *Core) Execute(ctx context.Context, in ExecuteInput) (output.CommandResult, error) {
